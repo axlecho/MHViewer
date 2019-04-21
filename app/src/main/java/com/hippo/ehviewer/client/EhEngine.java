@@ -20,6 +20,9 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
 import androidx.annotation.Nullable;
+
+import com.axlecho.api.MHApi;
+import com.axlecho.api.module.comic.MHComic;
 import com.hippo.ehviewer.AppConfig;
 import com.hippo.ehviewer.GetText;
 import com.hippo.ehviewer.R;
@@ -227,34 +230,22 @@ public class EhEngine {
 
     public static GalleryListParser.Result getGalleryList(@Nullable EhClient.Task task, OkHttpClient okHttpClient,
             String url) throws Throwable {
-        String referer = EhUrl.getReferer();
-        Log.d(TAG, url);
-        Request request = new EhRequestBuilder(url, referer).build();
-        Call call = okHttpClient.newCall(request);
+        List<MHComic> comics = MHApi.Companion.getINSTANCE().top("toprating").blockingFirst();
+        GalleryListParser.Result result = new GalleryListParser.Result();
+        result.pages = 1;
+        result.nextPage = 2;
+        result.noWatchedTags = false;
 
-        // Put call
-        if (null != task) {
-            task.setCall(call);
+        List<GalleryInfo> list = new ArrayList<>(comics.size());
+        for(MHComic comic:comics) {
+            GalleryInfo info = new GalleryInfo();
+            info.title = comic.getTitle();
+            info.category = EhUtils.UNKNOWN;
+            info.gid = Long.parseLong(comic.getCid());
+            info.thumb = comic.getCover();
+            list.add(info);
         }
-
-        String body = null;
-        Headers headers = null;
-        GalleryListParser.Result result;
-        int code = -1;
-        try {
-            Response response = call.execute();
-            code = response.code();
-            headers = response.headers();
-            body = response.body().string();
-            result = GalleryListParser.parse(body);
-        } catch (Throwable e) {
-            ExceptionUtils.throwIfFatal(e);
-            throwException(call, code, headers, body, e);
-            throw e;
-        }
-
-        fillGalleryList(task, okHttpClient, result.galleryInfoList, url, true);
-
+        result.galleryInfoList = list;
         return result;
     }
 
@@ -318,7 +309,7 @@ public class EhEngine {
     }
 
     public static GalleryDetail getGalleryDetail(@Nullable EhClient.Task task, OkHttpClient okHttpClient,
-            String url) throws Throwable {
+            String gi) throws Throwable {
         String referer = EhUrl.getReferer();
         Log.d(TAG, url);
         Request request = new EhRequestBuilder(url, referer).build();
