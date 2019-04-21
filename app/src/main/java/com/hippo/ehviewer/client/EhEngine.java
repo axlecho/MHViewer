@@ -23,6 +23,8 @@ import androidx.annotation.Nullable;
 
 import com.axlecho.api.MHApi;
 import com.axlecho.api.module.comic.MHComic;
+import com.axlecho.api.module.comic.MHComicChapter;
+import com.axlecho.api.module.comic.MHComicInfo;
 import com.hippo.ehviewer.AppConfig;
 import com.hippo.ehviewer.GetText;
 import com.hippo.ehviewer.R;
@@ -30,6 +32,7 @@ import com.hippo.ehviewer.Settings;
 import com.hippo.ehviewer.client.data.GalleryComment;
 import com.hippo.ehviewer.client.data.GalleryDetail;
 import com.hippo.ehviewer.client.data.GalleryInfo;
+import com.hippo.ehviewer.client.data.GalleryTagGroup;
 import com.hippo.ehviewer.client.data.PreviewSet;
 import com.hippo.ehviewer.client.exception.CancelledException;
 import com.hippo.ehviewer.client.exception.EhException;
@@ -54,6 +57,7 @@ import com.hippo.util.ExceptionUtils;
 import com.hippo.yorozuya.AssertUtils;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -309,31 +313,21 @@ public class EhEngine {
     }
 
     public static GalleryDetail getGalleryDetail(@Nullable EhClient.Task task, OkHttpClient okHttpClient,
-            String gi) throws Throwable {
-        String referer = EhUrl.getReferer();
-        Log.d(TAG, url);
-        Request request = new EhRequestBuilder(url, referer).build();
-        Call call = okHttpClient.newCall(request);
-
-        // Put call
-        if (null != task) {
-            task.setCall(call);
+            String cid) throws Throwable {
+        // GalleryDetailParser.parse(body);
+        MHComicInfo info = MHApi.Companion.getINSTANCE().info(cid).blockingFirst();
+        GalleryDetail detail = new GalleryDetail();
+        detail.title = info.getTitle();
+        detail.uploader = info.getAuthor();
+        List<GalleryTagGroup> list = new ArrayList<>();
+        GalleryTagGroup g = new GalleryTagGroup();
+        g.groupName = "章节";
+        for(MHComicChapter c :info.getChapters()) {
+            g.addTag(c.getTitle());
         }
-
-        String body = null;
-        Headers headers = null;
-        int code = -1;
-        try {
-            Response response = call.execute();
-            code = response.code();
-            headers = response.headers();
-            body = response.body().string();
-            return GalleryDetailParser.parse(body);
-        } catch (Throwable e) {
-            ExceptionUtils.throwIfFatal(e);
-            throwException(call, code, headers, body, e);
-            throw e;
-        }
+        list.add(g);
+        detail.tags = list.toArray(new GalleryTagGroup[list.size()]);
+        return detail;
     }
 
 

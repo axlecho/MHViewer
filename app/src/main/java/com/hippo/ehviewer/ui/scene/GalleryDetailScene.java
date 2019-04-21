@@ -662,10 +662,11 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
     private boolean request() {
         Context context = getContext2();
         MainActivity activity = getActivity2();
-        String url = getGalleryDetailUrl(false);
+        String url = String.valueOf(mGalleryInfo.gid);
         if (null == context || null == activity || null == url) {
             return false;
         }
+
 
         EhClient.Callback callback = new GetGalleryDetailListener(context,
                 activity.getStageId(), getTag());
