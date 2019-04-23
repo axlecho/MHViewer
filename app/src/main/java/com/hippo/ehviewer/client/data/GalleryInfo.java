@@ -96,6 +96,7 @@ public class GalleryInfo implements Parcelable {
     };
 
     public long gid ;
+    public String cid;
     public String token;
     public String title;
     public String titleJpn;
@@ -162,6 +163,7 @@ public class GalleryInfo implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeLong(this.gid);
+        dest.writeString(this.cid);
         dest.writeString(this.token);
         dest.writeString(this.title);
         dest.writeString(this.titleJpn);
@@ -186,6 +188,7 @@ public class GalleryInfo implements Parcelable {
 
     protected GalleryInfo(Parcel in) {
         this.gid = in.readLong();
+        this.cid = in.readString();
         this.token = in.readString();
         this.title = in.readString();
         this.titleJpn = in.readString();

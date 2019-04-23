@@ -175,8 +175,6 @@ public class SpiderInfo {
             writer.write("\n");
             writer.write(Long.toString(gid));
             writer.write("\n");
-            writer.write(token);
-            writer.write("\n");
             writer.write("1");
             writer.write("\n");
             writer.write(Integer.toString(previewPages));
@@ -185,17 +183,6 @@ public class SpiderInfo {
             writer.write("\n");
             writer.write(Integer.toString(pages));
             writer.write("\n");
-            for (int i = 0; i < pTokenMap.size(); i++) {
-                Integer key = pTokenMap.keyAt(i);
-                String value = pTokenMap.valueAt(i);
-                if (TOKEN_FAILED.equals(value) || TextUtils.isEmpty(value)) {
-                    continue;
-                }
-                writer.write(Integer.toString(key));
-                writer.write(" ");
-                writer.write(value);
-                writer.write("\n");
-            }
             writer.flush();
         } catch (IOException e) {
             // Ignore

@@ -1193,6 +1193,7 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
                 galleryInfo = mGalleryDetail;
             }
             if (galleryInfo != null) {
+                galleryInfo.cid = mGalleryDetail.tags[0].getTagAt(0);
                 Intent intent = new Intent(activity, GalleryActivity.class);
                 intent.setAction(GalleryActivity.ACTION_EH);
                 intent.putExtra(GalleryActivity.KEY_GALLERY_INFO, galleryInfo);

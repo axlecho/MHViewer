@@ -323,7 +323,7 @@ public class EhEngine {
         GalleryTagGroup g = new GalleryTagGroup();
         g.groupName = "章节";
         for(MHComicChapter c :info.getChapters()) {
-            g.addTag(c.getTitle());
+            g.addTag(c.getSource());
         }
         list.add(g);
         detail.tags = list.toArray(new GalleryTagGroup[list.size()]);
