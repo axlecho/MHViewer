@@ -464,7 +464,7 @@ public final class SpiderQueen implements Runnable {
                 startWorkers = true;
             }
 
-            if(DEBUG_LOG) {
+            if(false) {
                 Log.v(TAG,"startWorkers : " + startWorkers);
                 Log.v(TAG,"mPageStateArray : " + (mPageStateArray != null));
                 Log.v(TAG,"mForceRequestPageQueue : " + !mForceRequestPageQueue.isEmpty());
@@ -847,6 +847,13 @@ public final class SpiderQueen implements Runnable {
             mDecodeThreadArray[i] = decoderThread;
             decoderThread.start();
         }
+
+        while (!Thread.currentThread().isInterrupted()) {
+            // Notify worker
+            synchronized (mWorkerLock) {
+                mWorkerLock.notifyAll();
+            }
+        }
     }
 
     @Override
@@ -947,13 +954,21 @@ public final class SpiderQueen implements Runnable {
 
             for (int i = 0; i < 5; i++) {
                 String cid = mGalleryInfo.cid;
+                String targetImageUrl = null;
                 pageUrl = "http://www.hhmmoo.com/page" + cid.split("-")[0] +
-                "/" + index + ".html?s=" + cid.split("-")[1];
+                "/" + (index + 1) + ".html?s=" + cid.split("-")[1];
                 if (DEBUG_LOG) {
                     Log.d(TAG, pageUrl);
                 }
-                String targetImageUrl = MHApi.Companion.getINSTANCE().raw(pageUrl).blockingFirst();
+                try {
+                    targetImageUrl = MHApi.Companion.getINSTANCE().raw(pageUrl).blockingFirst();
+                } catch (Exception e) {
+                    error = "Api failed";
+                }
 
+                if(targetImageUrl == null) {
+                    continue;
+                }
                 if (DEBUG_LOG) {
                     Log.d(TAG, targetImageUrl);
                 }
