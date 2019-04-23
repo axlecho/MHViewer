@@ -911,7 +911,7 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
 
                 tag.setText(readableTag != null ? readableTag : tagStr);
                 tag.setBackgroundDrawable(new RoundSideRectDrawable(colorTag));
-                tag.setTag(R.id.tag, tg.groupName + ":" + tagStr);
+                tag.setTag(R.id.tag, tagStr);
                 tag.setOnClickListener(this);
                 tag.setOnLongClickListener(this);
             }
@@ -1294,12 +1294,20 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
         } else {
             Object o = v.getTag(R.id.tag);
             if (o instanceof String) {
-                String tag = (String) o;
-                ListUrlBuilder lub = new ListUrlBuilder();
-                lub.setMode(ListUrlBuilder.MODE_TAG);
-                lub.setKeyword(tag);
-                GalleryListScene.startScene(this, lub);
-                return;
+                GalleryInfo galleryInfo = null;
+                if (mGalleryInfo != null) {
+                    galleryInfo = mGalleryInfo;
+                } else if (mGalleryDetail != null) {
+                    galleryInfo = mGalleryDetail;
+                }
+                if (galleryInfo != null) {
+                    galleryInfo.cid = (String)o;
+                    Intent intent = new Intent(activity, GalleryActivity.class);
+                    intent.setAction(GalleryActivity.ACTION_EH);
+                    intent.putExtra(GalleryActivity.KEY_GALLERY_INFO, galleryInfo);
+                    startActivity(intent);
+                }
+
             }
 
             GalleryInfo galleryInfo = getGalleryInfo();

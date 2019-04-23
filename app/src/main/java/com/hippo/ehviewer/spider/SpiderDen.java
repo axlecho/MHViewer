@@ -75,16 +75,16 @@ public final class SpiderDen {
         UniFile dir = Settings.getDownloadLocation();
         if (dir != null) {
             // Read from DB
-            String dirname = EhDB.getDownloadDirname(galleryInfo.gid);
+            String dirname = EhDB.getDownloadDirname(galleryInfo.getCid());
             if (null != dirname) {
                 // Some dirname may be invalid in some version
                 dirname = FileUtils.sanitizeFilename(dirname);
-                EhDB.putDownloadDirname(galleryInfo.gid, dirname);
+                EhDB.putDownloadDirname(galleryInfo.getCid(), dirname);
             }
 
             // Find it
             if (null == dirname) {
-                UniFile[] files = dir.listFiles(new StartWithFilenameFilter(galleryInfo.gid + "-"));
+                UniFile[] files = dir.listFiles(new StartWithFilenameFilter(galleryInfo.getCid() + "-"));
                 if (null != files) {
                     // Get max-length-name dir
                     int maxLength = -1;
@@ -99,15 +99,15 @@ public final class SpiderDen {
                         }
                     }
                     if (null != dirname) {
-                        EhDB.putDownloadDirname(galleryInfo.gid, dirname);
+                        EhDB.putDownloadDirname(galleryInfo.getCid(), dirname);
                     }
                 }
             }
 
             // Create it
             if (null == dirname) {
-                dirname = FileUtils.sanitizeFilename(galleryInfo.gid + "-" + EhUtils.getSuitableTitle(galleryInfo));
-                EhDB.putDownloadDirname(galleryInfo.gid, dirname);
+                dirname = FileUtils.sanitizeFilename(galleryInfo.getCid() + "-" + EhUtils.getSuitableTitle(galleryInfo));
+                EhDB.putDownloadDirname(galleryInfo.getCid(), dirname);
             }
 
             return dir.subFile(dirname);
@@ -117,7 +117,7 @@ public final class SpiderDen {
     }
 
     public SpiderDen(GalleryInfo galleryInfo) {
-        mGid = galleryInfo.gid;
+        mGid = galleryInfo.getCid();
         mDownloadDir = getGalleryDownloadDir(galleryInfo);
     }
 

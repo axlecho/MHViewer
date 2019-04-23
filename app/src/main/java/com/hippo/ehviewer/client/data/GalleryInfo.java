@@ -18,7 +18,9 @@ package com.hippo.ehviewer.client.data;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+
 import androidx.annotation.Nullable;
+
 import java.util.regex.Pattern;
 
 public class GalleryInfo implements Parcelable {
@@ -117,6 +119,9 @@ public class GalleryInfo implements Parcelable {
     public int spanIndex;
     public int spanGroupIndex;
 
+    public long getCid() {
+        return Long.parseLong(cid.replaceAll("-",""));
+    }
     /**
      * language from title
      */
