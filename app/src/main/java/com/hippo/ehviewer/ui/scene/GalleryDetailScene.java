@@ -902,7 +902,7 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
             for (int j = 0, z = tg.size(); j < z; j++) {
                 TextView tag = (TextView) inflater.inflate(R.layout.item_gallery_tag, awl, false);
                 awl.addView(tag);
-                String tagStr = tg.getTagAt(j);
+                String tagStr = tg.getChapterAt(j);
 
                 String readableTag = null;
                 if (ehTags != null) {
@@ -911,7 +911,7 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
 
                 tag.setText(readableTag != null ? readableTag : tagStr);
                 tag.setBackgroundDrawable(new RoundSideRectDrawable(colorTag));
-                tag.setTag(R.id.tag, tagStr);
+                tag.setTag(R.id.tag, tg.getChapterSourceAt(j));
                 tag.setOnClickListener(this);
                 tag.setOnLongClickListener(this);
             }
@@ -1078,7 +1078,7 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
         }
         for (GalleryTagGroup tagGroup: tagGroups) {
             if ("artist".equals(tagGroup.groupName) && tagGroup.size() > 0) {
-                return tagGroup.getTagAt(0);
+                return tagGroup.getChapterAt(0);
             }
         }
         return null;
@@ -1193,7 +1193,7 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
                 galleryInfo = mGalleryDetail;
             }
             if (galleryInfo != null) {
-                galleryInfo.cid = mGalleryDetail.tags[0].getTagAt(0);
+                galleryInfo.cid = mGalleryDetail.tags[0].getChapterAt(0);
                 Intent intent = new Intent(activity, GalleryActivity.class);
                 intent.setAction(GalleryActivity.ACTION_EH);
                 intent.putExtra(GalleryActivity.KEY_GALLERY_INFO, galleryInfo);

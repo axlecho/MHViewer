@@ -154,7 +154,7 @@ public class GalleryListParser {
                 GalleryTagGroup[] groups = GalleryDetailParser.parseTagGroups(tbody.children());
                 for (GalleryTagGroup group : groups) {
                     for (int j = 0; j < group.size(); j++) {
-                        tags.add(group.groupName + ":" + group.getTagAt(j));
+                        tags.add(group.groupName + ":" + group.getChapterAt(j));
                     }
                 }
                 gi.simpleTags = tags.toArray(new String[tags.size()]);

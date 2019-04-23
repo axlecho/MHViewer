@@ -19,15 +19,17 @@ package com.hippo.ehviewer.client.data;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.axlecho.api.module.comic.MHComicChapter;
+
 import java.util.ArrayList;
 
 // TODO Add url field?
 public class GalleryTagGroup implements Parcelable {
 
     public String groupName;
-    private final ArrayList<String> mTagList;
+    private final ArrayList<MHComicChapter> mTagList;
 
-    public void addTag(String tag) {
+    public void addChapter(MHComicChapter tag) {
         mTagList.add(tag);
     }
 
@@ -35,8 +37,12 @@ public class GalleryTagGroup implements Parcelable {
         return mTagList.size();
     }
 
-    public String getTagAt(int position) {
-        return mTagList.get(position);
+    public String getChapterAt(int position) {
+        return mTagList.get(position).getTitle();
+    }
+
+    public String getChapterSourceAt(int position) {
+        return mTagList.get(position).getSource();
     }
 
     @Override
@@ -47,7 +53,8 @@ public class GalleryTagGroup implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(this.groupName);
-        dest.writeStringList(this.mTagList);
+        dest.writeInt(this.mTagList.size());
+        dest.writeTypedArray(this.mTagList.toArray(new MHComicChapter[this.mTagList.size()]),this.mTagList.size());
     }
 
     public GalleryTagGroup() {
@@ -56,7 +63,7 @@ public class GalleryTagGroup implements Parcelable {
 
     protected GalleryTagGroup(Parcel in) {
         this.groupName = in.readString();
-        this.mTagList = in.createStringArrayList();
+        this.mTagList = in.createTypedArrayList(MHComicChapter.CREATOR);
     }
 
     public static final Parcelable.Creator<GalleryTagGroup> CREATOR = new Parcelable.Creator<GalleryTagGroup>() {

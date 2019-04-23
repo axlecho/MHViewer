@@ -320,7 +320,7 @@ public class GalleryDetailParser {
                 if (index >= 0) {
                     tag = tag.substring(0, index).trim();
                 }
-                group.addTag(tag);
+                // group.addChapter(tag);
             }
 
             return group.size() > 0 ? group : null;
@@ -386,7 +386,7 @@ public class GalleryDetailParser {
     private static void parseGroup(GalleryTagGroup tagGroup, String body) {
         Matcher m = PATTERN_TAG.matcher(body);
         while (m.find()) {
-            tagGroup.addTag(ParserUtils.trim(m.group(1)));
+            //  tagGroup.addChapter(ParserUtils.trim(m.group(1)));
         }
     }
 

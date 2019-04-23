@@ -57,7 +57,6 @@ import com.hippo.util.ExceptionUtils;
 import com.hippo.yorozuya.AssertUtils;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -323,7 +322,7 @@ public class EhEngine {
         GalleryTagGroup g = new GalleryTagGroup();
         g.groupName = "章节";
         for(MHComicChapter c :info.getChapters()) {
-            g.addTag(c.getSource());
+            g.addChapter(c);
         }
         list.add(g);
         detail.tags = list.toArray(new GalleryTagGroup[list.size()]);
