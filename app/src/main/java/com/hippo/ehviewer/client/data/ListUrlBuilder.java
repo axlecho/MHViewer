@@ -19,27 +19,28 @@ package com.hippo.ehviewer.client.data;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
+
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+
 import com.hippo.ehviewer.client.EhConfig;
-import com.hippo.ehviewer.client.EhUrl;
 import com.hippo.ehviewer.client.EhUtils;
 import com.hippo.ehviewer.dao.QuickSearch;
 import com.hippo.ehviewer.widget.AdvanceSearchTable;
-import com.hippo.network.UrlBuilder;
 import com.hippo.yorozuya.NumberUtils;
 import com.hippo.yorozuya.StringUtils;
+
 import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.net.URLDecoder;
-import java.net.URLEncoder;
 
 public class ListUrlBuilder implements Cloneable, Parcelable {
 
     @IntDef({MODE_NORMAL, MODE_UPLOADER, MODE_TAG, MODE_WHATS_HOT, MODE_IMAGE_SEARCH, MODE_SUBSCRIPTION})
     @Retention(RetentionPolicy.SOURCE)
-    private @interface Mode {}
+    private @interface Mode {
+    }
 
     // Mode
     public static final int MODE_NORMAL = 0x0;
@@ -197,6 +198,7 @@ public class ListUrlBuilder implements Cloneable, Parcelable {
 
     /**
      * Make them the same
+     *
      * @param lub The template
      */
     public void set(ListUrlBuilder lub) {
@@ -467,91 +469,13 @@ public class ListUrlBuilder implements Cloneable, Parcelable {
         switch (mMode) {
             default:
             case MODE_NORMAL:
-            case MODE_SUBSCRIPTION: {
-                String url;
-                if (mMode == MODE_NORMAL) {
-                    url = EhUrl.getHost();
-                } else {
-                    url = EhUrl.getWatchedUrl();
-                }
-
-                UrlBuilder ub = new UrlBuilder(url);
-                if (mCategory != EhUtils.NONE) {
-                    ub.addQuery("f_cats", (~mCategory) & EhConfig.ALL_CATEGORY);
-                }
-                // Search key
-                if (mKeyword != null) {
-                    String keyword = mKeyword.trim();
-                    if (!keyword.isEmpty()) {
-                        try {
-                            ub.addQuery("f_search", URLEncoder.encode(mKeyword, "UTF-8"));
-                        } catch (UnsupportedEncodingException e) {
-                            // Empty
-                        }
-                    }
-                }
-                // Page index
-                if (mPageIndex != 0) {
-                    ub.addQuery("page", mPageIndex);
-                }
-                // Advance search
-                if (mAdvanceSearch != -1) {
-                    ub.addQuery("advsearch", "1");
-                    if((mAdvanceSearch & AdvanceSearchTable.SNAME) != 0) ub.addQuery("f_sname", "on");
-                    if((mAdvanceSearch & AdvanceSearchTable.STAGS) != 0) ub.addQuery("f_stags", "on");
-                    if((mAdvanceSearch & AdvanceSearchTable.SDESC) != 0) ub.addQuery("f_sdesc", "on");
-                    if((mAdvanceSearch & AdvanceSearchTable.STORR) != 0) ub.addQuery("f_storr", "on");
-                    if((mAdvanceSearch & AdvanceSearchTable.STO) != 0) ub.addQuery("f_sto", "on");
-                    if((mAdvanceSearch & AdvanceSearchTable.SDT1) != 0) ub.addQuery("f_sdt1", "on");
-                    if((mAdvanceSearch & AdvanceSearchTable.SDT2) != 0) ub.addQuery("f_sdt2", "on");
-                    if((mAdvanceSearch & AdvanceSearchTable.SH) != 0) ub.addQuery("f_sh", "on");
-                    if((mAdvanceSearch & AdvanceSearchTable.SFL) != 0) ub.addQuery("f_sfl", "on");
-                    if((mAdvanceSearch & AdvanceSearchTable.SFU) != 0) ub.addQuery("f_sfu", "on");
-                    if((mAdvanceSearch & AdvanceSearchTable.SFT) != 0) ub.addQuery("f_sft", "on");
-                    // Set min star
-                    if (mMinRating != -1) {
-                        ub.addQuery("f_sr", "on");
-                        ub.addQuery("f_srdd", mMinRating);
-                    }
-                    // Pages
-                    if (mPageFrom != -1 || mPageTo != -1) {
-                        ub.addQuery("f_sp", "on");
-                        ub.addQuery("f_spf", mPageFrom != -1 ? Integer.toString(mPageFrom) : "");
-                        ub.addQuery("f_spt", mPageTo != -1 ? Integer.toString(mPageTo) : "");
-                    }
-                }
-                return ub.build();
-            }
-            case MODE_UPLOADER: {
-                StringBuilder sb = new StringBuilder(EhUrl.getHost());
-                sb.append("uploader/");
-                try {
-                    sb.append(URLEncoder.encode(mKeyword, "UTF-8"));
-                } catch (UnsupportedEncodingException e) {
-                    // Empty
-                }
-                if (mPageIndex != 0) {
-                    sb.append('/').append(mPageIndex);
-                }
-                return sb.toString();
-            }
-            case MODE_TAG: {
-                StringBuilder sb = new StringBuilder(EhUrl.getHost());
-                sb.append("tag/");
-                try {
-                    sb.append(URLEncoder.encode(mKeyword, "UTF-8"));
-                } catch (UnsupportedEncodingException e) {
-                    // Empty
-                }
-                if (mPageIndex != 0) {
-                    sb.append('/').append(mPageIndex);
-                }
-                return sb.toString();
-            }
+                return "toprating";
+            case MODE_SUBSCRIPTION:
+                return "newrating";
             case MODE_WHATS_HOT:
-                return EhUrl.getPopularUrl();
+                return "hotrating";
             case MODE_IMAGE_SEARCH:
-                return EhUrl.getImageSearchUrl();
+                return mKeyword;
         }
     }
 

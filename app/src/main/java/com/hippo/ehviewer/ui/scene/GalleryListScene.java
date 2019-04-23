@@ -43,12 +43,14 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.github.amlcurran.showcaseview.SimpleShowcaseEventListener;
 import com.github.amlcurran.showcaseview.targets.PointTarget;
@@ -99,9 +101,8 @@ import com.hippo.yorozuya.AnimationUtils;
 import com.hippo.yorozuya.AssertUtils;
 import com.hippo.yorozuya.MathUtils;
 import com.hippo.yorozuya.SimpleAnimatorListener;
-import com.hippo.yorozuya.StringUtils;
 import com.hippo.yorozuya.ViewUtils;
-import java.io.File;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Collections;
@@ -115,7 +116,8 @@ public final class GalleryListScene extends BaseScene
 
     @IntDef({STATE_NORMAL, STATE_SIMPLE_SEARCH, STATE_SEARCH, STATE_SEARCH_SHOW_LIST})
     @Retention(RetentionPolicy.SOURCE)
-    private @interface State {}
+    private @interface State {
+    }
 
     private static final int BACK_PRESSED_INTERVAL = 2000;
 
@@ -200,7 +202,8 @@ public final class GalleryListScene extends BaseScene
     @Nullable
     private final RecyclerView.OnScrollListener mOnScrollListener = new RecyclerView.OnScrollListener() {
         @Override
-        public void onScrollStateChanged(RecyclerView recyclerView, int newState) {}
+        public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+        }
 
         @Override
         public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
@@ -286,32 +289,43 @@ public final class GalleryListScene extends BaseScene
                     mAdapter.notifyDataSetChanged();
                 }
             }
+
             @Override
-            public void onUpdate(@NonNull DownloadInfo info, @NonNull List<DownloadInfo> list) { }
+            public void onUpdate(@NonNull DownloadInfo info, @NonNull List<DownloadInfo> list) {
+            }
+
             @Override
-            public void onUpdateAll() { }
+            public void onUpdateAll() {
+            }
+
             @Override
             public void onReload() {
                 if (mAdapter != null) {
                     mAdapter.notifyDataSetChanged();
                 }
             }
+
             @Override
             public void onChange() {
                 if (mAdapter != null) {
                     mAdapter.notifyDataSetChanged();
                 }
             }
+
             @Override
-            public void onRenameLabel(String from, String to) { }
+            public void onRenameLabel(String from, String to) {
+            }
+
             @Override
             public void onRemove(@NonNull DownloadInfo info, @NonNull List<DownloadInfo> list, int position) {
                 if (mAdapter != null) {
                     mAdapter.notifyDataSetChanged();
                 }
             }
+
             @Override
-            public void onUpdateLabels() { }
+            public void onUpdateLabels() {
+            }
         };
         mDownloadManager.addDownloadInfoListener(mDownloadInfoListener);
 
@@ -423,7 +437,8 @@ public final class GalleryListScene extends BaseScene
         public abstract Announcer createAnnouncer();
 
         @Override
-        public void onLongClick() { }
+        public void onLongClick() {
+        }
     }
 
     private class GalleryDetailUrlSuggestion extends UrlSuggestion {
@@ -482,12 +497,12 @@ public final class GalleryListScene extends BaseScene
                 urlBuilder.getPageTo() == -1) {
             return resources.getString(appName ? R.string.app_name : R.string.homepage);
         } else if (ListUrlBuilder.MODE_SUBSCRIPTION == urlBuilder.getMode() &&
-            EhUtils.NONE == category &&
-            TextUtils.isEmpty(keyword) &&
-            urlBuilder.getAdvanceSearch() == -1 &&
-            urlBuilder.getMinRating() == -1 &&
-            urlBuilder.getPageFrom() == -1 &&
-            urlBuilder.getPageTo() == -1) {
+                EhUtils.NONE == category &&
+                TextUtils.isEmpty(keyword) &&
+                urlBuilder.getAdvanceSearch() == -1 &&
+                urlBuilder.getMinRating() == -1 &&
+                urlBuilder.getPageFrom() == -1 &&
+                urlBuilder.getPageTo() == -1) {
             return resources.getString(R.string.subscription);
         } else if (ListUrlBuilder.MODE_WHATS_HOT == urlBuilder.getMode()) {
             return resources.getString(R.string.whats_hot);
@@ -575,7 +590,7 @@ public final class GalleryListScene extends BaseScene
     @Nullable
     @Override
     public View onCreateView2(LayoutInflater inflater, @Nullable ViewGroup container,
-            @Nullable Bundle savedInstanceState) {
+                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.scene_gallery_list, container, false);
 
         Context context = getContext2();
@@ -731,7 +746,7 @@ public final class GalleryListScene extends BaseScene
     }
 
     private void showQuickSearchTipDialog(final List<QuickSearch> list,
-            final ArrayAdapter<QuickSearch> adapter, final ListView listView, final TextView tip) {
+                                          final ArrayAdapter<QuickSearch> adapter, final ListView listView, final TextView tip) {
         Context context = getContext2();
         if (null == context) {
             return;
@@ -751,7 +766,7 @@ public final class GalleryListScene extends BaseScene
     }
 
     private void showAddQuickSearchDialog(final List<QuickSearch> list,
-            final ArrayAdapter<QuickSearch> adapter, final ListView listView, final TextView tip) {
+                                          final ArrayAdapter<QuickSearch> adapter, final ListView listView, final TextView tip) {
         Context context = getContext2();
         final ListUrlBuilder urlBuilder = mUrlBuilder;
         if (null == context || null == urlBuilder) {
@@ -765,7 +780,7 @@ public final class GalleryListScene extends BaseScene
         }
 
         // Check duplicate
-        for (QuickSearch q: list) {
+        for (QuickSearch q : list) {
             if (urlBuilder.equalsQuickSearch(q)) {
                 showTip(getString(R.string.duplicate_quick_search, q.name), LENGTH_LONG);
                 return;
@@ -789,7 +804,7 @@ public final class GalleryListScene extends BaseScene
                 }
 
                 // Check name duplicate
-                for (QuickSearch q: list) {
+                for (QuickSearch q : list) {
                     if (text.equals(q.name)) {
                         builder.setError(getString(R.string.duplicate_name));
                         return;
@@ -817,7 +832,7 @@ public final class GalleryListScene extends BaseScene
 
     @Override
     public View onCreateDrawerView(LayoutInflater inflater, @Nullable ViewGroup container,
-            @Nullable Bundle savedInstanceState) {
+                                   @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.drawer_list, container, false);
         Toolbar toolbar = (Toolbar) ViewUtils.$$(view, R.id.toolbar);
         final TextView tip = (TextView) ViewUtils.$$(view, R.id.tip);
@@ -995,7 +1010,7 @@ public final class GalleryListScene extends BaseScene
                 int goTo;
                 try {
                     goTo = Integer.parseInt(text) - 1;
-                } catch (NumberFormatException e){
+                } catch (NumberFormatException e) {
                     builder.setError(getString(R.string.error_invalid_number));
                     return;
                 }
@@ -1085,10 +1100,10 @@ public final class GalleryListScene extends BaseScene
         }
         boolean favourite = gi.favoriteSlot == -2;
 
-        CharSequence[] items = new CharSequence[] {
-            context.getString(R.string.read),
-            context.getString(download ? R.string.download : R.string.stop_downloading),
-            context.getString(favourite ? R.string.add_to_favourites : R.string.remove_from_favourites),
+        CharSequence[] items = new CharSequence[]{
+                context.getString(R.string.read),
+                context.getString(download ? R.string.download : R.string.stop_downloading),
+                context.getString(favourite ? R.string.add_to_favourites : R.string.remove_from_favourites),
         };
 
         new AlertDialog.Builder(context)
@@ -1359,7 +1374,7 @@ public final class GalleryListScene extends BaseScene
                     ? ListUrlBuilder.MODE_SUBSCRIPTION
                     : ListUrlBuilder.MODE_NORMAL;
             mUrlBuilder.reset();
-            mUrlBuilder.setMode(newMode);
+            mUrlBuilder.setMode(ListUrlBuilder.MODE_IMAGE_SEARCH);
             mUrlBuilder.setKeyword(query);
         }
         onUpdateUrlBuilder();
@@ -1487,7 +1502,7 @@ public final class GalleryListScene extends BaseScene
     private class GalleryListAdapter extends GalleryAdapter {
 
         public GalleryListAdapter(@NonNull LayoutInflater inflater,
-                @NonNull Resources resources, @NonNull RecyclerView recyclerView, int type) {
+                                  @NonNull Resources resources, @NonNull RecyclerView recyclerView, int type) {
             super(inflater, resources, recyclerView, type, true);
         }
 
@@ -1514,13 +1529,12 @@ public final class GalleryListScene extends BaseScene
 
             mUrlBuilder.setPageIndex(page);
             if (ListUrlBuilder.MODE_IMAGE_SEARCH == mUrlBuilder.getMode()) {
+                String url = mUrlBuilder.build();
                 EhRequest request = new EhRequest();
-                request.setMethod(EhClient.METHOD_IMAGE_SEARCH);
+                request.setMethod(EhClient.METHOD_SEARCH);
                 request.setCallback(new GetGalleryListListener(getContext(),
                         activity.getStageId(), getTag(), taskId));
-                request.setArgs(new File(StringUtils.avoidNull(mUrlBuilder.getImagePath())),
-                        mUrlBuilder.isUseSimilarityScan(),
-                        mUrlBuilder.isOnlySearchCovers(), mUrlBuilder.isShowExpunged());
+                request.setArgs(url);
                 mClient.execute(request);
             } else {
                 String url = mUrlBuilder.build();
@@ -1627,7 +1641,8 @@ public final class GalleryListScene extends BaseScene
         }
 
         @Override
-        public void onCancel() {}
+        public void onCancel() {
+        }
 
         @Override
         public boolean isInstance(SceneFragment scene) {
@@ -1652,7 +1667,8 @@ public final class GalleryListScene extends BaseScene
         }
 
         @Override
-        public void onCancel() {}
+        public void onCancel() {
+        }
 
         @Override
         public boolean isInstance(SceneFragment scene) {
@@ -1677,7 +1693,8 @@ public final class GalleryListScene extends BaseScene
         }
 
         @Override
-        public void onCancel() {}
+        public void onCancel() {
+        }
 
         @Override
         public boolean isInstance(SceneFragment scene) {

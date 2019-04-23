@@ -245,7 +245,7 @@ public class SearchLayout extends EasyRecyclerView implements CompoundButton.OnC
                 switch (nsMode) {
                     default:
                     case R.id.search_normal_search:
-                        urlBuilder.setMode(ListUrlBuilder.MODE_NORMAL);
+                        urlBuilder.setMode(ListUrlBuilder.MODE_IMAGE_SEARCH);
                         break;
                     case R.id.search_subscription_search:
                         urlBuilder.setMode(ListUrlBuilder.MODE_SUBSCRIPTION);
