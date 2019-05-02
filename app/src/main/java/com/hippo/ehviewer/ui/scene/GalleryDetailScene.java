@@ -56,6 +56,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.transition.TransitionInflater;
 
+import com.axlecho.api.MHApi;
 import com.hippo.android.resource.AttrResources;
 import com.hippo.beerbelly.BeerBelly;
 import com.hippo.drawable.RoundSideRectDrawable;
@@ -226,6 +227,11 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
     private LinearLayout mComments;
     @Nullable
     private TextView mCommentsText;
+    // Intro
+    @Nullable
+    private LinearLayout mIntro;
+    @Nullable
+    private TextView mIntroText;
     // Previews
     @Nullable
     private View mPreviews;
@@ -285,22 +291,14 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
     }
 
     @Nullable
-    private String getGalleryDetailUrl(boolean allComment) {
-        long gid;
-        String token;
+    private String getGalleryDetailUrl() {
+        long gid = 0;
         if (mGalleryDetail != null) {
             gid = mGalleryDetail.gid;
-            token = mGalleryDetail.token;
         } else if (mGalleryInfo != null) {
             gid = mGalleryInfo.gid;
-            token = mGalleryInfo.token;
-        } else if (ACTION_GID_TOKEN.equals(mAction)) {
-            gid = mGid;
-            token = mToken;
-        } else {
-            return null;
         }
-        return EhUrl.getGalleryDetailUrl(gid, token, 0, allComment);
+        return MHApi.Companion.getINSTANCE().getUrl((int)gid);
     }
 
     // -1 for error
@@ -532,6 +530,10 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
         mCommentsText = (TextView) ViewUtils.$$(mComments, R.id.comments_text);
         Ripple.addRipple(mComments, isDarkTheme);
         mComments.setOnClickListener(this);
+
+        mIntro  = (LinearLayout) ViewUtils.$$(belowHeader,R.id.intro);
+        mIntroText = (TextView) ViewUtils.$$(belowHeader,R.id.intro_text);
+        Ripple.addRipple(mIntro, isDarkTheme);
 
         mPreviews = ViewUtils.$$(belowHeader, R.id.previews);
         mGridLayout = (SimpleGridAutoSpanLayout) ViewUtils.$$(mPreviews, R.id.grid_layout);
@@ -854,9 +856,20 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
 
         mTorrent.setText(resources.getString(R.string.torrent_count, gd.torrentCount));
 
+        bindIntro(gd.intro);
         bindTags(gd.tags);
         bindComments(gd.comments);
         bindPreviews(gd);
+    }
+
+    private void bindIntro(String intro) {
+        Context context = getContext2();
+        LayoutInflater inflater = getLayoutInflater2();
+        if (null == context || null == inflater || null == mIntro || null == mIntroText) {
+            return;
+        }
+
+        mIntroText.setText(intro);
     }
 
     @SuppressWarnings("deprecation")
@@ -954,6 +967,7 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
                     new URLImageGetter(c, EhApplication.getConaco(context)), null));
         }
     }
+
 
     @SuppressLint("SetTextI18n")
     private void bindPreviews(GalleryDetail gd) {
@@ -1067,7 +1081,7 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
             public boolean onMenuItemClick(MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.action_open_in_other_app:
-                        String url = getGalleryDetailUrl(false);
+                        String url = getGalleryDetailUrl();
                         Activity activity = getActivity2();
                         if (null != url && null != activity) {
                             UrlOpener.openUrl(activity, url, false);
@@ -1242,7 +1256,7 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
                 updateFavoriteDrawable();
             }
         } else if (mShare == v) {
-            String url = getGalleryDetailUrl(false);
+            String url = getGalleryDetailUrl();
             if (url != null) {
                 AppHelper.share(activity, url);
             }

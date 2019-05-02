@@ -25,6 +25,7 @@
     android:paddingBottom="@dimen/keyline_margin">
 
     <HorizontalScrollView
+        android:visibility="gone"
         android:id="@+id/actions_scroll_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

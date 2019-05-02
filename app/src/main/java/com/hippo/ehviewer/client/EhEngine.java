@@ -342,6 +342,14 @@ public class EhEngine {
         GalleryDetail detail = new GalleryDetail();
         detail.title = info.getTitle();
         detail.uploader = info.getAuthor();
+        detail.rating = info.getRating() / 2.0f;
+        detail.ratingCount = info.getRatingCount();
+        detail.gid = Long.parseLong(cid);
+        detail.thumb = info.getCover();
+        detail.posted = info.getUpdate();
+        detail.pages = info.getChapterCount();
+        detail.favoriteCount = info.getFavorites();
+        detail.intro = info.getIntro();
         List<GalleryTagGroup> list = new ArrayList<>();
         GalleryTagGroup g = new GalleryTagGroup();
         g.groupName = "章节";

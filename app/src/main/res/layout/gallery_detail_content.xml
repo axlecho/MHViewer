@@ -41,6 +41,9 @@
                 layout="@layout/gallery_detail_info"/>
 
             <include
+                layout="@layout/gallery_detail_intro"/>
+
+            <include
                 layout="@layout/gallery_detail_actions"/>
 
             <include

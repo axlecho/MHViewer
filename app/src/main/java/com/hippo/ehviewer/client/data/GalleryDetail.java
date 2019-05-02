@@ -32,6 +32,7 @@ public class GalleryDetail extends GalleryInfo {
     public String visible;
     public String language;
     public String size;
+    public String intro;
     public int pages;
     public int favoriteCount;
     public boolean isFavorited;
@@ -56,6 +57,7 @@ public class GalleryDetail extends GalleryInfo {
         dest.writeString(this.visible);
         dest.writeString(this.language);
         dest.writeString(this.size);
+        dest.writeString(this.intro);
         dest.writeInt(this.pages);
         dest.writeInt(this.favoriteCount);
         dest.writeByte(isFavorited ? (byte) 1 : (byte) 0);
@@ -78,6 +80,7 @@ public class GalleryDetail extends GalleryInfo {
         this.visible = in.readString();
         this.language = in.readString();
         this.size = in.readString();
+        this.intro = in.readString();
         this.pages = in.readInt();
         this.favoriteCount = in.readInt();
         this.isFavorited = in.readByte() != 0;

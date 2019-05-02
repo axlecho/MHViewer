@@ -198,7 +198,7 @@
     <string name="read">阅读</string>
     <string name="more_information">查看更多信息</string>
     <plurals name="page_count">
-        <item quantity="other">%d 页</item>
+        <item quantity="other">%d 集</item>
     </plurals>
     <string name="favored_times">\u2665 %d</string>
     <string name="rating_text">%1$s (%2$.2f, %3$d)</string>
