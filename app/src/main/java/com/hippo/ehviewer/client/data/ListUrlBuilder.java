@@ -469,9 +469,9 @@ public class ListUrlBuilder implements Cloneable, Parcelable {
         switch (mMode) {
             default:
             case MODE_NORMAL:
-                return "toprating";
-            case MODE_SUBSCRIPTION:
                 return "newrating";
+            case MODE_SUBSCRIPTION:
+                return "toprating";
             case MODE_WHATS_HOT:
                 return "hotrating";
             case MODE_IMAGE_SEARCH:
