@@ -1650,7 +1650,7 @@ public final class GalleryListScene extends BaseScene
         }
     }
 
-    private static class AddToFavoriteListener extends EhCallback<GalleryListScene, Void> {
+    public static class AddToFavoriteListener extends EhCallback<GalleryListScene, Void> {
 
         public AddToFavoriteListener(Context context, int stageId, String sceneTag) {
             super(context, stageId, sceneTag);
@@ -1676,7 +1676,7 @@ public final class GalleryListScene extends BaseScene
         }
     }
 
-    private static class RemoveFromFavoriteListener extends EhCallback<GalleryListScene, Void> {
+    public static class RemoveFromFavoriteListener extends EhCallback<GalleryListScene, Void> {
 
         public RemoveFromFavoriteListener(Context context, int stageId, String sceneTag) {
             super(context, stageId, sceneTag);

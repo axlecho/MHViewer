@@ -208,7 +208,7 @@ public final class CommonOperations {
 
     public static void addToFavorites(final Activity activity, final GalleryInfo galleryInfo,
             final EhClient.Callback<Void> listener) {
-        int slot = Settings.getDefaultFavSlot();
+        int slot = -1;
         String[] items = new String[11];
         items[0] = activity.getString(R.string.local_favorites);
         String[] favCat = Settings.getFavCat();
