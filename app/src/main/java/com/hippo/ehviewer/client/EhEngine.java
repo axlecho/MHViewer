@@ -22,11 +22,14 @@ import android.util.Pair;
 
 import androidx.annotation.Nullable;
 
-import com.axlecho.api.MHApi;
+import com.axlecho.api.bangumi.BangumiApi;
+import com.axlecho.api.hanhan.MHApi;
 import com.axlecho.api.module.comic.MHComic;
 import com.axlecho.api.module.comic.MHComicChapter;
 import com.axlecho.api.module.comic.MHComicInfo;
+import com.google.gson.Gson;
 import com.hippo.ehviewer.AppConfig;
+import com.hippo.ehviewer.EhDB;
 import com.hippo.ehviewer.GetText;
 import com.hippo.ehviewer.R;
 import com.hippo.ehviewer.Settings;
@@ -275,6 +278,42 @@ public class EhEngine {
         result.galleryInfoList = list;
         return result;
     }
+
+    public static GalleryListParser.Result importCollection(@Nullable EhClient.Task task,OkHttpClient okHttpClient,
+                                                            String id) {
+
+        GalleryListParser.Result result = new GalleryListParser.Result();
+        result.pages = 1;
+        result.nextPage = 2;
+        result.noWatchedTags = false;
+        result.galleryInfoList = new ArrayList<>();
+
+        int items = BangumiApi.Companion.getINSTANCE().collectionPages(id).blockingFirst();
+        int pages = (int)Math.ceil(items /  25.0);
+
+        List<MHComic> collection = new ArrayList<>();
+        for(int i = 1;i <= pages;i ++) {
+            List<MHComic> c = BangumiApi.Companion.getINSTANCE().collection(id,i).blockingFirst();
+            collection.addAll(c);
+        }
+
+        for(MHComic c : collection) {
+            Log.v(TAG,"searching - " + c.getTitle());
+            GalleryListParser.Result r = search(task,okHttpClient,c.getTitle());
+            result.galleryInfoList.addAll(r.galleryInfoList);
+        }
+
+        for(GalleryInfo info:result.galleryInfoList) {
+            try {
+                EhDB.putLocalFavorites(info);
+            } catch (Throwable throwable) {
+                throwable.printStackTrace();
+            }
+        }
+        Log.d(TAG,new Gson().toJson(result));
+        return result;
+    }
+
 
     // At least, GalleryInfo contain valid gid and token
     public static List<GalleryInfo> fillGalleryListByApi(@Nullable EhClient.Task task, OkHttpClient okHttpClient,
@@ -546,7 +585,7 @@ public class EhEngine {
      * @param note   max 250 characters
      */
     public static Void addFavorites(@Nullable EhClient.Task task, OkHttpClient okHttpClient,
-                                    long gid, String token, int dstCat, String note) throws Throwable {
+                                    long gid, String token, int dstCat, String note) throws Throwable   {
         String catStr;
         if (dstCat == -1) {
             catStr = "favdel";
@@ -995,4 +1034,5 @@ public class EhEngine {
             throw e;
         }
     }
+
 }

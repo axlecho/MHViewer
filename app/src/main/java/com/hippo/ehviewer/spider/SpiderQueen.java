@@ -29,7 +29,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 
-import com.axlecho.api.MHApi;
+import com.axlecho.api.hanhan.MHApi;
 import com.axlecho.api.module.comic.MHComicData;
 import com.hippo.beerbelly.SimpleDiskCache;
 import com.hippo.ehviewer.EhApplication;

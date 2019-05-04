@@ -29,6 +29,11 @@
         android:title="@string/settings_eh_identity_cookies"
         android:summary="@string/settings_eh_identity_cookies_summary"/>
 
+    <com.hippo.ehviewer.preference.ImportCollectionPreference
+        android:key="import_collection"
+        android:title="@string/settings_eh_import_collection"
+        android:summary="@string/settings_eh_import_collection_summary"/>
+
     <com.hippo.preference.ListPreference
         android:key="gallery_site"
         android:title="@string/settings_eh_gallery_site"

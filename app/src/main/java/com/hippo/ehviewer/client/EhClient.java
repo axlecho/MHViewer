@@ -18,15 +18,18 @@ package com.hippo.ehviewer.client;
 
 import android.content.Context;
 import android.os.AsyncTask;
+
 import com.hippo.ehviewer.EhApplication;
 import com.hippo.ehviewer.client.exception.CancelledException;
 import com.hippo.util.ExceptionUtils;
 import com.hippo.util.IoThreadPoolExecutor;
 import com.hippo.yorozuya.SimpleHandler;
+
 import java.io.File;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+
 import okhttp3.Call;
 import okhttp3.OkHttpClient;
 
@@ -52,6 +55,8 @@ public class EhClient {
     public static final int METHOD_IMAGE_SEARCH = 16;
     public static final int METHOD_ARCHIVE_LIST = 17;
     public static final int METHOD_DOWNLOAD_ARCHIVE = 18;
+    public static final int METHOD_IMPORT_COLLECTION = 19;
+
 
     private final ThreadPoolExecutor mRequestThreadPool;
     private final OkHttpClient mOkHttpClient;
@@ -174,6 +179,8 @@ public class EhClient {
                         return EhEngine.getArchiveList(this, mOkHttpClient, (String) params[0], (Long) params[1], (String) params[2]);
                     case METHOD_DOWNLOAD_ARCHIVE:
                         return EhEngine.downloadArchive(this, mOkHttpClient, (Long) params[0], (String) params[1], (String) params[2], (String) params[3]);
+                    case METHOD_IMPORT_COLLECTION:
+                        return EhEngine.importCollection(this,mOkHttpClient,(String) params[0]);
                     default:
                         return new IllegalStateException("Can't detect method " + mMethod);
                 }
