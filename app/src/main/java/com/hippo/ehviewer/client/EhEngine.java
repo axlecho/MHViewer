@@ -548,35 +548,28 @@ public class EhEngine {
     }
 
     public static FavoritesParser.Result getFavorites(@Nullable EhClient.Task task, OkHttpClient okHttpClient,
-                                                      String url, boolean callApi) throws Throwable {
+                                                      String page, boolean callApi) throws Throwable {
         String referer = EhUrl.getReferer();
-        Log.d(TAG, url);
-        Request request = new EhRequestBuilder(url, referer).build();
-        Call call = okHttpClient.newCall(request);
+        Log.d(TAG, page);
 
-        // Put call
-        if (null != task) {
-            task.setCall(call);
+        List<MHComic>  comics = BangumiApi.Companion.getINSTANCE().collection("axlecho",Integer.parseInt(page)).blockingFirst();
+        int items = BangumiApi.Companion.getINSTANCE().collectionPages("axlecho").blockingFirst();
+        FavoritesParser.Result result = new FavoritesParser.Result();
+        result.pages = (int)Math.ceil(items / 25.0);
+        result.nextPage = Integer.parseInt(page) + 1;
+        result.galleryInfoList = new ArrayList<>();
+        result.catArray = new String[]{"想读","1","2","3","4","5","6","7","8","9"};
+        result.countArray = new int[10];
+        result.countArray[0] = items;
+
+        for (MHComic c : comics) {
+            GalleryInfo info = new GalleryInfo();
+            info.title = c.getTitle();
+            info.category = EhUtils.UNKNOWN;
+            info.gid = -1;
+            info.thumb = c.getCover();
+            result.galleryInfoList.add(info);
         }
-
-        String body = null;
-        Headers headers = null;
-        FavoritesParser.Result result;
-        int code = -1;
-        try {
-            Response response = call.execute();
-            code = response.code();
-            headers = response.headers();
-            body = response.body().string();
-            result = FavoritesParser.parse(body);
-        } catch (Throwable e) {
-            ExceptionUtils.throwIfFatal(e);
-            throwException(call, code, headers, body, e);
-            throw e;
-        }
-
-        fillGalleryList(task, okHttpClient, result.galleryInfoList, url, false);
-
         return result;
     }
 

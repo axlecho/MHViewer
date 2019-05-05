@@ -1088,14 +1088,12 @@ public class FavoritesScene extends BaseScene implements
                     }
                 });
             } else {
-                mUrlBuilder.setIndex(page);
-                String url = mUrlBuilder.build();
                 EhRequest request = new EhRequest();
                 request.setMethod(EhClient.METHOD_GET_FAVORITES);
                 request.setCallback(new GetFavoritesListener(getContext(),
                         activity.getStageId(), getTag(),
                         taskId, false, mUrlBuilder.getKeyword()));
-                request.setArgs(url, Settings.getShowJpnTitle());
+                request.setArgs(String.valueOf(page), Settings.getShowJpnTitle());
                 mClient.execute(request);
             }
         }
