@@ -21,6 +21,8 @@ import android.os.Parcelable;
 
 import androidx.annotation.Nullable;
 
+import com.axlecho.api.MHComicInfo;
+
 import java.util.regex.Pattern;
 
 public class GalleryInfo implements Parcelable {
@@ -191,6 +193,18 @@ public class GalleryInfo implements Parcelable {
 
     public GalleryInfo() {}
 
+    public GalleryInfo(MHComicInfo info) {
+        this.gid = Long.parseLong(info.getGid());
+        this.thumb = info.getThumb();
+        this.category = info.getCategory();
+        this.title = info.getTitle();
+        this.pages = 0;
+        this.posted = info.getPosted();
+        this.rated = info.getRated();
+        this.rating = info.getRating();
+        this.titleJpn = info.getTitleJpn();
+        this.uploader = info.getUploader();
+    }
     protected GalleryInfo(Parcel in) {
         this.gid = in.readLong();
         this.cid = in.readString();
@@ -226,4 +240,5 @@ public class GalleryInfo implements Parcelable {
             return new GalleryInfo[size];
         }
     };
+
 }

@@ -19,6 +19,8 @@ package com.hippo.ehviewer.client.data;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.axlecho.api.MHComicDetail;
+
 import java.util.Arrays;
 
 public class GalleryDetail extends GalleryInfo {
@@ -69,6 +71,28 @@ public class GalleryDetail extends GalleryInfo {
     }
 
     public GalleryDetail() {
+    }
+
+    public GalleryDetail(MHComicDetail detail) {
+        super(detail.getInfo());
+        this.apiUid = -1;
+        this.apiKey = "";
+        this.archiveUrl = "";
+        // this.comments = detail.getComments();
+        this.favoriteCount = detail.getFavoriteCount();
+        this.intro = detail.getIntro();
+        this.isFavorited = detail.isFavorited();
+        this.language = "";
+        this.pages = detail.getChapterCount();
+        this.parent = null;
+        this.previewPages = 0;
+        this.previewSet = null;
+        this.ratingCount = detail.getRatingCount();
+        this.size = "";
+        this.tags = null;
+        this.torrentCount = 0;
+        this.torrentUrl = null;
+        this.visible = "";
     }
 
     protected GalleryDetail(Parcel in) {

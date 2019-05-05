@@ -19,7 +19,7 @@ package com.hippo.ehviewer.client.data;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.axlecho.api.module.comic.MHComicChapter;
+import com.axlecho.api.MHComicChapter;
 
 import java.util.ArrayList;
 

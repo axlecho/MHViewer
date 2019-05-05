@@ -22,11 +22,11 @@ import android.util.Pair;
 
 import androidx.annotation.Nullable;
 
+import com.axlecho.api.MHComicChapter;
+import com.axlecho.api.MHComicDetail;
+import com.axlecho.api.MHComicInfo;
 import com.axlecho.api.bangumi.BangumiApi;
 import com.axlecho.api.hanhan.MHApi;
-import com.axlecho.api.module.comic.MHComic;
-import com.axlecho.api.module.comic.MHComicChapter;
-import com.axlecho.api.module.comic.MHComicInfo;
 import com.google.gson.Gson;
 import com.hippo.ehviewer.AppConfig;
 import com.hippo.ehviewer.EhDB;
@@ -240,20 +240,15 @@ public class EhEngine {
 
     public static GalleryListParser.Result getGalleryList(@Nullable EhClient.Task task, OkHttpClient okHttpClient,
                                                           String url) throws Throwable {
-        List<MHComic> comics = MHApi.Companion.getINSTANCE().top(url).blockingFirst();
+        List<MHComicInfo> comics = MHApi.Companion.getINSTANCE().top(url).blockingFirst();
         GalleryListParser.Result result = new GalleryListParser.Result();
         result.pages = 1;
         result.nextPage = 2;
         result.noWatchedTags = false;
 
         List<GalleryInfo> list = new ArrayList<>(comics.size());
-        for (MHComic comic : comics) {
-            GalleryInfo info = new GalleryInfo();
-            info.title = comic.getTitle();
-            info.category = EhUtils.UNKNOWN;
-            info.gid = Long.parseLong(comic.getCid());
-            info.thumb = comic.getCover();
-            list.add(info);
+        for (MHComicInfo comic : comics) {
+            list.add(new GalleryInfo(comic));
         }
         result.galleryInfoList = list;
         return result;
@@ -265,15 +260,10 @@ public class EhEngine {
         result.pages = 1;
         result.nextPage = 2;
         result.noWatchedTags = false;
-        List<MHComic> comics = MHApi.Companion.getINSTANCE().search(keyword).blockingFirst();
+        List<MHComicInfo> comics = MHApi.Companion.getINSTANCE().search(keyword).blockingFirst();
         List<GalleryInfo> list = new ArrayList<>(comics.size());
-        for (MHComic comic : comics) {
-            GalleryInfo info = new GalleryInfo();
-            info.title = comic.getTitle();
-            info.category = EhUtils.UNKNOWN;
-            info.gid = Long.parseLong(comic.getCid());
-            info.thumb = comic.getCover();
-            list.add(info);
+        for (MHComicInfo comic : comics) {
+            list.add(new GalleryInfo((comic)));
         }
         result.galleryInfoList = list;
         return result;
@@ -291,13 +281,13 @@ public class EhEngine {
         int items = BangumiApi.Companion.getINSTANCE().collectionPages(id).blockingFirst();
         int pages = (int)Math.ceil(items /  25.0);
 
-        List<MHComic> collection = new ArrayList<>();
+        List<MHComicInfo> collection = new ArrayList<>();
         for(int i = 1;i <= pages;i ++) {
-            List<MHComic> c = BangumiApi.Companion.getINSTANCE().collection(id,i).blockingFirst();
+            List<MHComicInfo> c = BangumiApi.Companion.getINSTANCE().collection(id,i).blockingFirst();
             collection.addAll(c);
         }
 
-        for(MHComic c : collection) {
+        for(MHComicInfo c : collection) {
             Log.v(TAG,"searching - " + c.getTitle());
             GalleryListParser.Result r = search(task,okHttpClient,c.getTitle());
             result.galleryInfoList.addAll(r.galleryInfoList);
@@ -377,18 +367,9 @@ public class EhEngine {
     public static GalleryDetail getGalleryDetail(@Nullable EhClient.Task task, OkHttpClient okHttpClient,
                                                  String cid) throws Throwable {
         // GalleryDetailParser.parse(body);
-        MHComicInfo info = MHApi.Companion.getINSTANCE().info(cid).blockingFirst();
-        GalleryDetail detail = new GalleryDetail();
-        detail.title = info.getTitle();
-        detail.uploader = info.getAuthor();
-        detail.rating = info.getRating() / 2.0f;
-        detail.ratingCount = info.getRatingCount();
-        detail.gid = Long.parseLong(cid);
-        detail.thumb = info.getCover();
-        detail.posted = info.getUpdate();
-        detail.pages = info.getChapterCount();
-        detail.favoriteCount = info.getFavorites();
-        detail.intro = info.getIntro();
+        MHComicDetail info = MHApi.Companion.getINSTANCE().info(cid).blockingFirst();
+        GalleryDetail detail = new GalleryDetail(info);
+
         List<GalleryTagGroup> list = new ArrayList<>();
         GalleryTagGroup g = new GalleryTagGroup();
         g.groupName = "章节";
@@ -552,7 +533,7 @@ public class EhEngine {
         String referer = EhUrl.getReferer();
         Log.d(TAG, page);
 
-        List<MHComic>  comics = BangumiApi.Companion.getINSTANCE().collection("axlecho",Integer.parseInt(page)).blockingFirst();
+        List<MHComicInfo>  comics = BangumiApi.Companion.getINSTANCE().collection("axlecho",Integer.parseInt(page)).blockingFirst();
         int items = BangumiApi.Companion.getINSTANCE().collectionPages("axlecho").blockingFirst();
         FavoritesParser.Result result = new FavoritesParser.Result();
         result.pages = (int)Math.ceil(items / 25.0);
@@ -562,13 +543,8 @@ public class EhEngine {
         result.countArray = new int[10];
         result.countArray[0] = items;
 
-        for (MHComic c : comics) {
-            GalleryInfo info = new GalleryInfo();
-            info.title = c.getTitle();
-            info.category = EhUtils.UNKNOWN;
-            info.gid = -1;
-            info.thumb = c.getCover();
-            result.galleryInfoList.add(info);
+        for (MHComicInfo c : comics) {
+            result.galleryInfoList.add(new GalleryInfo(c));
         }
         return result;
     }
