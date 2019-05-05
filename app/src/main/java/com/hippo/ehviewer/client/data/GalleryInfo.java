@@ -194,7 +194,7 @@ public class GalleryInfo implements Parcelable {
     public GalleryInfo() {}
 
     public GalleryInfo(MHComicInfo info) {
-        this.gid = Long.parseLong(info.getGid());
+        this.gid = info.getGid();
         this.thumb = info.getThumb();
         this.category = info.getCategory();
         this.title = info.getTitle();

@@ -530,10 +530,9 @@ public class EhEngine {
 
     public static FavoritesParser.Result getFavorites(@Nullable EhClient.Task task, OkHttpClient okHttpClient,
                                                       String page, boolean callApi) throws Throwable {
-        String referer = EhUrl.getReferer();
         Log.d(TAG, page);
 
-        List<MHComicInfo>  comics = BangumiApi.Companion.getINSTANCE().collection("axlecho",Integer.parseInt(page)).blockingFirst();
+        List<MHComicInfo>  comics = BangumiApi.Companion.getINSTANCE().collection("axlecho",Integer.parseInt(page) + 1).blockingFirst();
         int items = BangumiApi.Companion.getINSTANCE().collectionPages("axlecho").blockingFirst();
         FavoritesParser.Result result = new FavoritesParser.Result();
         result.pages = (int)Math.ceil(items / 25.0);
