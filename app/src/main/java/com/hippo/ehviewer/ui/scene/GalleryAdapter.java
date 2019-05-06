@@ -198,7 +198,9 @@ abstract class GalleryAdapter extends RecyclerView.Adapter<GalleryHolder> {
                 holder.uploader.setText(gi.uploader);
                 holder.rating.setRating(gi.rating);
                 if(gi.rating == 0.0f) {
-                    holder.rating.setVisibility(View.GONE);
+                    holder.rating.setVisibility(View.INVISIBLE);
+                } else {
+                    holder.rating.setVisibility(View.VISIBLE);
                 }
                 TextView category = holder.category;
                 String newCategoryText = EhUtils.getCategory(gi.category);

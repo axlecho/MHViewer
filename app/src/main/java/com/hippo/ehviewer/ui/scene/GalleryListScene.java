@@ -51,6 +51,8 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.axlecho.api.MHApi;
+import com.axlecho.api.MHApiSource;
 import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.github.amlcurran.showcaseview.SimpleShowcaseEventListener;
 import com.github.amlcurran.showcaseview.targets.PointTarget;
@@ -1034,11 +1036,11 @@ public final class GalleryListScene extends BaseScene
 
         switch (position) {
             case 0: // Go to
-                if (mHelper.canGoTo()) {
-                    showGoToDialog();
-                }
+                MHApi.Companion.getINSTANCE().select(MHApiSource.Hanhan);
+                mHelper.refresh();
                 break;
-            case 1: // Refresh
+            case 1:
+                MHApi.Companion.getINSTANCE().select(MHApiSource.Bangumi);
                 mHelper.refresh();
                 break;
         }

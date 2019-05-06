@@ -56,7 +56,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.transition.TransitionInflater;
 
-import com.axlecho.api.hanhan.MHApi;
+import com.axlecho.api.MHApi;
 import com.hippo.android.resource.AttrResources;
 import com.hippo.beerbelly.BeerBelly;
 import com.hippo.drawable.RoundSideRectDrawable;
@@ -297,7 +297,7 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
         } else if (mGalleryInfo != null) {
             gid = mGalleryInfo.gid;
         }
-        return MHApi.Companion.getINSTANCE().getUrl((int)gid);
+        return MHApi.Companion.getINSTANCE().pageUrl((int)gid);
     }
 
     // -1 for error

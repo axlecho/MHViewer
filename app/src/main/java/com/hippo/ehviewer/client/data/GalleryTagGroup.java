@@ -42,7 +42,7 @@ public class GalleryTagGroup implements Parcelable {
     }
 
     public String getChapterSourceAt(int position) {
-        return mTagList.get(position).getSource();
+        return mTagList.get(position).getUrl();
     }
 
     @Override

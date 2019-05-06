@@ -30,7 +30,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 
 import com.axlecho.api.MHComicData;
-import com.axlecho.api.hanhan.MHApi;
+import com.axlecho.api.MHApi;
 import com.hippo.beerbelly.SimpleDiskCache;
 import com.hippo.ehviewer.EhApplication;
 import com.hippo.ehviewer.GetText;
@@ -733,7 +733,7 @@ public final class SpiderQueen implements Runnable {
             spiderInfo.gid = mGalleryInfo.getCid();
             spiderInfo.token = mGalleryInfo.token;
 
-            MHComicData data = MHApi.Companion.getINSTANCE().data(String.valueOf(mGalleryInfo.gid),mGalleryInfo.cid).blockingFirst();
+            MHComicData data = MHApi.Companion.getINSTANCE().data(mGalleryInfo.gid,mGalleryInfo.cid).blockingFirst();
 
             spiderInfo.pages = data.getData().size();
             spiderInfo.pTokenMap = new SparseArray<>(spiderInfo.pages);

@@ -26,7 +26,7 @@ import com.axlecho.api.MHComicChapter;
 import com.axlecho.api.MHComicDetail;
 import com.axlecho.api.MHComicInfo;
 import com.axlecho.api.bangumi.BangumiApi;
-import com.axlecho.api.hanhan.MHApi;
+import com.axlecho.api.MHApi;
 import com.google.gson.Gson;
 import com.hippo.ehviewer.AppConfig;
 import com.hippo.ehviewer.EhDB;
@@ -255,7 +255,7 @@ public class EhEngine {
         result.pages = 1;
         result.nextPage = 2;
         result.noWatchedTags = false;
-        List<MHComicInfo> comics = BangumiApi.Companion.getINSTANCE().search(keyword,0).blockingFirst();
+        List<MHComicInfo> comics = MHApi.Companion.getINSTANCE().search(keyword,0).blockingFirst();
         List<GalleryInfo> list = new ArrayList<>(comics.size());
         for (MHComicInfo comic : comics) {
             list.add(new GalleryInfo((comic)));
@@ -362,8 +362,12 @@ public class EhEngine {
     public static GalleryDetail getGalleryDetail(@Nullable EhClient.Task task, OkHttpClient okHttpClient,
                                                  String cid) throws Throwable {
         // GalleryDetailParser.parse(body);
-        MHComicDetail info = BangumiApi.Companion.getINSTANCE().info(Long.parseLong(cid)).blockingFirst();
-        info.getComments().addAll(BangumiApi.Companion.getINSTANCE().comment(Long.parseLong(cid),1).blockingFirst());
+         MHComicDetail info = MHApi.Companion.getINSTANCE().info(Long.parseLong(cid)).blockingFirst();
+        try {
+            info.getComments().addAll(MHApi.Companion.getINSTANCE().comment(Long.parseLong(cid), 1).blockingFirst());
+        } catch (Exception e){
+
+        }
         GalleryDetail detail = new GalleryDetail(info);
 
         List<GalleryTagGroup> list = new ArrayList<>();
