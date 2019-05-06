@@ -33,6 +33,7 @@ import android.text.TextUtils;
 import android.util.Pair;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -57,6 +58,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.transition.TransitionInflater;
 
 import com.axlecho.api.MHApi;
+import com.axlecho.api.MHApiSource;
 import com.hippo.android.resource.AttrResources;
 import com.hippo.beerbelly.BeerBelly;
 import com.hippo.drawable.RoundSideRectDrawable;
@@ -79,6 +81,7 @@ import com.hippo.ehviewer.client.data.GalleryTagGroup;
 import com.hippo.ehviewer.client.data.ListUrlBuilder;
 import com.hippo.ehviewer.client.data.PreviewSet;
 import com.hippo.ehviewer.client.exception.NoHAtHClientException;
+import com.hippo.ehviewer.client.parser.GalleryListParser;
 import com.hippo.ehviewer.client.parser.RateGalleryParser;
 import com.hippo.ehviewer.dao.DownloadInfo;
 import com.hippo.ehviewer.ui.CommonOperations;
@@ -1075,6 +1078,10 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
         PopupMenu popup = new PopupMenu(context, mOtherActions, Gravity.TOP);
         mPopupMenu = popup;
         popup.getMenuInflater().inflate(R.menu.scene_gallery_detail, popup.getMenu());
+
+        View.generateViewId();
+        popup.getMenu().add(Menu.NONE,101,Menu.NONE,"汗汗");
+        popup.getMenu().add(Menu.NONE,102,Menu.NONE,"Bangumi");
         popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
@@ -1092,12 +1099,34 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
                             request();
                         }
                         break;
+                    case 101:
+                        MHApi.Companion.getINSTANCE().select(MHApiSource.Hanhan);
+                        switchSource();
+                        break;
+                    case 102:
+                        MHApi.Companion.getINSTANCE().select(MHApiSource.Bangumi);
+                        switchSource();
+                        break;
                 }
                 return true;
             }
         });
     }
 
+    private void switchSource() {
+        Context context = getContext2();
+        MainActivity activity = getActivity2();
+        if (null == context || null == activity || mGalleryInfo == null) {
+            return;
+        }
+
+        EhRequest request = new EhRequest();
+        request.setMethod(EhClient.METHOD_SEARCH);
+        request.setCallback(new GetGalleryListListener(getContext(),
+                activity.getStageId(), getTag(),0));
+        request.setArgs(mGalleryInfo.title);
+        EhApplication.getEhClient(context).execute(request);
+    }
     @Nullable
     private static String getArtist(GalleryTagGroup[] tagGroups) {
         if (null == tagGroups) {
@@ -1503,6 +1532,21 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
         }
     }
 
+    private void onSwitchSource(GalleryListParser.Result result) {
+        for(GalleryInfo info :result.galleryInfoList) {
+            if(getGalleryInfo() != null && getGalleryInfo().title.equals(info.title)) {
+                mGalleryInfo = info;
+                if (mState != STATE_REFRESH && mState != STATE_REFRESH_HEADER) {
+                    adjustViewVisibility(STATE_REFRESH, true);
+                    request();
+                }
+                return;
+            }
+        }
+
+        onGetGalleryDetailFailure(new Exception("no found"));
+    }
+
     private void onGetGalleryDetailSuccess(GalleryDetail result) {
         mGalleryDetail = result;
         updateDownloadState();
@@ -1902,6 +1946,41 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
         @Override
         public void onCancel() {
             getApplication().removeGlobalStuff(this);
+        }
+
+        @Override
+        public boolean isInstance(SceneFragment scene) {
+            return scene instanceof GalleryDetailScene;
+        }
+    }
+
+    private static class GetGalleryListListener extends EhCallback<GalleryDetailScene, GalleryListParser.Result> {
+
+        private final int mTaskId;
+
+        public GetGalleryListListener(Context context, int stageId, String sceneTag, int taskId) {
+            super(context, stageId, sceneTag);
+            mTaskId = taskId;
+        }
+
+        @Override
+        public void onSuccess(GalleryListParser.Result result) {
+            GalleryDetailScene scene = getScene();
+            if (scene != null) {
+                scene.onSwitchSource(result);
+            }
+        }
+
+        @Override
+        public void onFailure(Exception e) {
+            GalleryDetailScene scene = getScene();
+            if (scene != null) {
+                scene.onGetGalleryDetailFailure(e);
+            }
+        }
+
+        @Override
+        public void onCancel() {
         }
 
         @Override
