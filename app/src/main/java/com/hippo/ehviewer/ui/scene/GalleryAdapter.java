@@ -197,12 +197,19 @@ abstract class GalleryAdapter extends RecyclerView.Adapter<GalleryHolder> {
                 holder.title.setText(EhUtils.getSuitableTitle(gi));
                 holder.uploader.setText(gi.uploader);
                 holder.rating.setRating(gi.rating);
+                if(gi.rating == 0.0f) {
+                    holder.rating.setVisibility(View.GONE);
+                }
                 TextView category = holder.category;
                 String newCategoryText = EhUtils.getCategory(gi.category);
                 if (!newCategoryText.equals(category.getText().toString())) {
                     category.setText(newCategoryText);
                     category.setBackgroundColor(EhUtils.getCategoryColor(gi.category));
                 }
+                // TODO make use of this label
+                category.setVisibility(View.GONE);
+
+
                 holder.posted.setText(gi.posted);
                 if (gi.pages == 0 || !Settings.getShowGalleryPages()) {
                     holder.pages.setText(null);
