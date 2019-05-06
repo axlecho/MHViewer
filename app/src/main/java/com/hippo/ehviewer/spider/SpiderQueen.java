@@ -723,20 +723,6 @@ public final class SpiderQueen implements Runnable {
         return null;
     }
 
-    private void readPreviews(String body, int index, SpiderInfo spiderInfo) throws ParseException {
-        spiderInfo.pages = GalleryDetailParser.parsePages(body);
-        spiderInfo.previewPages = GalleryDetailParser.parsePreviewPages(body);
-        PreviewSet previewSet = GalleryDetailParser.parsePreviewSet(body);
-
-        if (previewSet.size() > 0) {
-            if (index == 0) {
-                spiderInfo.previewPerPage = previewSet.size();
-            } else {
-                spiderInfo.previewPerPage = previewSet.getPosition(0) / index;
-            }
-        }
-    }
-
     private SpiderInfo readSpiderInfoFromInternet() {
         if(DEBUG_LOG) {
             Log.v(TAG,"readSpiderInfoFromInternet");

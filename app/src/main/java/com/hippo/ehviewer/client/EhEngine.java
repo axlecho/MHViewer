@@ -48,8 +48,6 @@ import com.hippo.ehviewer.client.parser.ForumsParser;
 import com.hippo.ehviewer.client.parser.GalleryApiParser;
 import com.hippo.ehviewer.client.parser.GalleryDetailParser;
 import com.hippo.ehviewer.client.parser.GalleryListParser;
-import com.hippo.ehviewer.client.parser.GalleryPageApiParser;
-import com.hippo.ehviewer.client.parser.GalleryPageParser;
 import com.hippo.ehviewer.client.parser.GalleryTokenApiParser;
 import com.hippo.ehviewer.client.parser.ProfileParser;
 import com.hippo.ehviewer.client.parser.RateGalleryParser;
@@ -62,9 +60,6 @@ import com.hippo.yorozuya.AssertUtils;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -260,7 +255,7 @@ public class EhEngine {
         result.pages = 1;
         result.nextPage = 2;
         result.noWatchedTags = false;
-        List<MHComicInfo> comics = MHApi.Companion.getINSTANCE().search(keyword).blockingFirst();
+        List<MHComicInfo> comics = BangumiApi.Companion.getINSTANCE().search(keyword,0).blockingFirst();
         List<GalleryInfo> list = new ArrayList<>(comics.size());
         for (MHComicInfo comic : comics) {
             list.add(new GalleryInfo((comic)));
@@ -367,7 +362,8 @@ public class EhEngine {
     public static GalleryDetail getGalleryDetail(@Nullable EhClient.Task task, OkHttpClient okHttpClient,
                                                  String cid) throws Throwable {
         // GalleryDetailParser.parse(body);
-        MHComicDetail info = MHApi.Companion.getINSTANCE().info(cid).blockingFirst();
+        MHComicDetail info = BangumiApi.Companion.getINSTANCE().info(Long.parseLong(cid)).blockingFirst();
+        info.getComments().addAll(BangumiApi.Companion.getINSTANCE().comment(Long.parseLong(cid),1).blockingFirst());
         GalleryDetail detail = new GalleryDetail(info);
 
         List<GalleryTagGroup> list = new ArrayList<>();
@@ -454,41 +450,7 @@ public class EhEngine {
 
     public static GalleryComment[] commentGallery(@Nullable EhClient.Task task,
                                                   OkHttpClient okHttpClient, String url, String comment) throws Throwable {
-        FormBody.Builder builder = new FormBody.Builder()
-                .add("commenttext_new", comment);
-        String origin = EhUrl.getOrigin();
-        Log.d(TAG, url);
-        Request request = new EhRequestBuilder(url, url, origin)
-                .post(builder.build())
-                .build();
-        Call call = okHttpClient.newCall(request);
-
-        // Put call
-        if (null != task) {
-            task.setCall(call);
-        }
-
-        String body = null;
-        Headers headers = null;
-        int code = -1;
-        try {
-            Response response = call.execute();
-            code = response.code();
-            headers = response.headers();
-            body = response.body().string();
-            Document document = Jsoup.parse(body);
-
-            Elements elements = document.select("#chd + p");
-            if (elements.size() > 0) {
-                throw new EhException(elements.get(0).text());
-            }
-
-            return GalleryDetailParser.parseComments(document);
-        } catch (Throwable e) {
-            ExceptionUtils.throwIfFatal(e);
-            throwException(call, code, headers, body, e);
-            throw e;
-        }
+        return new GalleryComment[0];
     }
 
     public static String getGalleryToken(@Nullable EhClient.Task task, OkHttpClient okHttpClient,
@@ -931,76 +893,6 @@ public class EhEngine {
         fillGalleryList(task, okHttpClient, result.galleryInfoList, url, true);
 
         return result;
-    }
-
-    public static GalleryPageParser.Result getGalleryPage(@Nullable EhClient.Task task,
-                                                          OkHttpClient okHttpClient, String url, long gid, String token) throws Throwable {
-        String referer = EhUrl.getGalleryDetailUrl(gid, token);
-        Log.d(TAG, url);
-        Request request = new EhRequestBuilder(url, referer).build();
-        Call call = okHttpClient.newCall(request);
-
-        // Put call
-        if (null != task) {
-            task.setCall(call);
-        }
-
-        String body = null;
-        Headers headers = null;
-        int code = -1;
-        try {
-            Response response = call.execute();
-            code = response.code();
-            headers = response.headers();
-            body = response.body().string();
-            return GalleryPageParser.parse(body);
-        } catch (Throwable e) {
-            ExceptionUtils.throwIfFatal(e);
-            throwException(call, code, headers, body, e);
-            throw e;
-        }
-    }
-
-    public static GalleryPageApiParser.Result getGalleryPageApi(@Nullable EhClient.Task task,
-                                                                OkHttpClient okHttpClient, long gid, int index, String pToken, String showKey, String previousPToken) throws Throwable {
-        final JSONObject json = new JSONObject();
-        json.put("method", "showpage");
-        json.put("gid", gid);
-        json.put("page", index + 1);
-        json.put("imgkey", pToken);
-        json.put("showkey", showKey);
-        final RequestBody requestBody = RequestBody.create(MEDIA_TYPE_JSON, json.toString());
-        String url = EhUrl.getApiUrl();
-        String referer = null;
-        if (index > 0 && previousPToken != null) {
-            referer = EhUrl.getPageUrl(gid, index - 1, previousPToken);
-        }
-        String origin = EhUrl.getOrigin();
-        Log.d(TAG, url);
-        Request request = new EhRequestBuilder(url, referer, origin)
-                .post(requestBody)
-                .build();
-        Call call = okHttpClient.newCall(request);
-
-        // Put call
-        if (null != task) {
-            task.setCall(call);
-        }
-
-        String body = null;
-        Headers headers = null;
-        int code = -1;
-        try {
-            Response response = call.execute();
-            code = response.code();
-            headers = response.headers();
-            body = response.body().string();
-            return GalleryPageApiParser.parse(body);
-        } catch (Throwable e) {
-            ExceptionUtils.throwIfFatal(e);
-            throwException(call, code, headers, body, e);
-            throw e;
-        }
     }
 
 }

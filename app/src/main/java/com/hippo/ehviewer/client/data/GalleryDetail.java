@@ -19,8 +19,10 @@ package com.hippo.ehviewer.client.data;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.axlecho.api.MHComicComment;
 import com.axlecho.api.MHComicDetail;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class GalleryDetail extends GalleryInfo {
@@ -93,6 +95,17 @@ public class GalleryDetail extends GalleryInfo {
         this.torrentCount = 0;
         this.torrentUrl = null;
         this.visible = "";
+        ArrayList<GalleryComment> comments = new ArrayList<>();
+        for(MHComicComment c: detail.getComments()) {
+            GalleryComment comment = new GalleryComment();
+            // comment.id = c.getId();
+            comment.score = c.getScore();
+            comment.comment = c.getComment();
+            comment.time = c.getTime();
+            comment.user = c.getUser();
+            comments.add(comment);
+        }
+        this.comments = comments.toArray(new GalleryComment[comments.size()]);
     }
 
     protected GalleryDetail(Parcel in) {

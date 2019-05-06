@@ -17,8 +17,10 @@
 package com.hippo.ehviewer.client.parser;
 
 import android.text.TextUtils;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
 import com.hippo.ehviewer.Settings;
 import com.hippo.ehviewer.client.EhUrl;
 import com.hippo.ehviewer.client.EhUtils;
@@ -36,6 +38,12 @@ import com.hippo.util.ExceptionUtils;
 import com.hippo.util.JsoupUtils;
 import com.hippo.yorozuya.NumberUtils;
 import com.hippo.yorozuya.StringUtils;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -46,10 +54,6 @@ import java.util.Locale;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 public class GalleryDetailParser {
 
@@ -425,7 +429,6 @@ public class GalleryDetailParser {
             Element c3 = JsoupUtils.getElementByClass(element, "c3");
             String temp = c3.ownText();
             temp = temp.substring("Posted on ".length(), temp.length() - " by:".length());
-            comment.time = WEB_COMMENT_DATE_FORMAT.parse(temp).getTime();
             // user
             comment.user = c3.child(0).text();
             // comment
@@ -460,32 +463,6 @@ public class GalleryDetailParser {
             e.printStackTrace();
             return EMPTY_GALLERY_COMMENT_ARRAY;
         }
-    }
-
-    /**
-     * Parse comments with regular expressions
-     */
-    @NonNull
-    public static GalleryComment[] parseComments(String body) {
-        List<GalleryComment> list = new LinkedList<>();
-
-        Matcher m = PATTERN_COMMENT.matcher(body);
-        while (m.find()) {
-            String webDateString = ParserUtils.trim(m.group(1));
-            Date date;
-            try {
-                date = WEB_COMMENT_DATE_FORMAT.parse(webDateString);
-            } catch (java.text.ParseException e) {
-                date = new Date(0L);
-            }
-            GalleryComment comment = new GalleryComment();
-            comment.time = date.getTime();
-            comment.user = ParserUtils.trim(m.group(2));
-            comment.comment = m.group(3);
-            list.add(comment);
-        }
-
-        return list.toArray(new GalleryComment[list.size()]);
     }
 
     /**

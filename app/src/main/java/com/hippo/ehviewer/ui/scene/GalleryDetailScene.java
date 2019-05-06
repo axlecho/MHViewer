@@ -959,7 +959,7 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
             TextView user = (TextView) v.findViewById(R.id.user);
             user.setText(comment.user);
             TextView time = (TextView) v.findViewById(R.id.time);
-            time.setText(ReadableTime.getTimeAgo(comment.time));
+            time.setText(comment.time);
             ObservedTextView c = (ObservedTextView) v.findViewById(R.id.comment);
             c.setMaxLines(5);
             c.setText(Html.fromHtml(comment.comment,

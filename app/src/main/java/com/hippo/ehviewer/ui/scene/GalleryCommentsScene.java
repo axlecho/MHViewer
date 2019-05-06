@@ -662,7 +662,7 @@ public final class GalleryCommentsScene extends ToolbarScene
 
             GalleryComment comment = mComments[position];
             holder.user.setText(comment.user);
-            holder.time.setText(ReadableTime.getTimeAgo(comment.time));
+            holder.time.setText(comment.time);
             holder.comment.setText(generateComment(context, holder.comment, comment));
         }
 
