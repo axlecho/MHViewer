@@ -1123,7 +1123,7 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
         request.setMethod(EhClient.METHOD_SEARCH);
         request.setCallback(new GetGalleryListListener(getContext(),
                 activity.getStageId(), getTag(),0));
-        request.setArgs(mGalleryInfo.title);
+        request.setArgs(mGalleryInfo.title,0);
         EhApplication.getEhClient(context).execute(request);
     }
     @Nullable
