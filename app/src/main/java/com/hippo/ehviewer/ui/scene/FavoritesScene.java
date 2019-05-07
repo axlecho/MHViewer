@@ -1093,7 +1093,7 @@ public class FavoritesScene extends BaseScene implements
                 request.setCallback(new GetFavoritesListener(getContext(),
                         activity.getStageId(), getTag(),
                         taskId, false, mUrlBuilder.getKeyword()));
-                request.setArgs(String.valueOf(page), Settings.getShowJpnTitle());
+                request.setArgs(page);
                 mClient.execute(request);
             }
         }

@@ -146,9 +146,9 @@ public class EhClient {
                     case METHOD_SIGN_IN:
                         return EhEngine.signIn(this, mOkHttpClient, (String) params[0], (String) params[1], (String) params[2], (String) params[3]);
                     case METHOD_GET_GALLERY_LIST:
-                        return EhEngine.getGalleryList(this, mOkHttpClient, (String) params[0]);
+                        return EhEngine.getGalleryList(this, mOkHttpClient, (String) params[0],(int) params[1]);
                     case METHOD_SEARCH:
-                        return EhEngine.search(this,mOkHttpClient,(String)params[0]);
+                        return EhEngine.search(this,mOkHttpClient,(String)params[0],(int) params[1]);
                     case METHOD_GET_GALLERY_DETAIL:
                         return EhEngine.getGalleryDetail(this, mOkHttpClient, (String) params[0]);
                     case METHOD_GET_PREVIEW_SET:
@@ -160,7 +160,7 @@ public class EhClient {
                     case METHOD_GET_GALLERY_TOKEN:
                         return EhEngine.getGalleryToken(this, mOkHttpClient, (Long) params[0], (String) params[1], (Integer) params[2]);
                     case METHOD_GET_FAVORITES:
-                        return EhEngine.getFavorites(this, mOkHttpClient, (String) params[0], (Boolean) params[1]);
+                        return EhEngine.getFavorites(this, mOkHttpClient, (int) params[0]);
                     case METHOD_ADD_FAVORITES:
                         return EhEngine.addFavorites(this, mOkHttpClient, (Long) params[0], (String) params[1], (Integer) params[2], (String) params[3]);
                     case METHOD_ADD_FAVORITES_RANGE:

@@ -1537,7 +1537,7 @@ public final class GalleryListScene extends BaseScene
                 request.setMethod(EhClient.METHOD_SEARCH);
                 request.setCallback(new GetGalleryListListener(getContext(),
                         activity.getStageId(), getTag(), taskId));
-                request.setArgs(url);
+                request.setArgs(url,mUrlBuilder.getPageIndex());
                 mClient.execute(request);
             } else {
                 String url = mUrlBuilder.build();
@@ -1545,7 +1545,7 @@ public final class GalleryListScene extends BaseScene
                 request.setMethod(EhClient.METHOD_GET_GALLERY_LIST);
                 request.setCallback(new GetGalleryListListener(getContext(),
                         activity.getStageId(), getTag(), taskId));
-                request.setArgs(url);
+                request.setArgs(url,mUrlBuilder.getPageIndex());
                 mClient.execute(request);
             }
         }
