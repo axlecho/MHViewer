@@ -209,7 +209,7 @@ abstract class GalleryAdapter extends RecyclerView.Adapter<GalleryHolder> {
                     category.setBackgroundColor(EhUtils.getCategoryColor(gi.category));
                 }
                 // TODO make use of this label
-                category.setVisibility(View.GONE);
+                category.setVisibility(View.INVISIBLE);
 
 
                 holder.posted.setText(gi.posted);
