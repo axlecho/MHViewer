@@ -668,12 +668,11 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
     private boolean request() {
         Context context = getContext2();
         MainActivity activity = getActivity2();
-        String url = String.valueOf(mGalleryInfo.gid);
-        if (null == context || null == activity || null == url) {
+        if (null == context || null == activity || null == mGalleryInfo) {
             return false;
         }
 
-
+        String url = String.valueOf(mGalleryInfo.gid);
         EhClient.Callback callback = new GetGalleryDetailListener(context,
                 activity.getStageId(), getTag());
         mRequestId = ((EhApplication) context.getApplicationContext()).putGlobalStuff(callback);
@@ -1543,7 +1542,7 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
                 return;
             }
         }
-
+        mGalleryInfo = null;
         onGetGalleryDetailFailure(new Exception("no found"));
     }
 

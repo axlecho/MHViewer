@@ -21,6 +21,7 @@ import android.os.Parcelable;
 
 import androidx.annotation.Nullable;
 
+import com.axlecho.api.MHApiSource;
 import com.axlecho.api.MHComicInfo;
 
 import java.util.regex.Pattern;
@@ -120,6 +121,7 @@ public class GalleryInfo implements Parcelable {
     public int spanSize;
     public int spanIndex;
     public int spanGroupIndex;
+    public MHApiSource source;
 
     public long getCid() {
         return Long.parseLong(cid.replaceAll("-",""));
@@ -189,6 +191,7 @@ public class GalleryInfo implements Parcelable {
         dest.writeInt(this.spanGroupIndex);
         dest.writeInt(this.favoriteSlot);
         dest.writeString(this.favoriteName);
+        dest.writeInt(this.source.ordinal());
     }
 
     public GalleryInfo() {}
@@ -204,6 +207,7 @@ public class GalleryInfo implements Parcelable {
         this.rating = info.getRating();
         this.titleJpn = info.getTitleJpn();
         this.uploader = info.getUploader();
+        this.source = info.getSource();
     }
     protected GalleryInfo(Parcel in) {
         this.gid = in.readLong();
@@ -226,6 +230,7 @@ public class GalleryInfo implements Parcelable {
         this.spanGroupIndex = in.readInt();
         this.favoriteSlot = in.readInt();
         this.favoriteName = in.readString();
+        this.source = MHApiSource.values()[in.readInt()];
     }
 
     public static final Parcelable.Creator<GalleryInfo> CREATOR = new Parcelable.Creator<GalleryInfo>() {
