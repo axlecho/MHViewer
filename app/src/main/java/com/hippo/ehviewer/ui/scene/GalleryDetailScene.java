@@ -30,6 +30,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Parcelable;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.Pair;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -84,6 +85,7 @@ import com.hippo.ehviewer.client.exception.NoHAtHClientException;
 import com.hippo.ehviewer.client.parser.GalleryListParser;
 import com.hippo.ehviewer.client.parser.RateGalleryParser;
 import com.hippo.ehviewer.dao.DownloadInfo;
+import com.hippo.ehviewer.dao.ReadingRecord;
 import com.hippo.ehviewer.ui.CommonOperations;
 import com.hippo.ehviewer.ui.GalleryActivity;
 import com.hippo.ehviewer.ui.MainActivity;
@@ -99,7 +101,6 @@ import com.hippo.text.URLImageGetter;
 import com.hippo.util.AppHelper;
 import com.hippo.util.DrawableManager;
 import com.hippo.util.ExceptionUtils;
-import com.hippo.util.ReadableTime;
 import com.hippo.view.ViewTransition;
 import com.hippo.widget.AutoWrapLayout;
 import com.hippo.widget.LoadImageView;
@@ -119,7 +120,10 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class GalleryDetailScene extends BaseScene implements View.OnClickListener,
         com.hippo.ehviewer.download.DownloadManager.DownloadInfoListener,
@@ -565,6 +569,17 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
         }
 
         EhApplication.getDownloadManager(context).addDownloadInfoListener(this);
+
+        if(mGalleryInfo != null) {
+            ReadingRecord r = EhDB.getReadingRecord(mGalleryInfo.gid + "@" + mGalleryInfo.source.name());
+            if (r != null) {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA);
+                Date date = new Date(r.getUpdate_time());
+                Log.d("Test", "read " + sdf.format(date));
+
+                showTip(sdf.format(date), BaseScene.LENGTH_LONG);
+            }
+        }
 
         return view;
     }
@@ -1253,7 +1268,7 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
                 galleryInfo = mGalleryDetail;
             }
             if (galleryInfo != null) {
-                galleryInfo.cid = mGalleryDetail.tags[0].getChapterAt(0);
+                 galleryInfo.cid = mGalleryDetail.tags[0].getChapterAt(0);
                 Intent intent = new Intent(activity, GalleryActivity.class);
                 intent.setAction(GalleryActivity.ACTION_EH);
                 intent.putExtra(GalleryActivity.KEY_GALLERY_INFO, galleryInfo);

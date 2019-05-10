@@ -41,6 +41,8 @@ import com.hippo.ehviewer.dao.LocalFavoriteInfo;
 import com.hippo.ehviewer.dao.LocalFavoritesDao;
 import com.hippo.ehviewer.dao.QuickSearch;
 import com.hippo.ehviewer.dao.QuickSearchDao;
+import com.hippo.ehviewer.dao.ReadingRecord;
+import com.hippo.ehviewer.dao.ReadingRecordDao;
 import com.hippo.ehviewer.download.DownloadManager;
 import com.hippo.util.ExceptionUtils;
 import com.hippo.util.SqlUtils;
@@ -582,6 +584,8 @@ public class EhDB {
         dao.updateInTx(list);
     }
 
+
+
     public static synchronized LazyList<HistoryInfo> getHistoryLazyList() {
         return sDaoSession.getHistoryDao().queryBuilder().orderDesc(HistoryDao.Properties.Time).listLazy();
     }
@@ -626,6 +630,21 @@ public class EhDB {
         HistoryDao dao = sDaoSession.getHistoryDao();
         dao.deleteAll();
     }
+
+    public static synchronized ReadingRecord getReadingRecord(String id) {
+        ReadingRecordDao dao= sDaoSession.getReadingRecordDao();
+        return dao.load(id);
+    }
+
+    public static synchronized void putReadingRecord(ReadingRecord record) {
+        ReadingRecordDao dao = sDaoSession.getReadingRecordDao();
+        if (null == dao.load(record.getId())) {
+            dao.insert(record);
+        } else {
+            dao.update(record);
+        }
+    }
+
 
     public static synchronized List<Filter> getAllFilter() {
         return sDaoSession.getFilterDao().queryBuilder().list();

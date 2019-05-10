@@ -48,6 +48,7 @@ public class EhDaoGenerator {
         outDir.mkdirs();
 
         Schema schema = new Schema(VERSION, PACKAGE);
+        addReadingRecord(schema);
         addDownloads(schema);
         addDownloadLabel(schema);
         addDownloadDirname(schema);
@@ -64,6 +65,14 @@ public class EhDaoGenerator {
         adjustLocalFavoriteInfo();
         adjustBookmarkInfo();
         adjustFilter();
+    }
+
+    private static void addReadingRecord(Schema schema) {
+        Entity entity = schema.addEntity("ReadingRecord");
+        entity.setTableName("RECORDS");
+        entity.setClassNameDao("ReadingRecordDao");
+        entity.addStringProperty("id").primaryKey().notNull();
+        entity.addLongProperty("update_time").notNull();
     }
 
     private static void addDownloads(Schema schema) {
