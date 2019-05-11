@@ -801,6 +801,13 @@ public class FavoritesScene extends BaseScene implements
     }
 
     @Override
+    @Implemented(FabLayout.OnClickFabListener.class)
+    public void onLongClickSecondaryFab(FabLayout view,FloatingActionButton fab,int position) {
+        showTip("test",BaseScene.LENGTH_LONG );
+    }
+
+
+    @Override
     @Implemented(EasyRecyclerView.CustomChoiceListener.class)
     public void onIntoCustomChoice(EasyRecyclerView view) {
         if (mFabLayout != null) {

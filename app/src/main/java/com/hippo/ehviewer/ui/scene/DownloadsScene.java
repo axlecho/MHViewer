@@ -57,6 +57,7 @@ import com.github.amlcurran.showcaseview.targets.PointTarget;
 import com.github.amlcurran.showcaseview.targets.ViewTarget;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.hippo.android.resource.AttrResources;
+import com.hippo.annotation.Implemented;
 import com.hippo.app.CheckBoxDialogBuilder;
 import com.hippo.conaco.DataContainer;
 import com.hippo.conaco.ProgressNotifier;
@@ -769,6 +770,12 @@ public class DownloadsScene extends ToolbarScene
                 }
             }
         }
+    }
+
+    @Override
+    @Implemented(FabLayout.OnClickFabListener.class)
+    public void onLongClickSecondaryFab(FabLayout view,FloatingActionButton fab,int position) {
+        // showTip("test",BaseScene.LENGTH_LONG );
     }
 
     @Override

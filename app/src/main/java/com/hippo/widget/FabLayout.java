@@ -31,7 +31,7 @@ import com.hippo.yorozuya.AnimationUtils;
 import com.hippo.yorozuya.AssertUtils;
 import com.hippo.yorozuya.SimpleAnimatorListener;
 
-public class FabLayout extends ViewGroup implements View.OnClickListener {
+public class FabLayout extends ViewGroup implements View.OnClickListener,View.OnLongClickListener {
 
     private static final long ANIMATE_TIME = 300L;
 
@@ -166,6 +166,7 @@ public class FabLayout extends ViewGroup implements View.OnClickListener {
         if (listener != null) {
             for (int i = 0, n = getChildCount(); i < n; i++) {
                 getChildAt(i).setOnClickListener(this);
+                getChildAt(i).setOnLongClickListener(this);
             }
         } else {
             for (int i = 0, n = getChildCount(); i < n; i++) {
@@ -369,6 +370,20 @@ public class FabLayout extends ViewGroup implements View.OnClickListener {
     }
 
     @Override
+    public boolean onLongClick(View v) {
+        int position = indexOfChild(v);
+        if (position == getChildCount() - 1) {
+            // mOnClickFabListener.onClickPrimaryFab(this, (FloatingActionButton) v);
+        } else if (position >= 0 && mExpanded) {
+            mOnClickFabListener.onLongClickSecondaryFab(this, (FloatingActionButton) v, position);
+        }
+        return true;
+    }
+
+
+
+
+    @Override
     protected void dispatchSetPressed(boolean pressed) {
         // Don't dispatch it to children
     }
@@ -392,6 +407,7 @@ public class FabLayout extends ViewGroup implements View.OnClickListener {
         }
     }
 
+
     public interface OnExpandListener {
         void onExpand(boolean expanded);
     }
@@ -401,5 +417,7 @@ public class FabLayout extends ViewGroup implements View.OnClickListener {
         void onClickPrimaryFab(FabLayout view, FloatingActionButton fab);
 
         void onClickSecondaryFab(FabLayout view, FloatingActionButton fab, int position);
+
+        void onLongClickSecondaryFab(FabLayout view,FloatingActionButton fab,int position);
     }
 }

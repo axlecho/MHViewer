@@ -58,6 +58,7 @@ import com.github.amlcurran.showcaseview.SimpleShowcaseEventListener;
 import com.github.amlcurran.showcaseview.targets.PointTarget;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.hippo.android.resource.AttrResources;
+import com.hippo.annotation.Implemented;
 import com.hippo.app.CheckBoxDialogBuilder;
 import com.hippo.app.EditTextDialogBuilder;
 import com.hippo.drawable.AddDeleteDrawable;
@@ -1005,6 +1006,12 @@ public final class GalleryListScene extends BaseScene
         }
 
         view.setExpanded(false);
+    }
+
+    @Override
+    @Implemented(FabLayout.OnClickFabListener.class)
+    public void onLongClickSecondaryFab(FabLayout view,FloatingActionButton fab,int position) {
+        // showTip("test",BaseScene.LENGTH_LONG );
     }
 
     @Override

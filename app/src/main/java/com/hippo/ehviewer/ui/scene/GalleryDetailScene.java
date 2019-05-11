@@ -65,6 +65,7 @@ import com.axlecho.api.MHApiSource;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.Gson;
 import com.hippo.android.resource.AttrResources;
+import com.hippo.annotation.Implemented;
 import com.hippo.beerbelly.BeerBelly;
 import com.hippo.drawable.AddDeleteDrawable;
 import com.hippo.drawable.RoundSideRectDrawable;
@@ -393,6 +394,12 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
         }
 
         view.setExpanded(false);
+    }
+
+    @Override
+    @Implemented(FabLayout.OnClickFabListener.class)
+    public void onLongClickSecondaryFab(FabLayout view,FloatingActionButton fab,int position) {
+        // showTip("test",BaseScene.LENGTH_LONG );
     }
 
     private void handleArgs(Bundle args) {
