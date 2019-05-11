@@ -472,15 +472,14 @@ public class EhEngine {
     public static FavoritesParser.Result getFavorites(@Nullable EhClient.Task task, OkHttpClient okHttpClient,
                                                       int page) throws Throwable {
 
-        MHMutiItemResult<MHComicInfo>  comics = BangumiApi.Companion.getINSTANCE().collection("axlecho",page).blockingFirst();
-        int items = BangumiApi.Companion.getINSTANCE().collectionPages("axlecho").blockingFirst();
+        MHMutiItemResult<MHComicInfo>  comics = MHApi.Companion.getINSTANCE().collection("axlecho",page).blockingFirst();
         FavoritesParser.Result result = new FavoritesParser.Result();
         result.pages = comics.getPages();
         result.nextPage = comics.getCurrentPage() + 1;
         result.galleryInfoList = new ArrayList<>();
         result.catArray = new String[]{"想读","1","2","3","4","5","6","7","8","9"};
         result.countArray = new int[10];
-        result.countArray[0] = items;
+        result.countArray[0] = 53;
 
         for (MHComicInfo c : comics.getDatas()) {
             result.galleryInfoList.add(new GalleryInfo(c));
