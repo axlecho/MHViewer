@@ -107,28 +107,8 @@ public final class GalleryInfoScene extends ToolbarScene implements EasyRecycler
         mValues.add(gd.uploader);
         mKeys.add(resources.getString(R.string.key_posted));
         mValues.add(gd.posted);
-        mKeys.add(resources.getString(R.string.key_parent));
-        mValues.add(gd.parent);
-        mKeys.add(resources.getString(R.string.key_visible));
-        mValues.add(gd.visible);
-        mKeys.add(resources.getString(R.string.key_language));
-        mValues.add(gd.language);
-        mKeys.add(resources.getString(R.string.key_pages));
-        mValues.add(Integer.toString(gd.pages));
-        mKeys.add(resources.getString(R.string.key_size));
-        mValues.add(gd.size);
-        mKeys.add(resources.getString(R.string.key_favorite_count));
-        mValues.add(Integer.toString(gd.favoriteCount));
-        mKeys.add(resources.getString(R.string.key_favorited));
-        mValues.add(Boolean.toString(gd.isFavorited));
-        mKeys.add(resources.getString(R.string.key_rating_count));
-        mValues.add(Integer.toString(gd.ratingCount));
         mKeys.add(resources.getString(R.string.key_rating));
         mValues.add(Float.toString(gd.rating));
-        mKeys.add(resources.getString(R.string.key_torrents));
-        mValues.add(Integer.toString(gd.torrentCount));
-        mKeys.add(resources.getString(R.string.key_torrent_url));
-        mValues.add(gd.torrentUrl);
         mKeys.add(resources.getString(R.string.favorite_name));
         mValues.add(gd.favoriteName);
     }

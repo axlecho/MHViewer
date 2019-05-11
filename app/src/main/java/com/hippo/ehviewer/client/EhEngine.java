@@ -34,10 +34,11 @@ import com.hippo.ehviewer.EhDB;
 import com.hippo.ehviewer.GetText;
 import com.hippo.ehviewer.R;
 import com.hippo.ehviewer.Settings;
+import com.hippo.ehviewer.client.data.GalleryChapter;
 import com.hippo.ehviewer.client.data.GalleryComment;
 import com.hippo.ehviewer.client.data.GalleryDetail;
 import com.hippo.ehviewer.client.data.GalleryInfo;
-import com.hippo.ehviewer.client.data.GalleryTagGroup;
+import com.hippo.ehviewer.client.data.GalleryChapterGroup;
 import com.hippo.ehviewer.client.data.PreviewSet;
 import com.hippo.ehviewer.client.exception.CancelledException;
 import com.hippo.ehviewer.client.exception.EhException;
@@ -47,7 +48,6 @@ import com.hippo.ehviewer.client.parser.ArchiveParser;
 import com.hippo.ehviewer.client.parser.FavoritesParser;
 import com.hippo.ehviewer.client.parser.ForumsParser;
 import com.hippo.ehviewer.client.parser.GalleryApiParser;
-import com.hippo.ehviewer.client.parser.GalleryDetailParser;
 import com.hippo.ehviewer.client.parser.GalleryListParser;
 import com.hippo.ehviewer.client.parser.GalleryTokenApiParser;
 import com.hippo.ehviewer.client.parser.ProfileParser;
@@ -72,7 +72,6 @@ import okhttp3.Call;
 import okhttp3.FormBody;
 import okhttp3.Headers;
 import okhttp3.MediaType;
-import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -362,7 +361,6 @@ public class EhEngine {
 
     public static GalleryDetail getGalleryDetail(@Nullable EhClient.Task task, OkHttpClient okHttpClient,
                                                  String cid) throws Throwable {
-        // GalleryDetailParser.parse(body);
          MHComicDetail info = MHApi.Companion.getINSTANCE().info(Long.parseLong(cid)).blockingFirst();
         try {
             info.getComments().addAll(MHApi.Companion.getINSTANCE().comment(Long.parseLong(cid), 1).blockingFirst().getDatas());
@@ -371,45 +369,21 @@ public class EhEngine {
         }
         GalleryDetail detail = new GalleryDetail(info);
 
-        List<GalleryTagGroup> list = new ArrayList<>();
-        GalleryTagGroup g = new GalleryTagGroup();
-        g.groupName = "章节";
+        List<GalleryChapterGroup> list = new ArrayList<>();
+        GalleryChapterGroup g = new GalleryChapterGroup("章节",new ArrayList<>());
         for (MHComicChapter c : info.getChapters()) {
-            g.addChapter(c);
+            g.addChapter(new GalleryChapter(c.getTitle(),c.getUrl(),false));
         }
         list.add(g);
-        detail.tags = list.toArray(new GalleryTagGroup[list.size()]);
+        detail.chapters = list.toArray(new GalleryChapterGroup[list.size()]);
         return detail;
     }
 
 
     public static Pair<PreviewSet, Integer> getPreviewSet(
             @Nullable EhClient.Task task, OkHttpClient okHttpClient, String url) throws Throwable {
-        String referer = EhUrl.getReferer();
-        Log.d(TAG, url);
-        Request request = new EhRequestBuilder(url, referer).build();
-        Call call = okHttpClient.newCall(request);
+        return new Pair<>(null,null);
 
-        // Put call
-        if (null != task) {
-            task.setCall(call);
-        }
-
-        String body = null;
-        Headers headers = null;
-        int code = -1;
-        try {
-            Response response = call.execute();
-            code = response.code();
-            headers = response.headers();
-            body = response.body().string();
-            return Pair.create(GalleryDetailParser.parsePreviewSet(body),
-                    GalleryDetailParser.parsePreviewPages(body));
-        } catch (Throwable e) {
-            ExceptionUtils.throwIfFatal(e);
-            throwException(call, code, headers, body, e);
-            throw e;
-        }
     }
 
     public static RateGalleryParser.Result rateGallery(@Nullable EhClient.Task task,
@@ -576,51 +550,8 @@ public class EhEngine {
 
     public static FavoritesParser.Result modifyFavorites(@Nullable EhClient.Task task, OkHttpClient okHttpClient,
                                                          String url, long[] gidArray, int dstCat, boolean callApi) throws Throwable {
-        String catStr;
-        if (dstCat == -1) {
-            catStr = "delete";
-        } else if (dstCat >= 0 && dstCat <= 9) {
-            catStr = "fav" + dstCat;
-        } else {
-            throw new EhException("Invalid dstCat: " + dstCat);
-        }
-        FormBody.Builder builder = new FormBody.Builder();
-        builder.add("ddact", catStr);
-        for (long gid : gidArray) {
-            builder.add("modifygids[]", Long.toString(gid));
-        }
-        builder.add("apply", "Apply");
-        String origin = EhUrl.getOrigin();
-        Log.d(TAG, url);
-        Request request = new EhRequestBuilder(url, url, origin)
-                .post(builder.build())
-                .build();
-        Call call = okHttpClient.newCall(request);
 
-        // Put call
-        if (null != task) {
-            task.setCall(call);
-        }
-
-        String body = null;
-        Headers headers = null;
-        FavoritesParser.Result result;
-        int code = -1;
-        try {
-            Response response = call.execute();
-            code = response.code();
-            headers = response.headers();
-            body = response.body().string();
-            result = FavoritesParser.parse(body);
-        } catch (Throwable e) {
-            ExceptionUtils.throwIfFatal(e);
-            throwException(call, code, headers, body, e);
-            throw e;
-        }
-
-        fillGalleryList(task, okHttpClient, result.galleryInfoList, url, false);
-
-        return result;
+        return new FavoritesParser.Result();
     }
 
     public static Pair<String, String>[] getTorrentList(@Nullable EhClient.Task task, OkHttpClient okHttpClient,
@@ -833,70 +764,7 @@ public class EhEngine {
      */
     public static GalleryListParser.Result imageSearch(@Nullable EhClient.Task task, OkHttpClient okHttpClient,
                                                        File image, boolean uss, boolean osc, boolean se) throws Throwable {
-        MultipartBody.Builder builder = new MultipartBody.Builder();
-        builder.setType(MultipartBody.FORM);
-        builder.addPart(
-                Headers.of("Content-Disposition", "form-data; name=\"sfile\"; filename=\"a.jpg\""),
-                RequestBody.create(MEDIA_TYPE_JPEG, image)
-        );
-        if (uss) {
-            builder.addPart(
-                    Headers.of("Content-Disposition", "form-data; name=\"fs_similar\""),
-                    RequestBody.create(null, "on")
-            );
-        }
-        if (osc) {
-            builder.addPart(
-                    Headers.of("Content-Disposition", "form-data; name=\"fs_covers\""),
-                    RequestBody.create(null, "on")
-            );
-        }
-        if (se) {
-            builder.addPart(
-                    Headers.of("Content-Disposition", "form-data; name=\"fs_exp\""),
-                    RequestBody.create(null, "on")
-            );
-        }
-        builder.addPart(
-                Headers.of("Content-Disposition", "form-data; name=\"f_sfile\""),
-                RequestBody.create(null, "File Search")
-        );
-        String url = EhUrl.getImageSearchUrl();
-        String referer = EhUrl.getReferer();
-        String origin = EhUrl.getOrigin();
-        Log.d(TAG, url);
-        Request request = new EhRequestBuilder(url, referer, origin)
-                .post(builder.build())
-                .build();
-        Call call = okHttpClient.newCall(request);
-
-        // Put call
-        if (null != task) {
-            task.setCall(call);
-        }
-
-        String body = null;
-        Headers headers = null;
-        GalleryListParser.Result result;
-        int code = -1;
-        try {
-            Response response = call.execute();
-
-            Log.d(TAG, "" + response.request().url().toString());
-
-            code = response.code();
-            headers = response.headers();
-            body = response.body().string();
-            result = GalleryListParser.parse(body);
-        } catch (Throwable e) {
-            ExceptionUtils.throwIfFatal(e);
-            throwException(call, code, headers, body, e);
-            throw e;
-        }
-
-        fillGalleryList(task, okHttpClient, result.galleryInfoList, url, true);
-
-        return result;
+        return new GalleryListParser.Result();
     }
 
 }

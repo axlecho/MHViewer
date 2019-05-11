@@ -16,7 +16,6 @@
 
 package com.hippo.ehviewer.ui.scene;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.DownloadManager;
@@ -60,6 +59,7 @@ import androidx.transition.TransitionInflater;
 
 import com.axlecho.api.MHApi;
 import com.axlecho.api.MHApiSource;
+import com.google.gson.Gson;
 import com.hippo.android.resource.AttrResources;
 import com.hippo.beerbelly.BeerBelly;
 import com.hippo.drawable.RoundSideRectDrawable;
@@ -68,19 +68,17 @@ import com.hippo.ehviewer.AppConfig;
 import com.hippo.ehviewer.EhApplication;
 import com.hippo.ehviewer.EhDB;
 import com.hippo.ehviewer.R;
-import com.hippo.ehviewer.Settings;
 import com.hippo.ehviewer.UrlOpener;
 import com.hippo.ehviewer.client.EhCacheKeyFactory;
 import com.hippo.ehviewer.client.EhClient;
 import com.hippo.ehviewer.client.EhRequest;
-import com.hippo.ehviewer.client.EhTagDatabase;
 import com.hippo.ehviewer.client.EhUtils;
+import com.hippo.ehviewer.client.data.GalleryChapter;
+import com.hippo.ehviewer.client.data.GalleryChapterGroup;
 import com.hippo.ehviewer.client.data.GalleryComment;
 import com.hippo.ehviewer.client.data.GalleryDetail;
 import com.hippo.ehviewer.client.data.GalleryInfo;
-import com.hippo.ehviewer.client.data.GalleryTagGroup;
 import com.hippo.ehviewer.client.data.ListUrlBuilder;
-import com.hippo.ehviewer.client.data.PreviewSet;
 import com.hippo.ehviewer.client.exception.NoHAtHClientException;
 import com.hippo.ehviewer.client.parser.GalleryListParser;
 import com.hippo.ehviewer.client.parser.RateGalleryParser;
@@ -120,10 +118,7 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 public class GalleryDetailScene extends BaseScene implements View.OnClickListener,
         com.hippo.ehviewer.download.DownloadManager.DownloadInfoListener,
@@ -304,7 +299,7 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
         } else if (mGalleryInfo != null) {
             gid = mGalleryInfo.gid;
         }
-        return MHApi.Companion.getINSTANCE().pageUrl((int)gid);
+        return MHApi.Companion.getINSTANCE().pageUrl((int) gid);
     }
 
     // -1 for error
@@ -379,6 +374,8 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
     }
 
     private void onRestore(Bundle savedInstanceState) {
+        Log.d("XXXX", "onrestore");
+
         mAction = savedInstanceState.getString(KEY_ACTION);
         mGalleryInfo = savedInstanceState.getParcelable(KEY_GALLERY_INFO);
         mGid = savedInstanceState.getLong(KEY_GID);
@@ -537,8 +534,8 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
         Ripple.addRipple(mComments, isDarkTheme);
         mComments.setOnClickListener(this);
 
-        mIntro  = (LinearLayout) ViewUtils.$$(belowHeader,R.id.intro);
-        mIntroText = (TextView) ViewUtils.$$(belowHeader,R.id.intro_text);
+        mIntro = (LinearLayout) ViewUtils.$$(belowHeader, R.id.intro);
+        mIntroText = (TextView) ViewUtils.$$(belowHeader, R.id.intro_text);
         Ripple.addRipple(mIntro, isDarkTheme);
 
         mPreviews = ViewUtils.$$(belowHeader, R.id.previews);
@@ -569,18 +566,6 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
         }
 
         EhApplication.getDownloadManager(context).addDownloadInfoListener(this);
-
-        if(mGalleryInfo != null) {
-            ReadingRecord r = EhDB.getReadingRecord(mGalleryInfo.gid + "@" + mGalleryInfo.source.name());
-            if (r != null) {
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA);
-                Date date = new Date(r.getUpdate_time());
-                Log.d("Test", "read " + sdf.format(date));
-
-                showTip(sdf.format(date), BaseScene.LENGTH_LONG);
-            }
-        }
-
         return view;
     }
 
@@ -837,6 +822,31 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
         }
     }
 
+    private void setReadInfo() {
+        EhDB.putReadingRecord(new ReadingRecord(mGalleryDetail.gid+ "@" + mGalleryDetail.source.name()
+                , System.currentTimeMillis(),new Gson().toJson(mGalleryDetail.chapters)));
+        bindViewSecond();
+    }
+
+    private void checkReadInfo() {
+        ReadingRecord record = EhDB.getReadingRecord(mGalleryDetail.gid + "@" + mGalleryDetail.source.name());
+        if (record != null) {
+            GalleryChapterGroup[] chapters = new Gson().fromJson(record.getChapter_info(), GalleryChapterGroup[].class);
+            for (GalleryChapterGroup group : chapters) {
+                for (GalleryChapter chapter : group.getChapterList()) {
+                    for (GalleryChapterGroup tgroup : mGalleryDetail.chapters) {
+                        for (GalleryChapter tchapter : tgroup.getChapterList()) {
+                            if (chapter.getTitle().equals(tchapter.getTitle())) {
+                                tchapter.setRead(chapter.getRead());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        bindViewSecond();
+    }
+
     private void bindViewSecond() {
         GalleryDetail gd = mGalleryDetail;
         if (gd == null) {
@@ -858,10 +868,6 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
         mCategory.setTextColor(EhUtils.getCategoryColor(gd.category));
         updateFavoriteText();
 
-        mLanguage.setText(gd.language);
-        mPages.setText(resources.getQuantityString(
-                R.plurals.page_count, gd.pages, gd.pages));
-        mSize.setText(gd.size);
         mPosted.setText(gd.posted);
         mFavoredTimes.setText(resources.getString(R.string.favored_times, gd.favoriteCount));
 
@@ -870,12 +876,10 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
 
         updateFavoriteDrawable();
 
-        mTorrent.setText(resources.getString(R.string.torrent_count, gd.torrentCount));
-
         bindIntro(gd.intro);
-        bindTags(gd.tags);
+        bindTags(gd.chapters);
         bindComments(gd.comments);
-        bindPreviews(gd);
+        // bindPreviews(gd);
     }
 
     private void bindIntro(String intro) {
@@ -889,7 +893,7 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
     }
 
     @SuppressWarnings("deprecation")
-    private void bindTags(GalleryTagGroup[] tagGroups) {
+    private void bindTags(GalleryChapterGroup[] tagGroups) {
         Context context = getContext2();
         LayoutInflater inflater = getLayoutInflater2();
         Resources resources = getResources2();
@@ -905,44 +909,26 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
             mNoTags.setVisibility(View.GONE);
         }
 
-        EhTagDatabase ehTags = Settings.getShowTagTranslations() ? EhTagDatabase.getInstance(context) : null;
         int colorTag = AttrResources.getAttrColor(context, R.attr.tagBackgroundColor);
         int colorName = AttrResources.getAttrColor(context, R.attr.tagGroupBackgroundColor);
-        for (GalleryTagGroup tg : tagGroups) {
+        for (GalleryChapterGroup tg : tagGroups) {
             LinearLayout ll = (LinearLayout) inflater.inflate(R.layout.gallery_tag_group, mTags, false);
             ll.setOrientation(LinearLayout.HORIZONTAL);
             mTags.addView(ll);
-
-            String readableTagName = null;
-            if (ehTags != null) {
-                readableTagName = ehTags.getTranslation("n:" + tg.groupName);
-            }
-
             TextView tgName = (TextView) inflater.inflate(R.layout.item_gallery_tag, ll, false);
             ll.addView(tgName);
-            tgName.setText(readableTagName != null ? readableTagName : tg.groupName);
+            tgName.setText(tg.getGroupName());
             tgName.setBackgroundDrawable(new RoundSideRectDrawable(colorName));
-
-            String prefix = EhTagDatabase.namespaceToPrefix(tg.groupName);
-            if (prefix == null) {
-                prefix = "";
-            }
 
             AutoWrapLayout awl = new AutoWrapLayout(context);
             ll.addView(awl, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             for (int j = 0, z = tg.size(); j < z; j++) {
                 TextView tag = (TextView) inflater.inflate(R.layout.item_gallery_tag, awl, false);
                 awl.addView(tag);
-                String tagStr = tg.getChapterAt(j);
-
-                String readableTag = null;
-                if (ehTags != null) {
-                    readableTag = ehTags.getTranslation(prefix + tagStr);
-                }
-
-                tag.setText(readableTag != null ? readableTag : tagStr);
-                tag.setBackgroundDrawable(new RoundSideRectDrawable(colorTag));
-                tag.setTag(R.id.tag, tg.getChapterSourceAt(j));
+                GalleryChapter chapter = tg.getChapterList().get(j);
+                tag.setText(chapter.getTitle());
+                tag.setBackgroundDrawable(new RoundSideRectDrawable(chapter.getRead() ? colorName : colorTag));
+                tag.setTag(R.id.tag, chapter);
                 tag.setOnClickListener(this);
                 tag.setOnLongClickListener(this);
             }
@@ -981,42 +967,6 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
             c.setMaxLines(5);
             c.setText(Html.fromHtml(comment.comment,
                     new URLImageGetter(c, EhApplication.getConaco(context)), null));
-        }
-    }
-
-
-    @SuppressLint("SetTextI18n")
-    private void bindPreviews(GalleryDetail gd) {
-        LayoutInflater inflater = getLayoutInflater2();
-        Resources resources = getResources2();
-        if (null == inflater || null == resources || null == mGridLayout || null == mPreviewText) {
-            return;
-        }
-
-        mGridLayout.removeAllViews();
-        PreviewSet previewSet = gd.previewSet;
-        if (gd.previewPages <= 0 || previewSet == null || previewSet.size() == 0) {
-            mPreviewText.setText(R.string.no_previews);
-            return;
-        } else if (gd.previewPages == 1) {
-            mPreviewText.setText(R.string.no_more_previews);
-        } else {
-            mPreviewText.setText(R.string.more_previews);
-        }
-
-        int columnWidth = resources.getDimensionPixelOffset(Settings.getThumbSizeResId());
-        mGridLayout.setColumnSize(columnWidth);
-        mGridLayout.setStrategy(SimpleGridAutoSpanLayout.STRATEGY_SUITABLE_SIZE);
-        for (int i = 0, size = previewSet.size(); i < size; i++) {
-            View view = inflater.inflate(R.layout.item_gallery_preview, mGridLayout, false);
-            mGridLayout.addView(view);
-
-            LoadImageView image = (LoadImageView) view.findViewById(R.id.image);
-            previewSet.load(image, gd.gid, i);
-            image.setTag(R.id.index, i);
-            image.setOnClickListener(this);
-            TextView text = (TextView) view.findViewById(R.id.text);
-            text.setText(Integer.toString(previewSet.getPosition(i) + 1));
         }
     }
 
@@ -1094,8 +1044,8 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
         popup.getMenuInflater().inflate(R.menu.scene_gallery_detail, popup.getMenu());
 
         View.generateViewId();
-        popup.getMenu().add(Menu.NONE,101,Menu.NONE,"汗汗");
-        popup.getMenu().add(Menu.NONE,102,Menu.NONE,"Bangumi");
+        popup.getMenu().add(Menu.NONE, 101, Menu.NONE, "汗汗");
+        popup.getMenu().add(Menu.NONE, 102, Menu.NONE, "Bangumi");
         popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
@@ -1137,17 +1087,18 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
         EhRequest request = new EhRequest();
         request.setMethod(EhClient.METHOD_SEARCH);
         request.setCallback(new GetGalleryListListener(getContext(),
-                activity.getStageId(), getTag(),0));
-        request.setArgs(mGalleryInfo.title,0);
+                activity.getStageId(), getTag(), 0));
+        request.setArgs(mGalleryInfo.title, 0);
         EhApplication.getEhClient(context).execute(request);
     }
+
     @Nullable
-    private static String getArtist(GalleryTagGroup[] tagGroups) {
+    private static String getArtist(GalleryChapterGroup[] tagGroups) {
         if (null == tagGroups) {
             return null;
         }
-        for (GalleryTagGroup tagGroup : tagGroups) {
-            if ("artist".equals(tagGroup.groupName) && tagGroup.size() > 0) {
+        for (GalleryChapterGroup tagGroup : tagGroups) {
+            if ("artist".equals(tagGroup.getGroupName()) && tagGroup.size() > 0) {
                 return tagGroup.getChapterAt(0);
             }
         }
@@ -1167,7 +1118,7 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
             GalleryListScene.startScene(this, lub);
             return;
         }
-        String artist = getArtist(gd.tags);
+        String artist = getArtist(gd.chapters);
         if (null != artist) {
             ListUrlBuilder lub = new ListUrlBuilder();
             lub.setMode(ListUrlBuilder.MODE_TAG);
@@ -1268,7 +1219,7 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
                 galleryInfo = mGalleryDetail;
             }
             if (galleryInfo != null) {
-                 galleryInfo.cid = mGalleryDetail.tags[0].getChapterAt(0);
+                galleryInfo.cid = mGalleryDetail.chapters[0].getChapterAt(0);
                 Intent intent = new Intent(activity, GalleryActivity.class);
                 intent.setAction(GalleryActivity.ACTION_EH);
                 intent.putExtra(GalleryActivity.KEY_GALLERY_INFO, galleryInfo);
@@ -1302,39 +1253,11 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
             if (url != null) {
                 AppHelper.share(activity, url);
             }
-        } else if (mTorrent == v) {
-            if (mGalleryDetail != null) {
-                TorrentListDialogHelper helper = new TorrentListDialogHelper();
-                Dialog dialog = new AlertDialog.Builder(context)
-                        .setTitle(R.string.torrents)
-                        .setView(R.layout.dialog_torrent_list)
-                        .setOnDismissListener(helper)
-                        .show();
-                helper.setDialog(dialog, mGalleryDetail.torrentUrl);
-            }
-        } else if (mArchive == v) {
-            if (mGalleryDetail == null) {
-                return;
-            }
-            if (mGalleryDetail.apiUid < 0) {
-                showTip(R.string.sign_in_first, LENGTH_LONG);
-                return;
-            }
-            ArchiveListDialogHelper helper = new ArchiveListDialogHelper();
-            Dialog dialog = new AlertDialog.Builder(context)
-                    .setTitle(R.string.dialog_archive_title)
-                    .setView(R.layout.dialog_archive_list)
-                    .setOnDismissListener(helper)
-                    .show();
-            helper.setDialog(dialog, mGalleryDetail.archiveUrl);
         } else if (mRate == v) {
             if (mGalleryDetail == null) {
                 return;
             }
-            if (mGalleryDetail.apiUid < 0) {
-                showTip(R.string.sign_in_first, LENGTH_LONG);
-                return;
-            }
+
             RateDialogHelper helper = new RateDialogHelper();
             Dialog dialog = new AlertDialog.Builder(context)
                     .setTitle(R.string.rate)
@@ -1352,11 +1275,7 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
                 return;
             }
             Bundle args = new Bundle();
-            args.putLong(GalleryCommentsScene.KEY_API_UID, mGalleryDetail.apiUid);
-            args.putString(GalleryCommentsScene.KEY_API_KEY, mGalleryDetail.apiKey);
             args.putLong(GalleryCommentsScene.KEY_GID, mGalleryDetail.gid);
-            args.putString(GalleryCommentsScene.KEY_TOKEN, mGalleryDetail.token);
-            args.putParcelableArray(GalleryCommentsScene.KEY_COMMENTS, mGalleryDetail.comments);
             startScene(new Announcer(GalleryCommentsScene.class)
                     .setArgs(args)
                     .setRequestCode(this, REQUEST_CODE_COMMENT_GALLERY));
@@ -1367,35 +1286,19 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
                 startScene(new Announcer(GalleryPreviewsScene.class).setArgs(args));
             }
         } else {
-            Object o = v.getTag(R.id.tag);
-            if (o instanceof String) {
-                GalleryInfo galleryInfo = null;
-                if (mGalleryInfo != null) {
-                    galleryInfo = mGalleryInfo;
-                } else if (mGalleryDetail != null) {
-                    galleryInfo = mGalleryDetail;
-                }
-                if (galleryInfo != null) {
-                    galleryInfo.cid = (String) o;
-                    Intent intent = new Intent(activity, GalleryActivity.class);
-                    intent.setAction(GalleryActivity.ACTION_EH);
-                    intent.putExtra(GalleryActivity.KEY_GALLERY_INFO, galleryInfo);
-                    startActivity(intent);
-                }
-
-            }
-
-            GalleryInfo galleryInfo = getGalleryInfo();
-            o = v.getTag(R.id.index);
-            if (null != galleryInfo && o instanceof Integer) {
-                int index = (Integer) o;
-                Intent intent = new Intent(context, GalleryActivity.class);
-                intent.setAction(GalleryActivity.ACTION_EH);
-                intent.putExtra(GalleryActivity.KEY_GALLERY_INFO, galleryInfo);
-                intent.putExtra(GalleryActivity.KEY_PAGE, index);
-                startActivity(intent);
+            if (mGalleryDetail == null) {
                 return;
             }
+
+            GalleryChapter c = (GalleryChapter) v.getTag(R.id.tag);
+            c.setRead(true);
+            setReadInfo();
+
+            mGalleryDetail.cid = c.getUrl();
+            Intent intent = new Intent(activity, GalleryActivity.class);
+            intent.setAction(GalleryActivity.ACTION_EH);
+            intent.putExtra(GalleryActivity.KEY_GALLERY_INFO, mGalleryDetail);
+            startActivity(intent);
         }
     }
 
@@ -1547,8 +1450,8 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
     }
 
     private void onSwitchSource(GalleryListParser.Result result) {
-        for(GalleryInfo info :result.galleryInfoList) {
-            if(getGalleryInfo() != null && getGalleryInfo().title.equals(info.title)) {
+        for (GalleryInfo info : result.galleryInfoList) {
+            if (getGalleryInfo() != null && getGalleryInfo().title.equals(info.title)) {
                 mGalleryInfo = info;
                 if (mState != STATE_REFRESH && mState != STATE_REFRESH_HEADER) {
                     adjustViewVisibility(STATE_REFRESH, true);
@@ -1564,6 +1467,7 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
     private void onGetGalleryDetailSuccess(GalleryDetail result) {
         mGalleryDetail = result;
         updateDownloadState();
+        checkReadInfo();
         adjustViewVisibility(STATE_NORMAL, true);
         bindViewSecond();
     }
@@ -1594,7 +1498,7 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
     private void onModifyFavoritesSuccess(boolean addOrRemove) {
         mModifingFavorites = false;
         if (mGalleryDetail != null) {
-            mGalleryDetail.isFavorited = !addOrRemove && mGalleryDetail.favoriteName != null;
+            mGalleryDetail.isFavorited = (!addOrRemove && mGalleryDetail.favoriteName != null);
             updateFavoriteDrawable();
         }
     }
@@ -1941,6 +1845,7 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
             // Add history
             EhDB.putHistoryInfo(result);
 
+
             // Notify success
             GalleryDetailScene scene = getScene();
             if (scene != null) {
@@ -2037,8 +1942,6 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
 
             EhRequest request = new EhRequest()
                     .setMethod(EhClient.METHOD_GET_RATE_GALLERY)
-                    .setArgs(mGalleryDetail.apiUid, mGalleryDetail.apiKey,
-                            mGalleryDetail.gid, mGalleryDetail.token, mRatingBar.getRating())
                     .setCallback(new RateGalleryListener(context,
                             activity.getStageId(), getTag(), mGalleryDetail.gid));
             EhApplication.getEhClient(context).execute(request);

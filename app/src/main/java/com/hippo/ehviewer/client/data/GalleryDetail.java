@@ -41,7 +41,7 @@ public class GalleryDetail extends GalleryInfo {
     public int favoriteCount;
     public boolean isFavorited;
     public int ratingCount;
-    public GalleryTagGroup[] tags;
+    public GalleryChapterGroup[] chapters;
     public GalleryComment[] comments;
     public int previewPages;
     public PreviewSet previewSet;
@@ -66,7 +66,7 @@ public class GalleryDetail extends GalleryInfo {
         dest.writeInt(this.favoriteCount);
         dest.writeByte(isFavorited ? (byte) 1 : (byte) 0);
         dest.writeInt(this.ratingCount);
-        dest.writeParcelableArray(this.tags, 0);
+        dest.writeParcelableArray(this.chapters, 0);
         dest.writeParcelableArray(this.comments, 0);
         dest.writeInt(this.previewPages);
         dest.writeParcelable(previewSet, flags);
@@ -91,7 +91,7 @@ public class GalleryDetail extends GalleryInfo {
         this.previewSet = null;
         this.ratingCount = detail.getRatingCount();
         this.size = "";
-        this.tags = null;
+        this.chapters = null;
         this.torrentCount = 0;
         this.torrentUrl = null;
         this.visible = "";
@@ -122,11 +122,11 @@ public class GalleryDetail extends GalleryInfo {
         this.favoriteCount = in.readInt();
         this.isFavorited = in.readByte() != 0;
         this.ratingCount = in.readInt();
-        Parcelable[] array = in.readParcelableArray(GalleryTagGroup.class.getClassLoader());
+        Parcelable[] array = in.readParcelableArray(GalleryChapterGroup.class.getClassLoader());
         if (array != null) {
-            this.tags = Arrays.copyOf(array, array.length, GalleryTagGroup[].class);
+            this.chapters = Arrays.copyOf(array, array.length, GalleryChapterGroup[].class);
         } else {
-            this.tags = null;
+            this.chapters = null;
         }
         array = in.readParcelableArray(GalleryComment.class.getClassLoader());
         if (array != null) {

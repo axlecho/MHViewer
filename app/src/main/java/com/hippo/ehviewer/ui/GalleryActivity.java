@@ -48,14 +48,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.SwitchCompat;
+
 import com.hippo.android.resource.AttrResources;
 import com.hippo.ehviewer.AppConfig;
 import com.hippo.ehviewer.BuildConfig;
-import com.hippo.ehviewer.EhDB;
 import com.hippo.ehviewer.R;
 import com.hippo.ehviewer.Settings;
-import com.hippo.ehviewer.client.data.GalleryInfo;
-import com.hippo.ehviewer.dao.ReadingRecord;
+import com.hippo.ehviewer.client.data.GalleryDetail;
 import com.hippo.ehviewer.gallery.ArchiveGalleryProvider;
 import com.hippo.ehviewer.gallery.DirGalleryProvider;
 import com.hippo.ehviewer.gallery.EhGalleryProvider;
@@ -106,7 +105,7 @@ public class GalleryActivity extends EhActivity implements SeekBar.OnSeekBarChan
     private String mAction;
     private String mFilename;
     private Uri mUri;
-    private GalleryInfo mGalleryInfo;
+    private GalleryDetail mGalleryInfo;
     private int mPage;
     private String mCacheFileName;
 
@@ -228,9 +227,6 @@ public class GalleryActivity extends EhActivity implements SeekBar.OnSeekBarChan
         mUri = intent.getData();
         mGalleryInfo = intent.getParcelableExtra(KEY_GALLERY_INFO);
         mPage = intent.getIntExtra(KEY_PAGE, -1);
-
-        EhDB.putReadingRecord(new ReadingRecord(mGalleryInfo.gid+ "@" + mGalleryInfo.source.name()
-                , System.currentTimeMillis()));
         buildProvider();
     }
 

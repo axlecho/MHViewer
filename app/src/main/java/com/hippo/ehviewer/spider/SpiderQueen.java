@@ -29,8 +29,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 
-import com.axlecho.api.MHComicData;
 import com.axlecho.api.MHApi;
+import com.axlecho.api.MHComicData;
 import com.hippo.beerbelly.SimpleDiskCache;
 import com.hippo.ehviewer.EhApplication;
 import com.hippo.ehviewer.GetText;
@@ -38,9 +38,6 @@ import com.hippo.ehviewer.R;
 import com.hippo.ehviewer.Settings;
 import com.hippo.ehviewer.client.EhRequestBuilder;
 import com.hippo.ehviewer.client.data.GalleryInfo;
-import com.hippo.ehviewer.client.data.PreviewSet;
-import com.hippo.ehviewer.client.exception.ParseException;
-import com.hippo.ehviewer.client.parser.GalleryDetailParser;
 import com.hippo.ehviewer.gallery.GalleryProvider2;
 import com.hippo.glgallery.GalleryPageView;
 import com.hippo.glgallery.GalleryProvider;
@@ -89,11 +86,13 @@ public final class SpiderQueen implements Runnable {
 
     @IntDef({MODE_READ, MODE_DOWNLOAD})
     @Retention(RetentionPolicy.SOURCE)
-    public @interface Mode {}
+    public @interface Mode {
+    }
 
     @IntDef({STATE_NONE, STATE_DOWNLOADING, STATE_FINISHED, STATE_FAILED})
     @Retention(RetentionPolicy.SOURCE)
-    public @interface State {}
+    public @interface State {
+    }
 
     public static final int MODE_READ = 0;
     public static final int MODE_DOWNLOAD = 1;
@@ -283,7 +282,7 @@ public final class SpiderQueen implements Runnable {
 
     @UiThread
     public static SpiderQueen obtainSpiderQueen(@NonNull Context context,
-            @NonNull GalleryInfo galleryInfo, @Mode int mode) {
+                                                @NonNull GalleryInfo galleryInfo, @Mode int mode) {
         OSUtils.checkMainLoop();
 
         SpiderQueen queen = sQueenMap.get(galleryInfo.getCid());
@@ -444,8 +443,8 @@ public final class SpiderQueen implements Runnable {
     }
 
     private void tryToEnsureWorkers() {
-        if(DEBUG_LOG) {
-            Log.v(TAG,"tryToEnsureWorkers");
+        if (DEBUG_LOG) {
+            Log.v(TAG, "tryToEnsureWorkers");
         }
         boolean startWorkers = false;
         synchronized (mRequestPageQueue) {
@@ -457,15 +456,15 @@ public final class SpiderQueen implements Runnable {
                 startWorkers = true;
             }
 
-            if(false) {
-                Log.v(TAG,"startWorkers : " + startWorkers);
-                Log.v(TAG,"mPageStateArray : " + (mPageStateArray != null));
-                Log.v(TAG,"mForceRequestPageQueue : " + !mForceRequestPageQueue.isEmpty());
-                Log.v(TAG,"mRequestPageQueue : " + !mRequestPageQueue.isEmpty());
-                Log.v(TAG,"mRequestPageQueue2 : " + !mRequestPageQueue2.isEmpty());
-                Log.v(TAG,"mDownloadPage : " + mDownloadPage);
-                Log.v(TAG,"mPageStateArray.length : " + mPageStateArray.length);
-                Log.v(TAG,"check index : " + (mDownloadPage >= 0) + " " + (0 >= 0) + " " + (mDownloadPage < mPageStateArray.length));
+            if (false) {
+                Log.v(TAG, "startWorkers : " + startWorkers);
+                Log.v(TAG, "mPageStateArray : " + (mPageStateArray != null));
+                Log.v(TAG, "mForceRequestPageQueue : " + !mForceRequestPageQueue.isEmpty());
+                Log.v(TAG, "mRequestPageQueue : " + !mRequestPageQueue.isEmpty());
+                Log.v(TAG, "mRequestPageQueue2 : " + !mRequestPageQueue2.isEmpty());
+                Log.v(TAG, "mDownloadPage : " + mDownloadPage);
+                Log.v(TAG, "mPageStateArray.length : " + mPageStateArray.length);
+                Log.v(TAG, "check index : " + (mDownloadPage >= 0) + " " + (0 >= 0) + " " + (mDownloadPage < mPageStateArray.length));
             }
         }
 
@@ -488,8 +487,7 @@ public final class SpiderQueen implements Runnable {
     }
 
     /**
-     * @return
-     * String for error<br>
+     * @return String for error<br>
      * Float for download percent<br>
      * null for wait
      */
@@ -503,7 +501,7 @@ public final class SpiderQueen implements Runnable {
 
         // Fix state for force
         if ((force && (state == STATE_FINISHED || state == STATE_FAILED)) ||
-            (ignoreError && state == STATE_FAILED)) {
+                (ignoreError && state == STATE_FAILED)) {
             // Update state to none at once
             updatePageState(index, STATE_NONE);
             state = STATE_NONE;
@@ -571,7 +569,7 @@ public final class SpiderQueen implements Runnable {
     }
 
     public static boolean contain(int[] array, int value) {
-        for (int v: array) {
+        for (int v : array) {
             if (v == value) {
                 return true;
             }
@@ -580,8 +578,8 @@ public final class SpiderQueen implements Runnable {
     }
 
     private void ensureWorkers() {
-        if(DEBUG_LOG) {
-            Log.v(TAG,"ensureWorkers");
+        if (DEBUG_LOG) {
+            Log.v(TAG, "ensureWorkers");
         }
         synchronized (mWorkerLock) {
             if (null == mWorkerPoolExecutor) {
@@ -724,8 +722,8 @@ public final class SpiderQueen implements Runnable {
     }
 
     private SpiderInfo readSpiderInfoFromInternet() {
-        if(DEBUG_LOG) {
-            Log.v(TAG,"readSpiderInfoFromInternet");
+        if (DEBUG_LOG) {
+            Log.v(TAG, "readSpiderInfoFromInternet");
         }
 
         try {
@@ -733,12 +731,12 @@ public final class SpiderQueen implements Runnable {
             spiderInfo.gid = mGalleryInfo.getCid();
             spiderInfo.token = mGalleryInfo.token;
 
-            MHComicData data = MHApi.Companion.getINSTANCE().data(mGalleryInfo.gid,mGalleryInfo.cid).blockingFirst();
+            MHComicData data = MHApi.Companion.getINSTANCE().data(mGalleryInfo.gid, mGalleryInfo.cid).blockingFirst();
 
             spiderInfo.pages = data.getData().size();
             spiderInfo.pTokenMap = new SparseArray<>(spiderInfo.pages);
-            if(DEBUG_LOG) {
-                Log.v(TAG,"page" + spiderInfo.pages);
+            if (DEBUG_LOG) {
+                Log.v(TAG, "page" + spiderInfo.pages);
             }
             // readPreviews(body, 0, spiderInfo);
             return spiderInfo;
@@ -790,7 +788,7 @@ public final class SpiderQueen implements Runnable {
 
         // Error! Can't get spiderInfo
         if (spiderInfo == null) {
-            Log.e(TAG,"can't get spider info");
+            Log.e(TAG, "can't get spider info");
             return;
         }
         mSpiderInfo.lazySet(spiderInfo);
@@ -935,7 +933,7 @@ public final class SpiderQueen implements Runnable {
                 String cid = mGalleryInfo.cid;
                 String targetImageUrl = null;
                 pageUrl = "http://www.hhmmoo.com/page" + cid.split("-")[0] +
-                "/" + (index + 1) + ".html?s=" + cid.split("-")[1];
+                        "/" + (index + 1) + ".html?s=" + cid.split("-")[1];
                 if (DEBUG_LOG) {
                     Log.d(TAG, pageUrl);
                 }
@@ -945,7 +943,7 @@ public final class SpiderQueen implements Runnable {
                     error = "Api failed";
                 }
 
-                if(targetImageUrl == null) {
+                if (targetImageUrl == null) {
                     continue;
                 }
                 if (DEBUG_LOG) {
@@ -1073,7 +1071,7 @@ public final class SpiderQueen implements Runnable {
         private boolean runInternal() {
             SpiderInfo spiderInfo = mSpiderInfo.get();
             if (spiderInfo == null) {
-                Log.e(TAG,"spider info is null");
+                Log.e(TAG, "spider info is null");
                 return false;
             }
 
@@ -1096,14 +1094,14 @@ public final class SpiderQueen implements Runnable {
                     mDownloadPage++;
                 } else {
                     // No index any more, stop
-                    Log.e(TAG,"no index any more");
+                    Log.e(TAG, "no index any more");
                     return false;
                 }
 
                 // Check out of range
                 if (index < 0 || index >= size) {
                     // Invalid index
-                    Log.e(TAG,"invalid index " + index + " size-" + size);
+                    Log.e(TAG, "invalid index " + index + " size-" + size);
                     return true;
                 }
             }
@@ -1121,7 +1119,7 @@ public final class SpiderQueen implements Runnable {
 
             // Check exist for not force request
             if (!force && mSpiderDen.contain(index)) {
-                updatePageState(index , STATE_FINISHED);
+                updatePageState(index, STATE_FINISHED);
                 return true;
             }
 
@@ -1136,7 +1134,8 @@ public final class SpiderQueen implements Runnable {
                 Log.i(TAG, Thread.currentThread().getName() + ": start");
             }
 
-            while (mSpiderDen.isReady() && !Thread.currentThread().isInterrupted() && runInternal());
+            while (mSpiderDen.isReady() && !Thread.currentThread().isInterrupted() && runInternal())
+                ;
 
             boolean finish;
             // Clear in spider worker array

@@ -14,19 +14,22 @@
  * limitations under the License.
  */
 
-package com.hippo.ehviewer.client.parser;
+package com.hippo.ehviewer.client.data
 
-import com.hippo.ehviewer.client.data.GalleryInfo;
+import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
 
-import java.util.List;
+@Parcelize
+data class GalleryChapterGroup(val groupName: String, val chapterList: MutableList<GalleryChapter> = arrayListOf()) : Parcelable {
+    fun addChapter(tag: GalleryChapter) {
+        chapterList.add(tag)
+    }
 
-public class FavoritesParser {
+    fun size(): Int {
+        return chapterList.size
+    }
 
-    public static class Result {
-        public String[] catArray; // Size 10
-        public int[] countArray; // Size 10
-        public int pages;
-        public int nextPage;
-        public List<GalleryInfo> galleryInfoList;
+    fun getChapterAt(position: Int): String {
+        return chapterList[position].title
     }
 }

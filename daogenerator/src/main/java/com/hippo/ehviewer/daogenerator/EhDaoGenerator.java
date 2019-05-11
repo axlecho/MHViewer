@@ -73,6 +73,7 @@ public class EhDaoGenerator {
         entity.setClassNameDao("ReadingRecordDao");
         entity.addStringProperty("id").primaryKey().notNull();
         entity.addLongProperty("update_time").notNull();
+        entity.addStringProperty("chapter_info");
     }
 
     private static void addDownloads(Schema schema) {
