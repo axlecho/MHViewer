@@ -21,12 +21,14 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
@@ -63,6 +65,7 @@ import com.hippo.easyrecyclerview.EasyRecyclerView;
 import com.hippo.easyrecyclerview.FastScroller;
 import com.hippo.ehviewer.EhApplication;
 import com.hippo.ehviewer.EhDB;
+import com.hippo.ehviewer.ImportService;
 import com.hippo.ehviewer.R;
 import com.hippo.ehviewer.Settings;
 import com.hippo.ehviewer.client.EhClient;
@@ -71,6 +74,7 @@ import com.hippo.ehviewer.client.EhUrl;
 import com.hippo.ehviewer.client.data.FavListUrlBuilder;
 import com.hippo.ehviewer.client.data.GalleryInfo;
 import com.hippo.ehviewer.client.parser.FavoritesParser;
+import com.hippo.ehviewer.download.DownloadService;
 import com.hippo.ehviewer.ui.MainActivity;
 import com.hippo.ehviewer.ui.annotation.DrawerLifeCircle;
 import com.hippo.ehviewer.ui.annotation.ViewLifeCircle;
@@ -803,7 +807,18 @@ public class FavoritesScene extends BaseScene implements
     @Override
     @Implemented(FabLayout.OnClickFabListener.class)
     public void onLongClickSecondaryFab(FabLayout view,FloatingActionButton fab,int position) {
+        Context context = getActivity2();
+        if(context == null) {
+            return;
+        }
+
+
         showTip("test",BaseScene.LENGTH_LONG );
+        Intent intent = new Intent(getActivity2(), ImportService.class);
+        intent.setAction(ImportService.Companion.getACTION_START());
+        intent.putExtra(ImportService.Companion.getKEY_TARGET(),(Parcelable)MHApiSource.Hanhan);
+        intent.putExtra(ImportService.Companion.getKEY_SOURCE(),(Parcelable)MHApiSource.Bangumi);
+        context.startService(intent);
     }
 
 

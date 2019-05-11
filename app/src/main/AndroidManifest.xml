@@ -193,6 +193,7 @@
         <service
             android:name="com.hippo.ehviewer.download.DownloadService"
             android:label="@string/download_service_label"/>
+        <service android:name=".ImportService" />
 
         <provider
             android:name="com.hippo.content.FileProvider"
