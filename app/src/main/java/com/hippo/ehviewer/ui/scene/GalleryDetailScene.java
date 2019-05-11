@@ -808,7 +808,7 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
             return;
         }
 
-        if (gd.isFavorited || EhDB.containLocalFavorites(gd.gid)) {
+        if (gd.isFavorited || EhDB.containLocalFavorites(gd)) {
             mHeart.setVisibility(View.VISIBLE);
             if (gd.favoriteName == null) {
                 mHeart.setText(R.string.local_favorites);
@@ -1232,7 +1232,7 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
         } else if (mHeartGroup == v) {
             if (mGalleryDetail != null && !mModifingFavorites) {
                 boolean remove = false;
-                if (EhDB.containLocalFavorites(mGalleryDetail.gid) || mGalleryDetail.isFavorited) {
+                if (EhDB.containLocalFavorites(mGalleryDetail) || mGalleryDetail.isFavorited) {
                     mModifingFavorites = true;
                     CommonOperations.removeFromFavorites(activity, mGalleryDetail,
                             new ModifyFavoritesListener(context,

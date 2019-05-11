@@ -23,6 +23,7 @@ import androidx.annotation.Nullable;
 
 import com.axlecho.api.MHApiSource;
 import com.axlecho.api.MHComicInfo;
+import com.hippo.ehviewer.dao.LocalFavoriteInfo;
 
 import java.util.regex.Pattern;
 
@@ -126,6 +127,11 @@ public class GalleryInfo implements Parcelable {
     public long getCid() {
         return Long.parseLong(cid.replaceAll("-",""));
     }
+
+    public String getId() {
+        return gid + "@" + source.name();
+    }
+
     /**
      * language from title
      */
@@ -208,6 +214,31 @@ public class GalleryInfo implements Parcelable {
         this.titleJpn = info.getTitleJpn();
         this.uploader = info.getUploader();
         this.source = info.getSource();
+    }
+
+    public GalleryInfo(LocalFavoriteInfo info) {
+        this.source = MHApiSource.valueOf(info.getId().split("@")[1]);
+        this.title = info.title;
+        this.rating = info.rating;
+        this.category = info.category;
+        this.uploader = info.uploader;
+        this.titleJpn = info.titleJpn;
+        this.rated = info.rated;
+        this.posted = info.posted;
+        this.pages = info.pages;
+        this.thumb = info.thumb;
+        this.cid = info.cid;
+        this.gid = info.gid;
+        this.favoriteName = info.favoriteName;
+        this.favoriteSlot = info.favoriteSlot;
+        this.simpleLanguage = info.simpleLanguage;
+        this.simpleTags = info.simpleTags;
+        this.spanGroupIndex = info.spanGroupIndex;
+        this.spanIndex = info.spanIndex;
+        this.spanSize = info.spanSize;
+        this.thumbHeight = info.thumbHeight;
+        this.thumbWidth = info.thumbWidth;
+        this.token = info.token;
     }
     protected GalleryInfo(Parcel in) {
         this.gid = in.readLong();

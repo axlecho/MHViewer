@@ -161,7 +161,7 @@ public class EhDaoGenerator {
         entity.setClassNameDao("LocalFavoritesDao");
         entity.setSuperclass("GalleryInfo");
         // GalleryInfo data
-        entity.addLongProperty("gid").primaryKey().notNull();
+        entity.addLongProperty("gid").notNull();
         entity.addStringProperty("token");
         entity.addStringProperty("title");
         entity.addStringProperty("titleJpn");
@@ -173,6 +173,7 @@ public class EhDaoGenerator {
         entity.addStringProperty("simpleLanguage");
         // LocalFavoriteInfo data
         entity.addLongProperty("time").notNull();
+        entity.addStringProperty("id").primaryKey().notNull();
     }
 
     private static void addBookmarks(Schema schema) {
@@ -405,10 +406,12 @@ public class EhDaoGenerator {
                 "\tpublic void writeToParcel(Parcel dest, int flags) {\n" +
                 "\t\tsuper.writeToParcel(dest, flags);\n" +
                 "\t\tdest.writeLong(this.time);\n" +
+                "\t\tdest.writeString(this.id);\n" +
                 "\t}");
         javaClass.addMethod("\tprotected LocalFavoriteInfo(Parcel in) {\n" +
                 "\t\tsuper(in);\n" +
                 "\t\tthis.time = in.readLong();\n" +
+                "\t\tthis.id = in.readString();\n" +
                 "\t}").setConstructor(true);
         javaClass.addField("\tpublic static final Creator<LocalFavoriteInfo> CREATOR = new Creator<LocalFavoriteInfo>() {\n" +
                 "\t\t@Override\n" +
@@ -435,6 +438,8 @@ public class EhDaoGenerator {
                 "\t\tthis.rating = galleryInfo.rating;\n" +
                 "\t\tthis.simpleTags = galleryInfo.simpleTags;\n" +
                 "\t\tthis.simpleLanguage = galleryInfo.simpleLanguage;\n" +
+                "\t\tthis.id=galleryInfo.getId();\n" +
+                "\t\tthis.time = System.currentTimeMillis();\n" +
                 "\t}").setConstructor(true);
         javaClass.addImport("com.hippo.ehviewer.client.data.GalleryInfo");
 

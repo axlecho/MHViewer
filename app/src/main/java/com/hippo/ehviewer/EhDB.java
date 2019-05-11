@@ -21,8 +21,10 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
 import com.hippo.ehviewer.client.data.GalleryInfo;
 import com.hippo.ehviewer.client.data.ListUrlBuilder;
 import com.hippo.ehviewer.dao.DaoMaster;
@@ -50,7 +52,7 @@ import com.hippo.yorozuya.FileUtils;
 import com.hippo.yorozuya.IOUtils;
 import com.hippo.yorozuya.ObjectUtils;
 import com.hippo.yorozuya.collect.SparseJLArray;
-import de.greenrobot.dao.query.LazyList;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -59,6 +61,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+
+import de.greenrobot.dao.query.LazyList;
 
 public class EhDB {
 
@@ -487,7 +491,9 @@ public class EhDB {
         LocalFavoritesDao dao = sDaoSession.getLocalFavoritesDao();
         List<LocalFavoriteInfo> list = dao.queryBuilder().orderDesc(LocalFavoritesDao.Properties.Time).list();
         List<GalleryInfo> result = new ArrayList<>();
-        result.addAll(list);
+        for(LocalFavoriteInfo info :list) {
+            result.add(new GalleryInfo(info));
+        }
         return result;
     }
 
@@ -497,37 +503,34 @@ public class EhDB {
         List<LocalFavoriteInfo> list = dao.queryBuilder().orderDesc(LocalFavoritesDao.Properties.Time)
                 .where(LocalFavoritesDao.Properties.Title.like(query)).list();
         List<GalleryInfo> result = new ArrayList<>();
-        result.addAll(list);
+        for(LocalFavoriteInfo info :list) {
+            result.add(new GalleryInfo(info));
+        }
         return result;
     }
 
-    public static synchronized void removeLocalFavorites(long gid) {
-        sDaoSession.getLocalFavoritesDao().deleteByKey(gid);
+    public static synchronized void removeLocalFavorites(GalleryInfo info) {
+        sDaoSession.getLocalFavoritesDao().deleteByKey(info.getId());
     }
 
-    public static synchronized void removeLocalFavorites(long[] gidArray) {
+    public static synchronized void removeLocalFavorites(GalleryInfo[] infoArray) {
         LocalFavoritesDao dao = sDaoSession.getLocalFavoritesDao();
-        for (long gid: gidArray) {
-            dao.deleteByKey(gid);
+        for (GalleryInfo info: infoArray) {
+            dao.deleteByKey(info.getId());
         }
     }
 
-    public static synchronized boolean containLocalFavorites(long gid) {
+    public static synchronized boolean containLocalFavorites(GalleryInfo info) {
         LocalFavoritesDao dao = sDaoSession.getLocalFavoritesDao();
-        return null != dao.load(gid);
+        return null != dao.load(info.getId());
     }
 
     public static synchronized void putLocalFavorites(GalleryInfo galleryInfo) {
         LocalFavoritesDao dao = sDaoSession.getLocalFavoritesDao();
-        if (null == dao.load(galleryInfo.gid)) {
-            LocalFavoriteInfo info;
-            if (galleryInfo instanceof LocalFavoriteInfo) {
-                info = (LocalFavoriteInfo) galleryInfo;
-            } else {
-                info = new LocalFavoriteInfo(galleryInfo);
-                info.time = System.currentTimeMillis();
-            }
-            dao.insert(info);
+        if (null == dao.load(galleryInfo.getId())) {
+            dao.insert(new LocalFavoriteInfo(galleryInfo));
+        } else {
+            dao.update(new LocalFavoriteInfo(galleryInfo));
         }
     }
 

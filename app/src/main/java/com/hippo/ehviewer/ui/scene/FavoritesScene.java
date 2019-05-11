@@ -38,6 +38,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -46,6 +47,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.github.amlcurran.showcaseview.SimpleShowcaseEventListener;
 import com.github.amlcurran.showcaseview.targets.PointTarget;
@@ -85,6 +87,7 @@ import com.hippo.yorozuya.AssertUtils;
 import com.hippo.yorozuya.ObjectUtils;
 import com.hippo.yorozuya.SimpleHandler;
 import com.hippo.yorozuya.ViewUtils;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -932,11 +935,7 @@ public class FavoritesScene extends BaseScene implements
             mRecyclerView.outOfCustomChoiceMode();
 
             if (mUrlBuilder.getFavCat() == FavListUrlBuilder.FAV_CAT_LOCAL) { // Delete local fav
-                long[] gidArray = new long[mModifyGiList.size()];
-                for (int i = 0, n = mModifyGiList.size(); i < n; i++) {
-                    gidArray[i] = mModifyGiList.get(i).gid;
-                }
-                EhDB.removeLocalFavorites(gidArray);
+                EhDB.removeLocalFavorites(mModifyGiList.toArray(new GalleryInfo[0]));
                 mModifyGiList.clear();
                 mHelper.refresh();
             } else { // Delete cloud fav
@@ -975,11 +974,7 @@ public class FavoritesScene extends BaseScene implements
             mRecyclerView.outOfCustomChoiceMode();
 
             if (srcCat == FavListUrlBuilder.FAV_CAT_LOCAL) { // Move from local to cloud
-                long[] gidArray = new long[mModifyGiList.size()];
-                for (int i = 0, n = mModifyGiList.size(); i < n; i++) {
-                    gidArray[i] = mModifyGiList.get(i).gid;
-                }
-                EhDB.removeLocalFavorites(gidArray);
+                EhDB.removeLocalFavorites(mModifyGiList.toArray(new GalleryInfo[0]));
                 mEnableModify = true;
                 mModifyFavCat = dstCat;
                 mModifyAdd = true;
