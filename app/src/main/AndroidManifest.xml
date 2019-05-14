@@ -194,6 +194,7 @@
             android:name="com.hippo.ehviewer.download.DownloadService"
             android:label="@string/download_service_label"/>
         <service android:name=".ImportService" />
+        <service android:name=".CheckUpdateService" />
 
         <provider
             android:name="com.hippo.content.FileProvider"

@@ -817,6 +817,7 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
             return false;
         }
 
+        MHApi.Companion.getINSTANCE().select(mGalleryInfo.source);
         String url = String.valueOf(mGalleryInfo.gid);
         EhClient.Callback callback = new GetGalleryDetailListener(context,
                 activity.getStageId(), getTag());
@@ -968,14 +969,30 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
     }
 
     private void setReadInfo() {
-        EhDB.putReadingRecord(new ReadingRecord(mGalleryDetail.gid + "@" + mGalleryDetail.source.name()
-                , System.currentTimeMillis(), new Gson().toJson(mGalleryDetail.chapters)));
+        if(mGalleryDetail == null) {
+            return;
+        }
+
+        ReadingRecord record = EhDB.getReadingRecord(mGalleryDetail.getId());
+        if(record == null) {
+            record = new ReadingRecord();
+        }
+
+        record.setId(mGalleryDetail.getId());
+        record.setUpdate_time(mGalleryDetail.updateTime);
+        record.setRead_time(mGalleryDetail.updateTime);
+        record.setChapter_info(new Gson().toJson(mGalleryDetail.chapters));
+        EhDB.putReadingRecord(record);
         bindViewSecond();
     }
 
     private void checkReadInfo() {
-        ReadingRecord record = EhDB.getReadingRecord(mGalleryDetail.gid + "@" + mGalleryDetail.source.name());
-        if (record != null) {
+        if(mGalleryDetail == null) {
+            return;
+        }
+
+        ReadingRecord record = EhDB.getReadingRecord(mGalleryDetail.getId());
+        if (record != null && record.getChapter_info() != null) {
             GalleryChapterGroup[] chapters = new Gson().fromJson(record.getChapter_info(), GalleryChapterGroup[].class);
             for (GalleryChapterGroup group : chapters) {
                 for (GalleryChapter chapter : group.getChapterList()) {

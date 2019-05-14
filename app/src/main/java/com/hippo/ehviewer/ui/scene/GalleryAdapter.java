@@ -23,12 +23,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
+
 import com.hippo.drawable.TriangleDrawable;
 import com.hippo.easyrecyclerview.MarginItemDecoration;
 import com.hippo.ehviewer.EhApplication;
@@ -41,6 +43,7 @@ import com.hippo.ehviewer.download.DownloadManager;
 import com.hippo.ehviewer.widget.TileThumb;
 import com.hippo.widget.recyclerview.AutoStaggeredGridLayoutManager;
 import com.hippo.yorozuya.ViewUtils;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -48,7 +51,8 @@ abstract class GalleryAdapter extends RecyclerView.Adapter<GalleryHolder> {
 
     @IntDef({TYPE_LIST, TYPE_GRID})
     @Retention(RetentionPolicy.SOURCE)
-    public @interface Type {}
+    public @interface Type {
+    }
 
     public static final int TYPE_INVALID = -1;
     public static final int TYPE_LIST = 0;
@@ -69,7 +73,7 @@ abstract class GalleryAdapter extends RecyclerView.Adapter<GalleryHolder> {
     private DownloadManager mDownloadManager;
 
     public GalleryAdapter(@NonNull LayoutInflater inflater, @NonNull Resources resources,
-            @NonNull RecyclerView recyclerView, int type, boolean showFavourited) {
+                          @NonNull RecyclerView recyclerView, int type, boolean showFavourited) {
         mInflater = inflater;
         mResources = resources;
         mRecyclerView = recyclerView;
@@ -197,7 +201,7 @@ abstract class GalleryAdapter extends RecyclerView.Adapter<GalleryHolder> {
                 holder.title.setText(EhUtils.getSuitableTitle(gi));
                 holder.uploader.setText(gi.uploader);
                 holder.rating.setRating(gi.rating);
-                if(gi.rating == 0.0f) {
+                if (gi.rating == 0.0f) {
                     holder.rating.setVisibility(View.INVISIBLE);
                 } else {
                     holder.rating.setVisibility(View.VISIBLE);
@@ -208,9 +212,9 @@ abstract class GalleryAdapter extends RecyclerView.Adapter<GalleryHolder> {
                     category.setText(newCategoryText);
                     category.setBackgroundColor(EhUtils.getCategoryColor(gi.category));
                 }
-                // TODO make use of this label
-                category.setVisibility(View.INVISIBLE);
-
+                if (gi.category == EhUtils.UNKNOWN) {
+                    category.setVisibility(View.INVISIBLE);
+                }
 
                 holder.posted.setText(gi.posted);
                 if (gi.pages == 0 || !Settings.getShowGalleryPages()) {

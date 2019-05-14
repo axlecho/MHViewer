@@ -41,6 +41,7 @@ public class GalleryDetail extends GalleryInfo {
     public int favoriteCount;
     public boolean isFavorited;
     public int ratingCount;
+    public long updateTime;
     public GalleryChapterGroup[] chapters;
     public GalleryComment[] comments;
     public int previewPages;
@@ -66,6 +67,7 @@ public class GalleryDetail extends GalleryInfo {
         dest.writeInt(this.favoriteCount);
         dest.writeByte(isFavorited ? (byte) 1 : (byte) 0);
         dest.writeInt(this.ratingCount);
+        dest.writeLong(this.updateTime);
         dest.writeParcelableArray(this.chapters, 0);
         dest.writeParcelableArray(this.comments, 0);
         dest.writeInt(this.previewPages);
@@ -90,6 +92,7 @@ public class GalleryDetail extends GalleryInfo {
         this.previewPages = 0;
         this.previewSet = null;
         this.ratingCount = detail.getRatingCount();
+        this.updateTime = detail.getUpdateTime();
         this.size = "";
         this.chapters = null;
         this.torrentCount = 0;

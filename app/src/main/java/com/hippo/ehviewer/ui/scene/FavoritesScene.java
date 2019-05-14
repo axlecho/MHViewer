@@ -63,6 +63,7 @@ import com.hippo.drawable.AddDeleteDrawable;
 import com.hippo.drawable.DrawerArrowDrawable;
 import com.hippo.easyrecyclerview.EasyRecyclerView;
 import com.hippo.easyrecyclerview.FastScroller;
+import com.hippo.ehviewer.CheckUpdateService;
 import com.hippo.ehviewer.EhApplication;
 import com.hippo.ehviewer.EhDB;
 import com.hippo.ehviewer.ImportService;
@@ -74,7 +75,7 @@ import com.hippo.ehviewer.client.EhUrl;
 import com.hippo.ehviewer.client.data.FavListUrlBuilder;
 import com.hippo.ehviewer.client.data.GalleryInfo;
 import com.hippo.ehviewer.client.parser.FavoritesParser;
-import com.hippo.ehviewer.download.DownloadService;
+import com.hippo.ehviewer.dao.ReadingRecord;
 import com.hippo.ehviewer.ui.MainActivity;
 import com.hippo.ehviewer.ui.annotation.DrawerLifeCircle;
 import com.hippo.ehviewer.ui.annotation.ViewLifeCircle;
@@ -100,6 +101,8 @@ import com.hippo.yorozuya.ViewUtils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import static com.hippo.ehviewer.client.EhConfig.NON_H;
 
 // TODO Get favorite, modify favorite, add favorite, what a mess!
 public class FavoritesScene extends BaseScene implements
@@ -799,6 +802,10 @@ public class FavoritesScene extends BaseScene implements
                 MHApi.Companion.getINSTANCE().select(MHApiSource.Bangumi);
                 mHelper.refresh();
                 break;
+            case 2:
+                Intent intent = new Intent(getActivity2(), CheckUpdateService.class);
+                intent.setAction(CheckUpdateService.Companion.getACTION_START());
+                context.startService(intent);
         }
 
         view.setExpanded(false);
@@ -806,18 +813,16 @@ public class FavoritesScene extends BaseScene implements
 
     @Override
     @Implemented(FabLayout.OnClickFabListener.class)
-    public void onLongClickSecondaryFab(FabLayout view,FloatingActionButton fab,int position) {
+    public void onLongClickSecondaryFab(FabLayout view, FloatingActionButton fab, int position) {
         Context context = getActivity2();
-        if(context == null) {
+        if (context == null) {
             return;
         }
 
-
-        showTip("test",BaseScene.LENGTH_LONG );
         Intent intent = new Intent(getActivity2(), ImportService.class);
         intent.setAction(ImportService.Companion.getACTION_START());
-        intent.putExtra(ImportService.Companion.getKEY_TARGET(),(Parcelable)MHApiSource.Hanhan);
-        intent.putExtra(ImportService.Companion.getKEY_SOURCE(),(Parcelable)MHApiSource.Bangumi);
+        intent.putExtra(ImportService.Companion.getKEY_TARGET(), (Parcelable) MHApiSource.Hanhan);
+        intent.putExtra(ImportService.Companion.getKEY_SOURCE(), (Parcelable) MHApiSource.Bangumi);
         context.startService(intent);
     }
 
@@ -921,6 +926,7 @@ public class FavoritesScene extends BaseScene implements
                 list = EhDB.searchLocalFavorites(keyword);
             }
 
+            checkUpdate(list);
             if (list.size() == 0) {
                 mHelper.onGetPageData(taskId, 0, 0, Collections.EMPTY_LIST);
             } else {
@@ -933,6 +939,15 @@ public class FavoritesScene extends BaseScene implements
                 if (mDrawerAdapter != null) {
                     mDrawerAdapter.notifyDataSetChanged();
                 }
+            }
+        }
+    }
+
+    private void checkUpdate(List<GalleryInfo> list) {
+        for (GalleryInfo info : list) {
+            ReadingRecord record = EhDB.getReadingRecord(info.getId());
+            if (record.getRead_time() == null || record.getRead_time() < record.getUpdate_time()) {
+                info.category = NON_H;
             }
         }
     }
