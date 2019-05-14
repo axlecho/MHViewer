@@ -125,6 +125,7 @@ public class GalleryDetail extends GalleryInfo {
         this.favoriteCount = in.readInt();
         this.isFavorited = in.readByte() != 0;
         this.ratingCount = in.readInt();
+        this.updateTime = in.readLong();
         Parcelable[] array = in.readParcelableArray(GalleryChapterGroup.class.getClassLoader());
         if (array != null) {
             this.chapters = Arrays.copyOf(array, array.length, GalleryChapterGroup[].class);

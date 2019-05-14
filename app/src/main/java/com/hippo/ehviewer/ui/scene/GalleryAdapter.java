@@ -212,7 +212,7 @@ abstract class GalleryAdapter extends RecyclerView.Adapter<GalleryHolder> {
                     category.setText(newCategoryText);
                     category.setBackgroundColor(EhUtils.getCategoryColor(gi.category));
                 }
-                if (gi.category == EhUtils.UNKNOWN) {
+                if (gi.category == 0) {
                     category.setVisibility(View.INVISIBLE);
                 }
 
@@ -224,6 +224,7 @@ abstract class GalleryAdapter extends RecyclerView.Adapter<GalleryHolder> {
                     holder.pages.setText(Integer.toString(gi.pages) + "P");
                     holder.pages.setVisibility(View.VISIBLE);
                 }
+
                 if (TextUtils.isEmpty(gi.simpleLanguage)) {
                     holder.simpleLanguage.setText(null);
                     holder.simpleLanguage.setVisibility(View.GONE);

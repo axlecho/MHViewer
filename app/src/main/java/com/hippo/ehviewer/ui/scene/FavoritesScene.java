@@ -946,6 +946,10 @@ public class FavoritesScene extends BaseScene implements
     private void checkUpdate(List<GalleryInfo> list) {
         for (GalleryInfo info : list) {
             ReadingRecord record = EhDB.getReadingRecord(info.getId());
+            if(record == null) {
+                continue;
+            }
+
             if (record.getRead_time() == null || record.getRead_time() < record.getUpdate_time()) {
                 info.category = NON_H;
             }
