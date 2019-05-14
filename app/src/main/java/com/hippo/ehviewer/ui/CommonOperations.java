@@ -23,7 +23,9 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.util.Log;
+
 import androidx.appcompat.app.AlertDialog;
+
 import com.hippo.app.ListCheckBoxDialogBuilder;
 import com.hippo.ehviewer.EhApplication;
 import com.hippo.ehviewer.EhDB;
@@ -44,16 +46,19 @@ import com.hippo.util.IoThreadPoolExecutor;
 import com.hippo.yorozuya.FileUtils;
 import com.hippo.yorozuya.IOUtils;
 import com.hippo.yorozuya.collect.LongList;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 public final class CommonOperations {
 
@@ -91,28 +96,16 @@ public final class CommonOperations {
         protected JSONObject doInBackground(Void... params) {
             String url;
             if (Settings.getBetaUpdateChannel()) {
-                url = "http://www.ehviewer.com/update_beta.json";
+                url = "https://raw.githubusercontent.com/axlecho/MHViewer/api/update_beta.json";
             } else {
-                url = "http://www.ehviewer.com/update.json";
+                url = "https://raw.githubusercontent.com/axlecho/MHViewer/api/update.json";
             }
 
             try {
                 return fetchUpdateInfo(url);
-            } catch (Throwable e1) {
-                ExceptionUtils.throwIfFatal(e1);
-
-                if (Settings.getBetaUpdateChannel()) {
-                    url = "https://raw.githubusercontent.com/seven332/EhViewer/api/update_beta.json";
-                } else {
-                    url = "https://raw.githubusercontent.com/seven332/EhViewer/api/update.json";
-                }
-
-                try {
-                    return fetchUpdateInfo(url);
-                } catch (Throwable e2) {
-                    ExceptionUtils.throwIfFatal(e2);
-                    return null;
-                }
+            } catch (Throwable e2) {
+                ExceptionUtils.throwIfFatal(e2);
+                return null;
             }
         }
 
@@ -190,7 +183,7 @@ public final class CommonOperations {
     }
 
     private static void doAddToFavorites(Activity activity, GalleryInfo galleryInfo,
-            int slot, EhClient.Callback<Void> listener) {
+                                         int slot, EhClient.Callback<Void> listener) {
         if (slot == -1) {
             EhDB.putLocalFavorites(galleryInfo);
             listener.onSuccess(null);
@@ -207,7 +200,7 @@ public final class CommonOperations {
     }
 
     public static void addToFavorites(final Activity activity, final GalleryInfo galleryInfo,
-            final EhClient.Callback<Void> listener) {
+                                      final EhClient.Callback<Void> listener) {
         int slot = -1;
         String[] items = new String[11];
         items[0] = activity.getString(R.string.local_favorites);
@@ -220,7 +213,7 @@ public final class CommonOperations {
             new ListCheckBoxDialogBuilder(activity, items,
                     (builder, dialog, position) -> {
                         int slot1 = position - 1;
-                        String newFavoriteName = (slot1 >= 0 && slot1 <= 9) ? items[slot1+1] : null;
+                        String newFavoriteName = (slot1 >= 0 && slot1 <= 9) ? items[slot1 + 1] : null;
                         doAddToFavorites(activity, galleryInfo, slot1, new DelegateFavoriteCallback(listener, galleryInfo, newFavoriteName, slot1));
                         if (builder.isChecked()) {
                             Settings.putDefaultFavSlot(slot1);
@@ -235,7 +228,7 @@ public final class CommonOperations {
     }
 
     public static void removeFromFavorites(Activity activity, GalleryInfo galleryInfo,
-            final EhClient.Callback<Void> listener) {
+                                           final EhClient.Callback<Void> listener) {
         EhDB.removeLocalFavorites(galleryInfo);
         EhClient client = EhApplication.getEhClient(activity);
         EhRequest request = new EhRequest();
@@ -253,7 +246,7 @@ public final class CommonOperations {
         private final int slot;
 
         DelegateFavoriteCallback(EhClient.Callback<Void> delegate, GalleryInfo info,
-                String newFavoriteName, int slot) {
+                                 String newFavoriteName, int slot) {
             this.delegate = delegate;
             this.info = info;
             this.newFavoriteName = newFavoriteName;
