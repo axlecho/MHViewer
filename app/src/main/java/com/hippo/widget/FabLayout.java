@@ -67,13 +67,23 @@ public class FabLayout extends ViewGroup implements View.OnClickListener,View.On
         init(context);
     }
 
-    private void init(Context context) {
-        setSoundEffectsEnabled(false);
-        setClipToPadding(false);
-        mFabSize = context.getResources().getDimensionPixelOffset(R.dimen.fab_size);
-        mFabMiniSize = context.getResources().getDimensionPixelOffset(R.dimen.fab_min_size);
-        mIntervalPrimary = context.getResources().getDimensionPixelOffset(R.dimen.fab_layout_primary_margin);
-        mIntervalSecondary = context.getResources().getDimensionPixelOffset(R.dimen.fab_layout_secondary_margin);
+    @Override
+    public Parcelable onSaveInstanceState() {
+        final Bundle state = new Bundle();
+        state.putParcelable(STATE_KEY_SUPER, super.onSaveInstanceState());
+        state.putBoolean(STATE_KEY_AUTO_CANCEL, mAutoCancel);
+        state.putBoolean(STATE_KEY_EXPANDED, mExpanded);
+        return state;
+    }
+
+    @Override
+    public void onRestoreInstanceState(Parcelable state) {
+        if (state instanceof Bundle) {
+            final Bundle savedState = (Bundle) state;
+            super.onRestoreInstanceState(savedState.getParcelable(STATE_KEY_SUPER));
+            setAutoCancel(savedState.getBoolean(STATE_KEY_AUTO_CANCEL));
+            setExpanded(savedState.getBoolean(STATE_KEY_EXPANDED), false);
+        }
     }
 
     @Override
@@ -83,26 +93,6 @@ public class FabLayout extends ViewGroup implements View.OnClickListener,View.On
                     "contain FloatingActionButton, but try to add "+ child.getClass().getName());
         }
         super.addView(child, index, params);
-    }
-
-    public FloatingActionButton getPrimaryFab() {
-        View v = getChildAt(getChildCount() - 1);
-        if (v == null) {
-            return null;
-        } else {
-            return (FloatingActionButton) v;
-        }
-    }
-
-    public int getSecondaryFabCount() {
-        return Math.max(0, getChildCount() - 1);
-    }
-
-    public FloatingActionButton getSecondaryFabAt(int index) {
-        if (index < 0 || index >= getSecondaryFabCount()) {
-            return null;
-        }
-        return (FloatingActionButton) getChildAt(index);
     }
 
     @Override
@@ -157,59 +147,34 @@ public class FabLayout extends ViewGroup implements View.OnClickListener,View.On
         }
     }
 
-    public void setOnExpandListener(OnExpandListener listener) {
-        mOnExpandListener = listener;
+
+    private void init(Context context) {
+        setSoundEffectsEnabled(false);
+        setClipToPadding(false);
+        mFabSize = context.getResources().getDimensionPixelOffset(R.dimen.fab_size);
+        mFabMiniSize = context.getResources().getDimensionPixelOffset(R.dimen.fab_min_size);
+        mIntervalPrimary = context.getResources().getDimensionPixelOffset(R.dimen.fab_layout_primary_margin);
+        mIntervalSecondary = context.getResources().getDimensionPixelOffset(R.dimen.fab_layout_secondary_margin);
     }
 
-    public void setOnClickFabListener(OnClickFabListener listener) {
-        mOnClickFabListener = listener;
-        if (listener != null) {
-            for (int i = 0, n = getChildCount(); i < n; i++) {
-                getChildAt(i).setOnClickListener(this);
-                getChildAt(i).setOnLongClickListener(this);
-            }
+    public FloatingActionButton getPrimaryFab() {
+        View v = getChildAt(getChildCount() - 1);
+        if (v == null) {
+            return null;
         } else {
-            for (int i = 0, n = getChildCount(); i < n; i++) {
-                getChildAt(i).setClickable(false);
-            }
+            return (FloatingActionButton) v;
         }
     }
 
-    public void setHidePrimaryFab(boolean hidePrimaryFab) {
-        if (mHidePrimaryFab != hidePrimaryFab) {
-            mHidePrimaryFab = hidePrimaryFab;
-            boolean expanded = mExpanded;
-            int count = getChildCount();
-            if (!expanded && count > 0) {
-                getChildAt(count - 1).setVisibility(hidePrimaryFab ? INVISIBLE : VISIBLE);
-            }
+    public FloatingActionButton getSecondaryFabAt(int index) {
+        if (index < 0 || index >= getSecondaryFabCount()) {
+            return null;
         }
+        return (FloatingActionButton) getChildAt(index);
     }
 
-    public void setAutoCancel(boolean autoCancel) {
-        if (mAutoCancel != autoCancel) {
-            mAutoCancel = autoCancel;
-
-            if (mExpanded) {
-                if (autoCancel) {
-                    setOnClickListener(this);
-                } else {
-                    setClickable(false);
-                }
-            }
-        }
-    }
-
-    public void toggle() {
-        setExpanded(!mExpanded);
-    }
-
-    public boolean isExpanded() {
-        return mExpanded;
-    }
-
-    public void setExpanded(boolean expanded) {
-        setExpanded(expanded, true);
+    public int getSecondaryFabCount() {
+        return Math.max(0, getChildCount() - 1);
     }
 
     public void setExpanded(boolean expanded, boolean animation) {
@@ -258,6 +223,43 @@ public class FabLayout extends ViewGroup implements View.OnClickListener,View.On
                 mOnExpandListener.onExpand(expanded);
             }
         }
+    }
+
+    public void setExpanded(boolean expanded) {
+        setExpanded(expanded, true);
+    }
+
+    public void setHidePrimaryFab(boolean hidePrimaryFab) {
+        if (mHidePrimaryFab != hidePrimaryFab) {
+            mHidePrimaryFab = hidePrimaryFab;
+            boolean expanded = mExpanded;
+            int count = getChildCount();
+            if (!expanded && count > 0) {
+                getChildAt(count - 1).setVisibility(hidePrimaryFab ? INVISIBLE : VISIBLE);
+            }
+        }
+    }
+
+    public void setAutoCancel(boolean autoCancel) {
+        if (mAutoCancel != autoCancel) {
+            mAutoCancel = autoCancel;
+
+            if (mExpanded) {
+                if (autoCancel) {
+                    setOnClickListener(this);
+                } else {
+                    setClickable(false);
+                }
+            }
+        }
+    }
+
+    public void toggle() {
+        setExpanded(!mExpanded);
+    }
+
+    public boolean isExpanded() {
+        return mExpanded;
     }
 
 
@@ -355,6 +357,7 @@ public class FabLayout extends ViewGroup implements View.OnClickListener,View.On
                 }).start();
     }
 
+
     @Override
     public void onClick(View v) {
         if (this == v) {
@@ -380,33 +383,29 @@ public class FabLayout extends ViewGroup implements View.OnClickListener,View.On
         return true;
     }
 
-
-
-
     @Override
     protected void dispatchSetPressed(boolean pressed) {
         // Don't dispatch it to children
     }
 
-    @Override
-    public Parcelable onSaveInstanceState() {
-        final Bundle state = new Bundle();
-        state.putParcelable(STATE_KEY_SUPER, super.onSaveInstanceState());
-        state.putBoolean(STATE_KEY_AUTO_CANCEL, mAutoCancel);
-        state.putBoolean(STATE_KEY_EXPANDED, mExpanded);
-        return state;
+
+    public void setOnExpandListener(OnExpandListener listener) {
+        mOnExpandListener = listener;
     }
 
-    @Override
-    public void onRestoreInstanceState(Parcelable state) {
-        if (state instanceof Bundle) {
-            final Bundle savedState = (Bundle) state;
-            super.onRestoreInstanceState(savedState.getParcelable(STATE_KEY_SUPER));
-            setAutoCancel(savedState.getBoolean(STATE_KEY_AUTO_CANCEL));
-            setExpanded(savedState.getBoolean(STATE_KEY_EXPANDED), false);
+    public void setOnClickFabListener(OnClickFabListener listener) {
+        mOnClickFabListener = listener;
+        if (listener != null) {
+            for (int i = 0, n = getChildCount(); i < n; i++) {
+                getChildAt(i).setOnClickListener(this);
+                getChildAt(i).setOnLongClickListener(this);
+            }
+        } else {
+            for (int i = 0, n = getChildCount(); i < n; i++) {
+                getChildAt(i).setClickable(false);
+            }
         }
     }
-
 
     public interface OnExpandListener {
         void onExpand(boolean expanded);

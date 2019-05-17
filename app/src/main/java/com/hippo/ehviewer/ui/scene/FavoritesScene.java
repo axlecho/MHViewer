@@ -61,6 +61,7 @@ import com.hippo.android.resource.AttrResources;
 import com.hippo.annotation.Implemented;
 import com.hippo.drawable.AddDeleteDrawable;
 import com.hippo.drawable.DrawerArrowDrawable;
+import com.hippo.drawable.TextDrawable;
 import com.hippo.easyrecyclerview.EasyRecyclerView;
 import com.hippo.easyrecyclerview.FastScroller;
 import com.hippo.ehviewer.CheckUpdateService;
@@ -298,7 +299,7 @@ public class FavoritesScene extends BaseScene implements
         mSearchBar.setAllowEmptySearch(false);
         updateSearchBar();
         mSearchBarMover = new SearchBarMover(this, mSearchBar, mRecyclerView);
-
+        bindSource();
         mFabLayout.setAutoCancel(true);
         mFabLayout.setExpanded(false);
         mFabLayout.setHidePrimaryFab(false);
@@ -793,21 +794,15 @@ public class FavoritesScene extends BaseScene implements
             return;
         }
 
-        switch (position) {
-            case 0:
-                MHApi.Companion.getINSTANCE().select(MHApiSource.Hanhan);
-                mHelper.refresh();
-                break;
-            case 1:
-                MHApi.Companion.getINSTANCE().select(MHApiSource.Bangumi);
-                mHelper.refresh();
-                break;
-            case 2:
-                Intent intent = new Intent(getActivity2(), CheckUpdateService.class);
-                intent.setAction(CheckUpdateService.Companion.getACTION_START());
-                context.startService(intent);
+        if (fab.getTag() instanceof MHApiSource) {
+            MHApiSource source = (MHApiSource) fab.getTag();
+            MHApi.Companion.getINSTANCE().select(source);
+            mHelper.refresh();
+        } else {
+            Intent intent = new Intent(getActivity2(), CheckUpdateService.class);
+            intent.setAction(CheckUpdateService.Companion.getACTION_START());
+            context.startService(intent);
         }
-
         view.setExpanded(false);
     }
 
@@ -946,7 +941,7 @@ public class FavoritesScene extends BaseScene implements
     private void checkUpdate(List<GalleryInfo> list) {
         for (GalleryInfo info : list) {
             ReadingRecord record = EhDB.getReadingRecord(info.getId());
-            if(record == null) {
+            if (record == null) {
                 continue;
             }
 
@@ -1329,4 +1324,28 @@ public class FavoritesScene extends BaseScene implements
             }
         }
     };
+
+    private void bindSource() {
+        LayoutInflater inflater = getLayoutInflater2();
+        if (mFabLayout == null) {
+            return;
+        }
+
+        if (inflater == null) {
+            return;
+        }
+
+        for (MHApiSource source : MHApiSource.values()) {
+            FloatingActionButton btn = (FloatingActionButton) inflater.inflate(R.layout.item_second_action_button, mFabLayout, false);
+
+            TextDrawable bg = new TextDrawable(source.name().substring(0, 1), 0.75f);
+            bg.setTextColor(Color.WHITE);
+            bg.setBackgroundColor(Color.TRANSPARENT);
+            btn.setImageDrawable(bg);
+            btn.setTag(source);
+            // btn.setId();
+            mFabLayout.addView(btn, 0);
+        }
+        mFabLayout.invalidate();
+    }
 }

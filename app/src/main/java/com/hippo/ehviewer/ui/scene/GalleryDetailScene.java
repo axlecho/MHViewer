@@ -24,6 +24,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -69,6 +70,7 @@ import com.hippo.annotation.Implemented;
 import com.hippo.beerbelly.BeerBelly;
 import com.hippo.drawable.AddDeleteDrawable;
 import com.hippo.drawable.RoundSideRectDrawable;
+import com.hippo.drawable.TextDrawable;
 import com.hippo.drawerlayout.DrawerLayout;
 import com.hippo.ehviewer.AppConfig;
 import com.hippo.ehviewer.EhApplication;
@@ -382,23 +384,17 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
 
     @Override
     public void onClickSecondaryFab(FabLayout view, FloatingActionButton fab, int position) {
-        switch (position) {
-            case 0:
-                MHApi.Companion.getINSTANCE().select(MHApiSource.Hanhan);
-                switchSource();
-                break;
-            case 1:
-                MHApi.Companion.getINSTANCE().select(MHApiSource.Bangumi);
-                switchSource();
-                break;
+        if(fab.getTag() instanceof MHApiSource) {
+            MHApiSource source = (MHApiSource) fab.getTag();
+            MHApi.Companion.getINSTANCE().select(source);
+            switchSource();
         }
-
         view.setExpanded(false);
     }
 
     @Override
     @Implemented(FabLayout.OnClickFabListener.class)
-    public void onLongClickSecondaryFab(FabLayout view,FloatingActionButton fab,int position) {
+    public void onLongClickSecondaryFab(FabLayout view, FloatingActionButton fab, int position) {
         // showTip("test",BaseScene.LENGTH_LONG );
     }
 
@@ -559,11 +555,13 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
         View progressView = ViewUtils.$$(main, R.id.progress_view);
         mTip = (TextView) ViewUtils.$$(main, R.id.tip);
         mFabLayout = (FabLayout) ViewUtils.$$(main, R.id.fab_layout);
+        bindSource();
         mFabLayout.setAutoCancel(true);
         mFabLayout.setExpanded(false);
         mFabLayout.setHidePrimaryFab(false);
         mFabLayout.setOnClickFabListener(this);
         mFabLayout.setOnExpandListener(this);
+
         addAboveSnackView(mFabLayout);
         mActionFabDrawable = new AddDeleteDrawable(context, resources.getColor(R.color.primary_drawable_dark));
         mFabLayout.getPrimaryFab().setImageDrawable(mActionFabDrawable);
@@ -969,12 +967,12 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
     }
 
     private void setReadInfo() {
-        if(mGalleryDetail == null) {
+        if (mGalleryDetail == null) {
             return;
         }
 
         ReadingRecord record = EhDB.getReadingRecord(mGalleryDetail.getId());
-        if(record == null) {
+        if (record == null) {
             record = new ReadingRecord();
         }
 
@@ -987,7 +985,7 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
     }
 
     private void checkReadInfo() {
-        if(mGalleryDetail == null) {
+        if (mGalleryDetail == null) {
             return;
         }
 
@@ -1042,6 +1040,30 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
         bindTags(gd.chapters);
         bindComments(gd.comments);
         // bindPreviews(gd);
+    }
+
+    private void bindSource() {
+        LayoutInflater inflater = getLayoutInflater2();
+        if (mFabLayout == null) {
+            return;
+        }
+
+        if (inflater == null) {
+            return;
+        }
+
+        for (MHApiSource source : MHApiSource.values()) {
+            FloatingActionButton btn = (FloatingActionButton) inflater.inflate(R.layout.item_second_action_button, mFabLayout,false);
+
+            TextDrawable bg = new TextDrawable(source.name().substring(0, 1), 0.75f);
+            bg.setTextColor(Color.WHITE);
+            bg.setBackgroundColor(Color.TRANSPARENT);
+            btn.setImageDrawable(bg);
+            btn.setTag(source);
+            // btn.setId();
+            mFabLayout.addView(btn,0);
+        }
+        mFabLayout.invalidate();
     }
 
     private void bindIntro(String intro) {
