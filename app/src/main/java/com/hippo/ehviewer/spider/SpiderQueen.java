@@ -31,6 +31,7 @@ import androidx.annotation.UiThread;
 
 import com.axlecho.api.MHApi;
 import com.axlecho.api.MHComicData;
+import com.axlecho.api.MHConstant;
 import com.hippo.beerbelly.SimpleDiskCache;
 import com.hippo.ehviewer.EhApplication;
 import com.hippo.ehviewer.GetText;
@@ -167,6 +168,8 @@ public final class SpiderQueen implements Runnable {
 
     private final int mWorkerMaxCount;
     private final int mPreloadNumber;
+
+    private MHComicData data;
 
     private SpiderQueen(EhApplication application, @NonNull GalleryInfo galleryInfo) {
         mHttpClient = EhApplication.getOkHttpClient(application);
@@ -731,8 +734,7 @@ public final class SpiderQueen implements Runnable {
             spiderInfo.gid = mGalleryInfo.getCid();
             spiderInfo.token = mGalleryInfo.token;
 
-            MHComicData data = MHApi.Companion.getINSTANCE().data(mGalleryInfo.gid, mGalleryInfo.cid).blockingFirst();
-
+            data = MHApi.Companion.getINSTANCE().data(mGalleryInfo.gid, mGalleryInfo.cid).blockingFirst();
             spiderInfo.pages = data.getData().size();
             spiderInfo.pTokenMap = new SparseArray<>(spiderInfo.pages);
             if (DEBUG_LOG) {
@@ -741,6 +743,7 @@ public final class SpiderQueen implements Runnable {
             // readPreviews(body, 0, spiderInfo);
             return spiderInfo;
         } catch (Throwable e) {
+            e.printStackTrace();
             ExceptionUtils.throwIfFatal(e);
             return null;
         }
@@ -932,8 +935,7 @@ public final class SpiderQueen implements Runnable {
             for (int i = 0; i < 5; i++) {
                 String cid = mGalleryInfo.cid;
                 String targetImageUrl = null;
-                pageUrl = "http://www.hhmmoo.com/page" + cid.split("-")[0] +
-                        "/" + (index + 1) + ".html?s=" + cid.split("-")[1];
+                pageUrl = data.getData().get(index);
                 if (DEBUG_LOG) {
                     Log.d(TAG, pageUrl);
                 }
@@ -958,7 +960,11 @@ public final class SpiderQueen implements Runnable {
                         Log.d(TAG, "Start download image " + index);
                     }
 
-                    Call call = mHttpClient.newCall(new EhRequestBuilder(targetImageUrl, null).build());
+                    Call call = mHttpClient.newCall(new EhRequestBuilder(targetImageUrl,
+                            MHApi.Companion.getINSTANCE().pageUrl(mGalleryInfo.gid) + mGalleryInfo.cid + ".html")
+
+                            .build());
+
                     Response response = call.execute();
                     ResponseBody responseBody = response.body();
 
