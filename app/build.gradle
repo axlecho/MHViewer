@@ -69,6 +69,10 @@ clean {
     delete file('src/main/assets/NOTICE.html').absolutePath
 }
 
+configurations{
+    all*.exclude group: 'com.github.seven332', module: 'image'
+}
+
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'androidx.appcompat:appcompat:1.0.2'
@@ -89,7 +93,7 @@ dependencies {
     implementation 'com.github.seven332:glview:0.1.0'
     implementation 'com.github.seven332:glview-image:0.1.0'
     implementation 'com.github.seven332:hotspot:0.1.0'
-    implementation 'com.github.seven332:image:0.1.12'
+    implementation 'com.github.axlecho:Image:0.3.0'
     implementation 'com.github.seven332:refreshlayout:0.1.0'
     implementation 'com.github.seven332:ripple:0.1.2'
     implementation 'com.github.seven332:streampipe:0.1.0'
