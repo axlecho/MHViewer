@@ -139,6 +139,7 @@ public class CategoryTable extends TableLayout implements View.OnLongClickListen
         if (!mCosplay.isChecked()) category |= EhConfig.COSPLAY;
         if (!mAsianPorn.isChecked()) category |= EhConfig.ASIAN_PORN;
         if (!mMisc.isChecked()) category |= EhConfig.MISC;
+        if(!mMisc.isChecked()) category |= EhConfig.UPDATE;
         return category;
     }
 

@@ -497,6 +497,18 @@ public class EhDB {
         return result;
     }
 
+    public static synchronized List<GalleryInfo> getLocalFavorites(String source) {
+        source = SqlUtils.sqlEscapeString("%" + "@" + source+ "%");
+        LocalFavoritesDao dao = sDaoSession.getLocalFavoritesDao();
+        List<LocalFavoriteInfo> list = dao.queryBuilder().orderDesc(LocalFavoritesDao.Properties.Time)
+                .where(LocalFavoritesDao.Properties.Id.like(source)).list();
+        List<GalleryInfo> result = new ArrayList<>();
+        for(LocalFavoriteInfo info :list) {
+            result.add(new GalleryInfo(info));
+        }
+        return result;
+    }
+
     public static synchronized List<GalleryInfo> searchLocalFavorites(String query) {
         query = SqlUtils.sqlEscapeString("%" + query+ "%");
         LocalFavoritesDao dao = sDaoSession.getLocalFavoritesDao();

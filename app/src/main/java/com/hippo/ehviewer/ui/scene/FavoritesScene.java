@@ -52,6 +52,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.axlecho.api.MHApiSource;
+import com.axlecho.api.untils.MHStringKt;
 import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.github.amlcurran.showcaseview.SimpleShowcaseEventListener;
 import com.github.amlcurran.showcaseview.targets.PointTarget;
@@ -70,6 +71,7 @@ import com.hippo.ehviewer.ImportService;
 import com.hippo.ehviewer.R;
 import com.hippo.ehviewer.Settings;
 import com.hippo.ehviewer.client.EhClient;
+import com.hippo.ehviewer.client.EhConfig;
 import com.hippo.ehviewer.client.EhRequest;
 import com.hippo.ehviewer.client.EhUrl;
 import com.hippo.ehviewer.client.data.FavListUrlBuilder;
@@ -98,9 +100,13 @@ import com.hippo.yorozuya.SimpleAnimatorListener;
 import com.hippo.yorozuya.SimpleHandler;
 import com.hippo.yorozuya.ViewUtils;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import static com.hippo.ehviewer.client.EhConfig.NON_H;
 
@@ -923,7 +929,7 @@ public class FavoritesScene extends BaseScene implements
         if (mHelper != null && mHelper.isCurrentTask(taskId)) {
             List<GalleryInfo> list;
             if (TextUtils.isEmpty(keyword)) {
-                list = EhDB.getAllLocalFavorites();
+                list = EhDB.getLocalFavorites(currentSource.name());
             } else {
                 list = EhDB.searchLocalFavorites(keyword);
             }
@@ -946,16 +952,21 @@ public class FavoritesScene extends BaseScene implements
     }
 
     private void checkUpdate(List<GalleryInfo> list) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss", Locale.CHINA);
         for (GalleryInfo info : list) {
             ReadingRecord record = EhDB.getReadingRecord(info.getId());
             if (record == null) {
+                info.posted = sdf.format(new Date(0L));
                 continue;
             }
+            info.posted = sdf.format(new Date(record.getUpdate_time()));
 
             if (record.getRead_time() == null || record.getRead_time() < record.getUpdate_time()) {
-                info.category = NON_H;
+                info.category = EhConfig.UPDATE;
             }
         }
+
+        Collections.sort(list, (o1, o2) -> (int)(MHStringKt.transferTime(o1.posted) - MHStringKt.transferTime(o2.posted)));
     }
 
     private class DeleteDialogHelper implements DialogInterface.OnClickListener,

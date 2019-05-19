@@ -44,6 +44,7 @@ public class EhUtils {
     public static final int BG_COLOR_ASIAN_PORN = 0xff9575cd;
     public static final int BG_COLOR_MISC = 0xfff06292;
     public static final int BG_COLOR_UNKNOWN = Color.BLACK;
+    public static final int BG_COLOR_UPDATE = BG_COLOR_MANGA;
 
     // Remove [XXX], (XXX), {XXX}, ~XXX~ stuff
     public static final Pattern PATTERN_TITLE_PREFIX = Pattern.compile(
@@ -64,7 +65,8 @@ public class EhUtils {
             EhConfig.ASIAN_PORN,
             EhConfig.NON_H,
             EhConfig.WESTERN,
-            UNKNOWN };
+            UNKNOWN,
+            EhConfig.UPDATE};
 
     private static final String[][] CATEGORY_STRINGS = {
             new String[] { "misc" },
@@ -77,7 +79,8 @@ public class EhUtils {
             new String[] { "asianporn", "Asian Porn" },
             new String[] { "non-h" },
             new String[] { "western" },
-            new String[] { "unknown" }
+            new String[] { "unknown"} ,
+            new String[] {"有更新"}
     };
 
     public static int getCategory(String type) {
@@ -122,6 +125,8 @@ public class EhUtils {
                 return BG_COLOR_ASIAN_PORN;
             case EhConfig.MISC:
                 return BG_COLOR_MISC;
+            case EhConfig.UPDATE:
+                return BG_COLOR_UPDATE;
             default:
                 return BG_COLOR_UNKNOWN;
         }
