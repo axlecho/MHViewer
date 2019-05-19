@@ -646,6 +646,8 @@
     <string name="collections">收藏夹</string>
     <string name="count">数量</string>
     <string name="need_sign_in">需要登录</string>
+    <string name="import_collection">从%1$s 查找 %2$s 的收藏并导入到本地?</string>
+    <string name="check_update_start">开始更新检测</string>
 
     <!-- Progress Scene -->
     <string name="error_something_wrong_happened">被玩坏了</string>

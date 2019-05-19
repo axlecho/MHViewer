@@ -51,7 +51,6 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.axlecho.api.MHApi;
 import com.axlecho.api.MHApiSource;
 import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.github.amlcurran.showcaseview.SimpleShowcaseEventListener;
@@ -796,12 +795,13 @@ public class FavoritesScene extends BaseScene implements
 
         if (fab.getTag() instanceof MHApiSource) {
             MHApiSource source = (MHApiSource) fab.getTag();
-            MHApi.Companion.getINSTANCE().select(source);
+            switchSource(source);
             mHelper.refresh();
         } else {
             Intent intent = new Intent(getActivity2(), CheckUpdateService.class);
             intent.setAction(CheckUpdateService.Companion.getACTION_START());
             context.startService(intent);
+            showTip(R.string.check_update_start,BaseScene.LENGTH_SHORT);
         }
         view.setExpanded(false);
     }
@@ -814,11 +814,18 @@ public class FavoritesScene extends BaseScene implements
             return;
         }
 
-        Intent intent = new Intent(getActivity2(), ImportService.class);
-        intent.setAction(ImportService.Companion.getACTION_START());
-        intent.putExtra(ImportService.Companion.getKEY_TARGET(), (Parcelable) MHApiSource.Hanhan);
-        intent.putExtra(ImportService.Companion.getKEY_SOURCE(), (Parcelable) MHApiSource.Bangumi);
-        context.startService(intent);
+        if (fab.getTag() instanceof MHApiSource) {
+            MHApiSource target = (MHApiSource)fab.getTag();
+            new AlertDialog.Builder(context)
+                    .setTitle(context.getResources().getString(R.string.import_collection,target.name(),currentSource.name()))
+                    .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                        Intent intent = new Intent(getActivity2(), ImportService.class);
+                        intent.setAction(ImportService.Companion.getACTION_START());
+                        intent.putExtra(ImportService.Companion.getKEY_TARGET(), (Parcelable) target);
+                        intent.putExtra(ImportService.Companion.getKEY_SOURCE(), (Parcelable) currentSource);
+                        context.startService(intent);
+                    }).create().show();
+        }
     }
 
 

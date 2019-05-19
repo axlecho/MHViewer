@@ -704,7 +704,8 @@
     <string name="collections">Collections</string>
     <string name="count">Count</string>
     <string name="need_sign_in">Signing in is required</string>
-
+    <string name="import_collection">Import collection from %1$s by %2$s to location collection?</string>
+    <string name="check_update_start">Start check update</string>
     <!-- Progress Scene -->
     <string name="error_something_wrong_happened">Something wrong happened</string>
 

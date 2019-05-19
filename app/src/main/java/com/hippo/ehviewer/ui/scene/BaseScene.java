@@ -17,6 +17,7 @@
 package com.hippo.ehviewer.ui.scene;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -32,6 +33,9 @@ import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.annotation.StyleRes;
 import androidx.fragment.app.FragmentActivity;
+
+import com.axlecho.api.MHApi;
+import com.axlecho.api.MHApiSource;
 import com.hippo.drawerlayout.DrawerLayout;
 import com.hippo.ehviewer.Analytics;
 import com.hippo.ehviewer.ui.MainActivity;
@@ -45,6 +49,7 @@ public abstract class BaseScene extends SceneFragment {
 
     public static final String KEY_DRAWER_VIEW_STATE =
         "com.hippo.ehviewer.ui.scene.BaseScene:DRAWER_VIEW_STATE";
+    public MHApiSource currentSource;
 
     private Context mThemeContext;
 
@@ -278,9 +283,33 @@ public abstract class BaseScene extends SceneFragment {
         }
     }
 
+    public void switchSource(MHApiSource source) {
+        this.currentSource = source;
+        MHApi.Companion.getINSTANCE().select(currentSource);
+        Context context = getContext();
+        if(context == null) {
+            return;
+        }
+
+        SharedPreferences spf = context.getSharedPreferences("SourceState",Context.MODE_PRIVATE);
+        spf.edit().putString(this.getClass().getSimpleName(),currentSource.name()).apply();
+        // TODO update ui
+    }
+
+    public void loadSource() {
+        Context context = getContext();
+        if(context == null) {
+            return;
+        }
+        SharedPreferences spf = context.getSharedPreferences("SourceState",Context.MODE_PRIVATE);
+        currentSource = MHApiSource.valueOf(spf.getString(this.getClass().getSimpleName(),MHApiSource.Hanhan.name()));
+        MHApi.Companion.getINSTANCE().select(currentSource);
+    }
+
     @Override
     public void onResume() {
         super.onResume();
+        loadSource();
         Analytics.onSceneView(this);
     }
 

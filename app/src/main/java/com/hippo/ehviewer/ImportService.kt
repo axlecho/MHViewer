@@ -82,11 +82,12 @@ class ImportService : Service() {
                 .flatMapIterable { ids -> ids }
                 .flatMap {
                     MHApi.INSTANCE.switchSource(it, target)
+                            .doOnError { e -> Log.e(TAG,e.message) }
                             .onErrorResumeNext(Observable.just(error))
                 }
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnError { t -> Log.d(TAG, t.message) }
+                .doOnError { e -> Log.d(TAG, e.message) }
                 .doOnComplete { sendNotification("success $success,failed $failed", "Done") }
                 .subscribe {
                     if (it.gid != -1L) {
