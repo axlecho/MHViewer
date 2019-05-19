@@ -384,7 +384,7 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
 
     @Override
     public void onClickSecondaryFab(FabLayout view, FloatingActionButton fab, int position) {
-        if(fab.getTag() instanceof MHApiSource) {
+        if (fab.getTag() instanceof MHApiSource) {
             MHApiSource source = (MHApiSource) fab.getTag();
             MHApi.Companion.getINSTANCE().select(source);
             switchSource();
@@ -410,6 +410,7 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
             // Add history
             if (null != mGalleryInfo) {
                 EhDB.putHistoryInfo(mGalleryInfo);
+                MHApi.Companion.getINSTANCE().select(mGalleryInfo.source);
             }
         } else if (ACTION_GID_TOKEN.equals(action)) {
             mGid = args.getLong(KEY_GID);
@@ -528,10 +529,12 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
         outState.putInt(KEY_REQUEST_ID, mRequestId);
     }
 
+
     @Nullable
     @Override
     public View onCreateView2(LayoutInflater inflater, @Nullable ViewGroup container,
                               @Nullable Bundle savedInstanceState) {
+
         // Get download state
         long gid = getGid();
         if (gid != -1) {
@@ -1053,7 +1056,7 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
         }
 
         for (MHApiSource source : MHApiSource.values()) {
-            FloatingActionButton btn = (FloatingActionButton) inflater.inflate(R.layout.item_second_action_button, mFabLayout,false);
+            FloatingActionButton btn = (FloatingActionButton) inflater.inflate(R.layout.item_second_action_button, mFabLayout, false);
 
             TextDrawable bg = new TextDrawable(source.name().substring(0, 1), 0.75f);
             bg.setTextColor(Color.WHITE);
@@ -1061,7 +1064,7 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
             btn.setImageDrawable(bg);
             btn.setTag(source);
             // btn.setId();
-            mFabLayout.addView(btn,0);
+            mFabLayout.addView(btn, 0);
         }
         mFabLayout.invalidate();
     }
@@ -1184,8 +1187,6 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
         popup.getMenuInflater().inflate(R.menu.scene_gallery_detail, popup.getMenu());
 
         View.generateViewId();
-        popup.getMenu().add(Menu.NONE, 101, Menu.NONE, "汗汗");
-        popup.getMenu().add(Menu.NONE, 102, Menu.NONE, "Bangumi");
         popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
@@ -1202,14 +1203,6 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
                             adjustViewVisibility(STATE_REFRESH, true);
                             request();
                         }
-                        break;
-                    case 101:
-                        MHApi.Companion.getINSTANCE().select(MHApiSource.Hanhan);
-                        switchSource();
-                        break;
-                    case 102:
-                        MHApi.Companion.getINSTANCE().select(MHApiSource.Bangumi);
-                        switchSource();
                         break;
                 }
                 return true;
@@ -2202,4 +2195,7 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
             return scene instanceof GalleryDetailScene;
         }
     }
+
+    @Override
+    public void loadSource() {}
 }

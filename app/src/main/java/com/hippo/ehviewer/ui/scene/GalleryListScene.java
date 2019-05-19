@@ -998,7 +998,7 @@ public final class GalleryListScene extends BaseScene
 
         if(fab.getTag() instanceof MHApiSource) {
             MHApiSource source = (MHApiSource) fab.getTag();
-            MHApi.Companion.getINSTANCE().select(source);
+            switchSource(source);
             mHelper.refresh();
         }
 
