@@ -128,6 +128,7 @@
     <string name="error_parse_error">Parse error</string>
     <string name="error_509">509</string>
     <string name="error_invalid_url">Invalid url</string>
+    <string name="error_socket_exception">Network Error</string>
     <string name="error_get_ptoken_error">Get pToken error</string>
     <string name="error_cant_create_temp_file">Couldn\'t create temp file</string>
     <string name="error_cant_save_image">Can\'t save image</string>

@@ -173,6 +173,11 @@ public class AddDeleteDrawable extends Drawable {
         setShape(false, duration);
     }
 
+    public void setSource(MHApiSource source) {
+        mSource = source;
+        invalidateSelf();
+    }
+
     public void setDelete(long duration) {
         setShape(true, duration);
     }

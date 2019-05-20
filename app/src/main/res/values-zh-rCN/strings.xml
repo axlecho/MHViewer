@@ -17,7 +17,7 @@
 
 <resources>
 
-    <string name="app_name">EhViewer</string>
+    <string name="app_name">MhViewer</string>
 
     <!-- Theme -->
     <string name="theme_light">亮色主题</string>
@@ -86,6 +86,7 @@
     <string name="error_parse_error">解析失败</string>
     <string name="error_509">509</string>
     <string name="error_invalid_url">无效链接</string>
+    <string name="error_socket_exception">网络错误</string>
     <string name="error_get_ptoken_error">获取 pToken 错误</string>
     <string name="error_cant_create_temp_file">无法创建临时文件</string>
     <string name="error_cant_save_image">无法保存图片</string>

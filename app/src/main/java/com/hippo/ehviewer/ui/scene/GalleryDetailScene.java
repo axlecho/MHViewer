@@ -63,6 +63,7 @@ import androidx.transition.TransitionInflater;
 
 import com.axlecho.api.MHApi;
 import com.axlecho.api.MHApiSource;
+import com.axlecho.api.MhException;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.Gson;
 import com.hippo.android.resource.AttrResources;
@@ -75,6 +76,7 @@ import com.hippo.drawerlayout.DrawerLayout;
 import com.hippo.ehviewer.AppConfig;
 import com.hippo.ehviewer.EhApplication;
 import com.hippo.ehviewer.EhDB;
+import com.hippo.ehviewer.GetText;
 import com.hippo.ehviewer.R;
 import com.hippo.ehviewer.UrlOpener;
 import com.hippo.ehviewer.client.EhCacheKeyFactory;
@@ -387,6 +389,7 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
         if (fab.getTag() instanceof MHApiSource) {
             MHApiSource source = (MHApiSource) fab.getTag();
             MHApi.Companion.getINSTANCE().select(source);
+            mActionFabDrawable.setSource(source);
             switchSource();
         }
         view.setExpanded(false);
@@ -410,6 +413,7 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
             // Add history
             if (null != mGalleryInfo) {
                 EhDB.putHistoryInfo(mGalleryInfo);
+                currentSource = mGalleryInfo.source;
                 MHApi.Companion.getINSTANCE().select(mGalleryInfo.source);
             }
         } else if (ACTION_GID_TOKEN.equals(action)) {
@@ -818,7 +822,6 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
             return false;
         }
 
-        MHApi.Companion.getINSTANCE().select(mGalleryInfo.source);
         String url = String.valueOf(mGalleryInfo.gid);
         EhClient.Callback callback = new GetGalleryDetailListener(context,
                 activity.getStageId(), getTag());
@@ -1546,6 +1549,7 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
         for (GalleryInfo info : result.galleryInfoList) {
             if (getGalleryInfo() != null && getGalleryInfo().title.equals(info.title)) {
                 mGalleryInfo = info;
+                currentSource = mGalleryInfo.source;
                 if (mState != STATE_REFRESH && mState != STATE_REFRESH_HEADER) {
                     adjustViewVisibility(STATE_REFRESH, true);
                     request();
@@ -1553,8 +1557,9 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
                 return;
             }
         }
-        mGalleryInfo = null;
-        onGetGalleryDetailFailure(new Exception("no found"));
+        MHApi.Companion.getINSTANCE().select(currentSource);
+        mActionFabDrawable.setSource(currentSource);
+        showTip(GetText.getString(R.string.error_not_found),BaseScene.LENGTH_SHORT);
     }
 
     private void onGetGalleryDetailSuccess(GalleryDetail result) {
