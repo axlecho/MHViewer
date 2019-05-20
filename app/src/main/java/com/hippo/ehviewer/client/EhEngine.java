@@ -264,42 +264,6 @@ public class EhEngine {
         return result;
     }
 
-    public static GalleryListParser.Result importCollection(@Nullable EhClient.Task task,OkHttpClient okHttpClient,
-                                                            String id) {
-
-        GalleryListParser.Result result = new GalleryListParser.Result();
-        result.pages = 1;
-        result.nextPage = 2;
-        result.noWatchedTags = false;
-        result.galleryInfoList = new ArrayList<>();
-
-        int items = BangumiApi.Companion.getINSTANCE().collectionPages(id).blockingFirst();
-        int pages = (int)Math.ceil(items /  25.0);
-
-        List<MHComicInfo> collection = new ArrayList<>();
-        for(int i = 1;i <= pages;i ++) {
-            MHMutiItemResult<MHComicInfo> c = BangumiApi.Companion.getINSTANCE().collection(id,i).blockingFirst();
-            collection.addAll(c.getDatas());
-        }
-
-        for(MHComicInfo c : collection) {
-            Log.v(TAG,"searching - " + c.getTitle());
-            GalleryListParser.Result r = search(task,okHttpClient,c.getTitle(),1);
-            result.galleryInfoList.addAll(r.galleryInfoList);
-        }
-
-        for(GalleryInfo info:result.galleryInfoList) {
-            try {
-                EhDB.putLocalFavorites(info);
-            } catch (Throwable throwable) {
-                throwable.printStackTrace();
-            }
-        }
-        Log.d(TAG,new Gson().toJson(result));
-        return result;
-    }
-
-
     // At least, GalleryInfo contain valid gid and token
     public static List<GalleryInfo> fillGalleryListByApi(@Nullable EhClient.Task task, OkHttpClient okHttpClient,
                                                          List<GalleryInfo> galleryInfoList, String referer) throws Throwable {

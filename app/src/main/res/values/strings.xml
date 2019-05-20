@@ -451,10 +451,6 @@
     <string name="settings_eh_sign_out_warning">Do you really want to sign out?</string>
     <string name="settings_eh_sign_out_yes">@android:string/ok</string>
     <string name="settings_eh_sign_out_tip">You have signed out. Restart the application to sign in again</string>
-    <string name="settings_eh_import_collection">Import collection from bangumi</string>
-    <string name="settings_eh_import_collection_summary">xxxxxxx</string>
-    <string name="settings_eh_import_collection_tip_yes">@android:string/ok</string>
-    <string name="settings_eh_import_collection_text">Import collection from bangumi @axlecho</string>
 
     <string name="settings_eh_identity_cookies">Identity cookies</string>
     <string name="settings_eh_identity_cookies_summary">Cookies can be used to sign in</string>
