@@ -28,25 +28,39 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 
+import com.axlecho.api.MHApiSource;
 import com.hippo.ehviewer.R;
 import com.hippo.yorozuya.MathUtils;
 
 public class AddDeleteDrawable extends Drawable {
+    private Paint textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private static final float STANDARD_TEXT_SIZE = 1000.0f;
+    private static final Paint STANDARD_PAINT = new Paint();
+
+    static {
+        STANDARD_PAINT.setTextSize(STANDARD_TEXT_SIZE);
+    }
+
+    private float contentPercent;
+
+    private float x = 0.0f;
+    private float y = 0.0f;
+    private boolean textSizeDirty = false;
+    private Rect textBounds = new Rect();
+
 
     private final Paint mPaint = new Paint();
     private final Path mPath = new Path();
-
     private final int mSize;
-
     private float mProgress;
-
     private boolean mAutoUpdateMirror = false;
     private boolean mVerticalMirror = false;
+    private MHApiSource mSource;
 
     /**
      * @param context used to get the configuration for the drawable from
      */
-    public AddDeleteDrawable(Context context, int color) {
+    public AddDeleteDrawable(Context context, int color,MHApiSource source) {
         Resources resources = context.getResources();
 
         mSize = resources.getDimensionPixelSize(R.dimen.add_size);
@@ -63,6 +77,8 @@ public class AddDeleteDrawable extends Drawable {
         mPath.lineTo(0, halfSize);
         mPath.moveTo(-halfSize, 0);
         mPath.lineTo(halfSize, 0);
+        textPaint.setColor(color);
+        mSource = source;
     }
 
     @Override
@@ -78,23 +94,39 @@ public class AddDeleteDrawable extends Drawable {
         canvas.save();
         canvas.translate(bounds.centerX(), bounds.centerY());
         canvas.rotate(canvasRotate);
-        canvas.drawPath(mPath, mPaint);
+
+
+        if (mSource != null) {
+            // Draw text
+            textPaint.setAlpha((int) ((1 - mProgress) * 255));
+            String text = mSource.name().substring(0, 1);
+            updateTextSizeIfDirty(bounds);
+            canvas.drawText(text, x, y, textPaint);
+            mPaint.setAlpha((int) (mProgress * 255));
+            canvas.drawPath(mPath, mPaint);
+        } else {
+            canvas.drawPath(mPath, mPaint);
+
+        }
         canvas.restore();
     }
 
     public void setColor(int color) {
         mPaint.setColor(color);
+        textPaint.setColor(color);
         invalidateSelf();
     }
 
     @Override
     public void setAlpha(int alpha) {
         mPaint.setAlpha(alpha);
+        textPaint.setAlpha(alpha);
     }
 
     @Override
     public void setColorFilter(ColorFilter cf) {
         mPaint.setColorFilter(cf);
+        textPaint.setColorFilter(cf);
     }
 
     @Override
@@ -136,7 +168,8 @@ public class AddDeleteDrawable extends Drawable {
         invalidateSelf();
     }
 
-    public void setAdd(long duration) {
+    public void setAdd(long duration, MHApiSource source) {
+        mSource =source;
         setShape(false, duration);
     }
 
@@ -158,6 +191,35 @@ public class AddDeleteDrawable extends Drawable {
                 oa.start();
             }
         }
+    }
+
+    @Override
+    protected void onBoundsChange(Rect bounds) {
+        super.onBoundsChange(bounds);
+        textSizeDirty = true;
+    }
+
+    private void updateTextSizeIfDirty(Rect bounds) {
+        if (!textSizeDirty) {
+            return;
+        }
+        textSizeDirty = false;
+
+        String text = mSource.name().substring(0, 1);
+        this.contentPercent = 1.0f;
+        STANDARD_PAINT.getTextBounds(text, 0, text.length(), textBounds);
+        int contentWidth = (int) (bounds.width() * contentPercent);
+        int contentHeight = (int) (bounds.height() * contentPercent);
+        float widthRatio = (float) contentWidth / (float) textBounds.width();
+        float heightRatio = (float) contentHeight / (float) textBounds.height();
+        float ratio = Math.min(widthRatio, heightRatio);
+
+
+        x = - bounds.centerX();
+        y = bounds.centerY();
+
+        float textSize = STANDARD_TEXT_SIZE * ratio;
+        textPaint.setTextSize(textSize);
     }
 
     @Override

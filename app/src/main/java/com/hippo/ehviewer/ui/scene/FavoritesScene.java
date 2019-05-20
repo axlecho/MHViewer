@@ -310,7 +310,7 @@ public class FavoritesScene extends BaseScene implements
         mFabLayout.setHidePrimaryFab(false);
         mFabLayout.setOnClickFabListener(this);
         mFabLayout.setOnExpandListener(this);
-        mActionFabDrawable = new AddDeleteDrawable(context, resources.getColor(R.color.primary_drawable_dark));
+        mActionFabDrawable = new AddDeleteDrawable(context, resources.getColor(R.color.primary_drawable_dark),currentSource);
         mFabLayout.getPrimaryFab().setImageDrawable(mActionFabDrawable);
         mHideActionFabSlop = ViewConfiguration.get(context).getScaledTouchSlop();
         mRecyclerView.addOnScrollListener(mOnScrollListener);
@@ -786,7 +786,7 @@ public class FavoritesScene extends BaseScene implements
         } else {
             setDrawerLockMode(com.hippo.drawerlayout.DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.LEFT);
             setDrawerLockMode(com.hippo.drawerlayout.DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.RIGHT);
-            mActionFabDrawable.setAdd(ANIMATE_TIME);
+            mActionFabDrawable.setAdd(ANIMATE_TIME,currentSource);
         }
     }
 

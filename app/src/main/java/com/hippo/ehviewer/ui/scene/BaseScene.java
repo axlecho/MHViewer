@@ -204,6 +204,7 @@ public abstract class BaseScene extends SceneFragment {
     @Override
     public final View onCreateView(LayoutInflater inflater,
             @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        loadSource();
         return onCreateView2(LayoutInflater.from(getContext2()), container, savedInstanceState);
     }
 
@@ -229,6 +230,8 @@ public abstract class BaseScene extends SceneFragment {
 
         // Hide soft ime
         AppHelper.hideSoftInput(getActivity());
+
+
     }
 
     public void createThemeContext(@StyleRes int style) {

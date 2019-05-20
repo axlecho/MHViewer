@@ -638,7 +638,7 @@ public final class GalleryListScene extends BaseScene
         refreshLayout.setHeaderTranslationY(paddingTopSB);
 
         mLeftDrawable = new DrawerArrowDrawable(context, AttrResources.getAttrColor(context, R.attr.drawableColorPrimary));
-        mRightDrawable = new AddDeleteDrawable(context, AttrResources.getAttrColor(context, R.attr.drawableColorPrimary));
+        mRightDrawable = new AddDeleteDrawable(context, AttrResources.getAttrColor(context, R.attr.drawableColorPrimary),null);
         mSearchBar.setLeftDrawable(mLeftDrawable);
         mSearchBar.setRightDrawable(mRightDrawable);
         mSearchBar.setHelper(this);
@@ -658,7 +658,7 @@ public final class GalleryListScene extends BaseScene
         mFabLayout.setOnExpandListener(this);
         addAboveSnackView(mFabLayout);
 
-        mActionFabDrawable = new AddDeleteDrawable(context, resources.getColor(R.color.primary_drawable_dark));
+        mActionFabDrawable = new AddDeleteDrawable(context, resources.getColor(R.color.primary_drawable_dark),currentSource);
         mFabLayout.getPrimaryFab().setImageDrawable(mActionFabDrawable);
 
         mSearchFab.setOnClickListener(this);
@@ -1023,7 +1023,7 @@ public final class GalleryListScene extends BaseScene
         } else {
             setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.LEFT);
             setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.RIGHT);
-            mActionFabDrawable.setAdd(ANIMATE_TIME);
+            mActionFabDrawable.setAdd(ANIMATE_TIME,currentSource);
         }
     }
 
@@ -1382,13 +1382,13 @@ public final class GalleryListScene extends BaseScene
             case SearchBar.STATE_SEARCH:
                 if (newState == SearchBar.STATE_NORMAL) {
                     mLeftDrawable.setMenu(animation ? ANIMATE_TIME : 0);
-                    mRightDrawable.setAdd(animation ? ANIMATE_TIME : 0);
+                    mRightDrawable.setAdd(animation ? ANIMATE_TIME : 0,null);
                 }
                 break;
             case SearchBar.STATE_SEARCH_LIST:
                 if (newState == STATE_NORMAL) {
                     mLeftDrawable.setMenu(animation ? ANIMATE_TIME : 0);
-                    mRightDrawable.setAdd(animation ? ANIMATE_TIME : 0);
+                    mRightDrawable.setAdd(animation ? ANIMATE_TIME : 0,null);
                 }
                 break;
         }

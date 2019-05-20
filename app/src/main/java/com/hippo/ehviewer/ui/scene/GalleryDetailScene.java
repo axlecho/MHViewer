@@ -371,7 +371,7 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
         } else {
             setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.LEFT);
             setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.RIGHT);
-            mActionFabDrawable.setAdd(ANIMATE_TIME);
+            mActionFabDrawable.setAdd(ANIMATE_TIME,currentSource);
         }
     }
 
@@ -566,7 +566,7 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
         mFabLayout.setOnExpandListener(this);
 
         addAboveSnackView(mFabLayout);
-        mActionFabDrawable = new AddDeleteDrawable(context, resources.getColor(R.color.primary_drawable_dark));
+        mActionFabDrawable = new AddDeleteDrawable(context, resources.getColor(R.color.primary_drawable_dark),currentSource);
         mFabLayout.getPrimaryFab().setImageDrawable(mActionFabDrawable);
         mainView.getViewTreeObserver().addOnScrollChangedListener(mOnScrollListener);
 
