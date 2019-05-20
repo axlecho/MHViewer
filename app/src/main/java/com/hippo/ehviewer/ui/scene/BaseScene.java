@@ -302,7 +302,7 @@ public abstract class BaseScene extends SceneFragment {
             return;
         }
         SharedPreferences spf = context.getSharedPreferences("SourceState",Context.MODE_PRIVATE);
-        currentSource = MHApiSource.valueOf(spf.getString(this.getClass().getSimpleName(),MHApiSource.Hanhan.name()));
+        currentSource = MHApiSource.valueOf(spf.getString(this.getClass().getSimpleName(),MHApiSource.Bangumi.name()));
         MHApi.Companion.getINSTANCE().select(currentSource);
     }
 

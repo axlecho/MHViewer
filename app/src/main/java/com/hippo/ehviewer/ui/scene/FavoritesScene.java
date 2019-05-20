@@ -820,6 +820,10 @@ public class FavoritesScene extends BaseScene implements
             return;
         }
 
+        if(mUrlBuilder == null) {
+            return;
+        }
+
         if (fab.getTag() instanceof MHApiSource) {
             MHApiSource target = (MHApiSource)fab.getTag();
             new AlertDialog.Builder(context)
@@ -829,6 +833,7 @@ public class FavoritesScene extends BaseScene implements
                         intent.setAction(ImportService.Companion.getACTION_START());
                         intent.putExtra(ImportService.Companion.getKEY_TARGET(), (Parcelable) target);
                         intent.putExtra(ImportService.Companion.getKEY_SOURCE(), (Parcelable) currentSource);
+                        intent.putExtra(ImportService.Companion.getKEY_LOCAL(),mUrlBuilder.getFavCat() == FavListUrlBuilder.FAV_CAT_LOCAL);
                         context.startService(intent);
                     }).create().show();
         }
@@ -952,7 +957,7 @@ public class FavoritesScene extends BaseScene implements
     }
 
     private void checkUpdate(List<GalleryInfo> list) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss", Locale.CHINA);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.CHINA);
         for (GalleryInfo info : list) {
             ReadingRecord record = EhDB.getReadingRecord(info.getId());
             if (record == null) {
@@ -966,7 +971,14 @@ public class FavoritesScene extends BaseScene implements
             }
         }
 
-        Collections.sort(list, (o1, o2) -> (int)(MHStringKt.transferTime(o1.posted) - MHStringKt.transferTime(o2.posted)));
+        Collections.sort(list, (o1, o2) -> {
+                try {
+                    long ret =   sdf.parse(o2.posted).getTime() - sdf.parse(o1.posted).getTime();
+                    if(ret > 0) return 1; else if (ret < 0) return -1; else return 0;
+                } catch (Exception e) {
+                    return 0;
+                }
+        });
     }
 
     private class DeleteDialogHelper implements DialogInterface.OnClickListener,

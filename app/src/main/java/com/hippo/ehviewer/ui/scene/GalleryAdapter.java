@@ -215,6 +215,9 @@ abstract class GalleryAdapter extends RecyclerView.Adapter<GalleryHolder> {
                 // TODO Mess word
                 if (EhUtils.getCategoryColor(gi.category)== EhUtils.BG_COLOR_UNKNOWN) {
                     category.setVisibility(View.INVISIBLE);
+                } else {
+                    category.setVisibility(View.VISIBLE);
+                    category.setBackgroundColor(EhUtils.getCategoryColor(gi.category));
                 }
 
                 holder.posted.setText(gi.posted);

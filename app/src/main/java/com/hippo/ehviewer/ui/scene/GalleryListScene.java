@@ -962,7 +962,6 @@ public final class GalleryListScene extends BaseScene
             return true;
         }
 
-        MHApi.Companion.getINSTANCE().select(gi.source);
         Bundle args = new Bundle();
         args.putString(GalleryDetailScene.KEY_ACTION, GalleryDetailScene.ACTION_GALLERY_INFO);
         args.putParcelable(GalleryDetailScene.KEY_GALLERY_INFO, gi);

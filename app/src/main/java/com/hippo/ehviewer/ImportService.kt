@@ -13,6 +13,7 @@ import com.axlecho.api.MHComicInfo
 import com.hippo.ehviewer.client.data.GalleryInfo
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 
 class ImportService : Service() {
@@ -22,12 +23,30 @@ class ImportService : Service() {
         val ACTION_START = "start"
         val KEY_SOURCE = "source"
         val KEY_TARGET = "target"
+        val KEY_LOCAL = "local"
     }
 
     private var mNotifyManager: NotificationManager? = null
     private var result = arrayListOf<MHComicInfo>()
     private var success = 0
     private var failed = 0
+    private var collectionHandle:Disposable = object:Disposable{
+        override fun dispose() {}
+
+        override fun isDisposed(): Boolean {
+            return false
+        }
+    }
+    private var importHandle:Disposable = object :Disposable{
+        override fun dispose() {
+
+        }
+
+        override fun isDisposed(): Boolean {
+            return true
+        }
+    }
+
     override fun onBind(intent: Intent): IBinder? {
         return null
     }
@@ -47,42 +66,66 @@ class ImportService : Service() {
             return
         }
 
+        if(!collectionHandle.isDisposed || !importHandle.isDisposed) {
+            return
+        }
+
         val action = intent.action
         if (ACTION_START == action) {
             val source = intent.getParcelableExtra<MHApiSource>(KEY_SOURCE)
             val target = intent.getParcelableExtra<MHApiSource>(KEY_TARGET)
-            startImport(source, target)
+            val isLocal = intent.getBooleanExtra(KEY_LOCAL,false)
+            result.clear()
+            if(isLocal) {
+                startImportLocal(source,target)
+            } else {
+                startImport(source, target)
+            }
         }
     }
 
     private fun startImport(source: MHApiSource, target: MHApiSource) {
         val uid = "axlecho"
         MHApi.INSTANCE.select(source)
-        val handle = MHApi.INSTANCE.getAllCollection(uid)
+        collectionHandle = MHApi.INSTANCE.getAllCollection(uid)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnError { t -> Log.d(TAG, t.message) }
                 .doOnComplete { switch(target) }
                 .subscribe {
-                    sendNotification("===> " + it.currentPage + " page", "Getting collections")
+                    sendNotification("===> " + it.currentPage, "Getting collections",it.pages,it.currentPage)
                     result.addAll(it.datas)
                 }
+    }
 
+    private fun startImportLocal(source:MHApiSource,target:MHApiSource) {
+        val ret = EhDB.getLocalFavorites(source.name)
+        for(r in ret) {
+            result.add(MHComicInfo(r.gid,r.title,"","",-1,"","",0.0f,false,source))
+        }
+        switch(target)
     }
 
     private fun switch(target: MHApiSource) {
+
         MHApi.INSTANCE.select(target)
         if (result.isEmpty()) {
             return
         }
 
+        var current = 0
         val error = MHComicInfo(-1, "", "", "", -1, "", "", 0.0f, false, MHApiSource.Hanhan);
 
-        val handle = Observable.just(result)
+        importHandle = Observable.just(result)
                 .flatMapIterable { ids -> ids }
                 .flatMap {
-                    MHApi.INSTANCE.switchSource(it, target)
-                            .doOnError { e -> Log.e(TAG,e.message) }
+                    item ->
+                        MHApi.INSTANCE.switchSource(item, target)
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .doOnError {
+                                sendNotification("failed",item.title ,result.size,current)
+                            }
                             .onErrorResumeNext(Observable.just(error))
                 }
                 .subscribeOn(Schedulers.io())
@@ -91,12 +134,14 @@ class ImportService : Service() {
                 .doOnComplete { sendNotification("success $success,failed $failed", "Done") }
                 .subscribe {
                     if (it.gid != -1L) {
-                        sendNotification("===> " + it.title, "Find item on " + target.name)
                         save(it)
                         success ++
+                        sendNotification("success",it.title ,result.size,current)
                     } else {
                         failed ++
+
                     }
+                    current ++
                 }
     }
 
@@ -104,11 +149,15 @@ class ImportService : Service() {
         EhDB.putLocalFavorites(GalleryInfo(info))
     }
 
-    private fun sendNotification(message: String, title: String) {
+    private fun sendNotification(message: String, title: String,total:Int = 100,current:Int = 100) {
         val builder = NotificationCompat.Builder(this)
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentText(message)
                 .setContentTitle(title)
+                .setPriority(NotificationCompat.PRIORITY_MAX)
+                .setAutoCancel(false)
+                .setProgress(total, current, false)
+
         mNotifyManager?.notify(1, builder.build())
     }
 }

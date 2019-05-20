@@ -12,6 +12,7 @@ import com.hippo.ehviewer.client.data.GalleryDetail
 import com.hippo.ehviewer.dao.ReadingRecord
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
 import io.reactivex.rxkotlin.flatMapIterable
 import io.reactivex.schedulers.Schedulers
 
@@ -22,6 +23,14 @@ class CheckUpdateService : Service() {
     }
 
     private var mNotifyManager: NotificationManager? = null
+    private var handle:Disposable = object:Disposable {
+        override fun isDisposed(): Boolean {
+            return true
+        }
+
+        override fun dispose() {}
+
+    }
 
     override fun onBind(intent: Intent?): IBinder? {
         TODO("not implemented")
@@ -42,6 +51,10 @@ class CheckUpdateService : Service() {
             return
         }
 
+        if(!handle.isDisposed) {
+            return
+        }
+
         val action = intent.action
         if (CheckUpdateService.ACTION_START == action) {
             checkUpdate()
@@ -49,8 +62,9 @@ class CheckUpdateService : Service() {
     }
 
     private fun checkUpdate() {
+        var current = 0
         val infos = EhDB.getAllLocalFavorites()
-        val handle = Observable.just(infos)
+        handle = Observable.just(infos)
                 .flatMapIterable()
                 .concatMap {
                     MHApi.INSTANCE.select(it.source).info(it.gid)
@@ -58,7 +72,8 @@ class CheckUpdateService : Service() {
                 }.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
-                    sendNotification("", "Check ${it.info.title}")
+                    sendNotification(it.info.posted, "Check ${it.info.title}",infos.size,current)
+                    current ++
                     update(it)
                 }
     }
@@ -75,11 +90,12 @@ class CheckUpdateService : Service() {
         EhDB.putReadingRecord(record)
     }
 
-    private fun sendNotification(message: String, title: String) {
+    private fun sendNotification(message: String, title: String,total:Int = 100,current:Int = 100) {
         val builder = NotificationCompat.Builder(this)
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentText(message)
                 .setContentTitle(title)
+                .setProgress(total,current,false)
         mNotifyManager?.notify(1, builder.build())
     }
 }
