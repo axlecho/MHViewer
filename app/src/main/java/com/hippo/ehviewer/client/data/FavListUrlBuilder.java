@@ -35,7 +35,7 @@ public class FavListUrlBuilder implements Parcelable {
 
     private int mIndex;
     private String mKeyword;
-    private int mFavCat = FAV_CAT_ALL;
+    private int mFavCat = FAV_CAT_LOCAL;
 
     public void setIndex(int index) {
         mIndex = index;

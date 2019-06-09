@@ -830,7 +830,7 @@ public class Settings {
     }
 
     private static final String KEY_RECENT_FAV_CAT = "recent_fav_cat";
-    private static final int DEFAULT_RECENT_FAV_CAT = FavListUrlBuilder.FAV_CAT_ALL;
+    private static final int DEFAULT_RECENT_FAV_CAT = FavListUrlBuilder.FAV_CAT_LOCAL;
 
     public static int getRecentFavCat() {
         return getInt(KEY_RECENT_FAV_CAT, DEFAULT_RECENT_FAV_CAT);
