@@ -692,6 +692,7 @@
     <string name="favorites_search_bar_hint">Search %s</string>
     <string name="favorites_title">%s</string>
     <string name="favorites_title_2">%1$s - %2$s</string>
+    <string name="favorites_checking_update">checking update %1$d / %2$d</string>
     <string name="delete_favorites_dialog_title">Delete from favorites</string>
     <string name="delete_favorites_dialog_message">Delete %d items from favorites?</string>
     <string name="move_favorites_dialog_title">Move favorites</string>

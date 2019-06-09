@@ -4,6 +4,7 @@ import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.os.Binder
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import com.axlecho.api.MHApi
@@ -22,8 +23,21 @@ class CheckUpdateService : Service() {
         val ACTION_START = "start"
     }
 
+    private var mListener: UpdateListener? = null
+    private val mBinder = CheckUpdateBinder()
+
+    interface UpdateListener {
+        fun update(done: Boolean, current: Int, total: Int)
+    }
+
+    inner class CheckUpdateBinder : Binder() {
+        fun setListener(listener: UpdateListener) {
+            mListener = listener
+        }
+    }
+
     private var mNotifyManager: NotificationManager? = null
-    private var handle:Disposable = object:Disposable {
+    private var handle: Disposable = object : Disposable {
         override fun isDisposed(): Boolean {
             return true
         }
@@ -33,7 +47,7 @@ class CheckUpdateService : Service() {
     }
 
     override fun onBind(intent: Intent?): IBinder? {
-        TODO("not implemented")
+        return mBinder
     }
 
     override fun onCreate() {
@@ -51,7 +65,7 @@ class CheckUpdateService : Service() {
             return
         }
 
-        if(!handle.isDisposed) {
+        if (!handle.isDisposed) {
             return
         }
 
@@ -62,7 +76,7 @@ class CheckUpdateService : Service() {
     }
 
     private fun checkUpdate() {
-        var current = 0
+        var current = 1
         val infos = EhDB.getAllLocalFavorites()
         handle = Observable.just(infos)
                 .flatMapIterable()
@@ -72,8 +86,8 @@ class CheckUpdateService : Service() {
                 }.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
-                    sendNotification(it.info.posted, "Check ${it.info.title}",infos.size,current)
-                    current ++
+                    sendNotification(it.info.posted, "Check ${it.info.title}", infos.size, current)
+                    current++
                     update(it)
                 }
     }
@@ -90,12 +104,13 @@ class CheckUpdateService : Service() {
         EhDB.putReadingRecord(record)
     }
 
-    private fun sendNotification(message: String, title: String,total:Int = 100,current:Int = 100) {
+    private fun sendNotification(message: String, title: String, total: Int = 100, current: Int = 100) {
         val builder = NotificationCompat.Builder(this)
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentText(message)
                 .setContentTitle(title)
-                .setProgress(total,current,false)
+                .setProgress(total, current, false)
         mNotifyManager?.notify(1, builder.build())
+        mListener?.update(total == current, current, total)
     }
 }

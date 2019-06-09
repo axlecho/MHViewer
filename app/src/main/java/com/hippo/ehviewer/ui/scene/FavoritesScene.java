@@ -19,15 +19,18 @@ package com.hippo.ehviewer.ui.scene;
 import android.animation.Animator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.os.Parcelable;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -52,7 +55,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.axlecho.api.MHApiSource;
-import com.axlecho.api.untils.MHStringKt;
 import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.github.amlcurran.showcaseview.SimpleShowcaseEventListener;
 import com.github.amlcurran.showcaseview.targets.PointTarget;
@@ -103,18 +105,15 @@ import com.hippo.yorozuya.ViewUtils;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-
-import static com.hippo.ehviewer.client.EhConfig.NON_H;
 
 // TODO Get favorite, modify favorite, add favorite, what a mess!
 public class FavoritesScene extends BaseScene implements
         EasyRecyclerView.OnItemClickListener, EasyRecyclerView.OnItemLongClickListener,
         FastScroller.OnDragHandlerListener, SearchBarMover.Helper, SearchBar.Helper,
-        FabLayout.OnClickFabListener, EasyRecyclerView.CustomChoiceListener, FabLayout.OnExpandListener {
+        FabLayout.OnClickFabListener, EasyRecyclerView.CustomChoiceListener, FabLayout.OnExpandListener, CheckUpdateService.UpdateListener {
 
     private static final long ANIMATE_TIME = 300L;
 
@@ -191,6 +190,19 @@ public class FavoritesScene extends BaseScene implements
     @Nullable
     private AddDeleteDrawable mActionFabDrawable;
 
+
+    private ServiceConnection mConnection = new ServiceConnection() {
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            CheckUpdateService.CheckUpdateBinder binder = (CheckUpdateService.CheckUpdateBinder) service;
+            binder.setListener(FavoritesScene.this);
+        }
+
+        public void onServiceDisconnected(ComponentName className) {
+
+        }
+
+    };
+
     @Override
     public int getNavCheckedItem() {
         return R.id.nav_favourite;
@@ -256,6 +268,8 @@ public class FavoritesScene extends BaseScene implements
         mFavCountArray = null;
         mFavCountSum = 0;
         mUrlBuilder = null;
+        getContext2().unbindService(mConnection);
+
     }
 
     @Nullable
@@ -310,7 +324,7 @@ public class FavoritesScene extends BaseScene implements
         mFabLayout.setHidePrimaryFab(false);
         mFabLayout.setOnClickFabListener(this);
         mFabLayout.setOnExpandListener(this);
-        mActionFabDrawable = new AddDeleteDrawable(context, resources.getColor(R.color.primary_drawable_dark),currentSource);
+        mActionFabDrawable = new AddDeleteDrawable(context, resources.getColor(R.color.primary_drawable_dark), currentSource);
         mFabLayout.getPrimaryFab().setImageDrawable(mActionFabDrawable);
         mHideActionFabSlop = ViewConfiguration.get(context).getScaledTouchSlop();
         mRecyclerView.addOnScrollListener(mOnScrollListener);
@@ -330,6 +344,8 @@ public class FavoritesScene extends BaseScene implements
 
         guideCollections();
 
+        Intent service = new Intent(context, CheckUpdateService.class);
+        context.bindService(service, mConnection, Context.BIND_AUTO_CREATE);
         return view;
     }
 
@@ -412,6 +428,21 @@ public class FavoritesScene extends BaseScene implements
     }
 
     @Override
+    public void update(boolean done, int current, int total) {
+        Context context = getContext2();
+        if (null == context || null == mUrlBuilder || null == mSearchBar || null == mFavCatArray) {
+            return;
+        }
+
+        mSearchBar.setTitle(getString(R.string.favorites_checking_update, current, total));
+        if (done && mHelper != null) {
+            mHelper.refresh();
+            mOldFavCat = "";
+            updateSearchBar();
+        }
+    }
+
+    @Override
     public void onDestroyView() {
         super.onDestroyView();
 
@@ -445,6 +476,7 @@ public class FavoritesScene extends BaseScene implements
         mOldFavCat = null;
         mOldKeyword = null;
     }
+
 
     private class FavDrawerHolder extends RecyclerView.ViewHolder {
 
@@ -786,7 +818,7 @@ public class FavoritesScene extends BaseScene implements
         } else {
             setDrawerLockMode(com.hippo.drawerlayout.DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.LEFT);
             setDrawerLockMode(com.hippo.drawerlayout.DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.RIGHT);
-            mActionFabDrawable.setAdd(ANIMATE_TIME,currentSource);
+            mActionFabDrawable.setAdd(ANIMATE_TIME, currentSource);
         }
     }
 
@@ -806,8 +838,9 @@ public class FavoritesScene extends BaseScene implements
         } else {
             Intent intent = new Intent(getActivity2(), CheckUpdateService.class);
             intent.setAction(CheckUpdateService.Companion.getACTION_START());
+            // context.bindService()
             context.startService(intent);
-            showTip(R.string.check_update_start,BaseScene.LENGTH_SHORT);
+            showTip(R.string.check_update_start, BaseScene.LENGTH_SHORT);
         }
         view.setExpanded(false);
         updateSearchBar();
@@ -821,20 +854,20 @@ public class FavoritesScene extends BaseScene implements
             return;
         }
 
-        if(mUrlBuilder == null) {
+        if (mUrlBuilder == null) {
             return;
         }
 
         if (fab.getTag() instanceof MHApiSource) {
-            MHApiSource target = (MHApiSource)fab.getTag();
+            MHApiSource target = (MHApiSource) fab.getTag();
             new AlertDialog.Builder(context)
-                    .setTitle(context.getResources().getString(R.string.import_collection,target.name(),currentSource.name()))
+                    .setTitle(context.getResources().getString(R.string.import_collection, target.name(), currentSource.name()))
                     .setPositiveButton(android.R.string.ok, (dialog, which) -> {
                         Intent intent = new Intent(getActivity2(), ImportService.class);
                         intent.setAction(ImportService.Companion.getACTION_START());
                         intent.putExtra(ImportService.Companion.getKEY_TARGET(), (Parcelable) target);
                         intent.putExtra(ImportService.Companion.getKEY_SOURCE(), (Parcelable) currentSource);
-                        intent.putExtra(ImportService.Companion.getKEY_LOCAL(),mUrlBuilder.getFavCat() == FavListUrlBuilder.FAV_CAT_LOCAL);
+                        intent.putExtra(ImportService.Companion.getKEY_LOCAL(), mUrlBuilder.getFavCat() == FavListUrlBuilder.FAV_CAT_LOCAL);
                         context.startService(intent);
                     }).create().show();
         }
@@ -973,12 +1006,14 @@ public class FavoritesScene extends BaseScene implements
         }
 
         Collections.sort(list, (o1, o2) -> {
-                try {
-                    long ret =   sdf.parse(o2.posted).getTime() - sdf.parse(o1.posted).getTime();
-                    if(ret > 0) return 1; else if (ret < 0) return -1; else return 0;
-                } catch (Exception e) {
-                    return 0;
-                }
+            try {
+                long ret = sdf.parse(o2.posted).getTime() - sdf.parse(o1.posted).getTime();
+                if (ret > 0) return 1;
+                else if (ret < 0) return -1;
+                else return 0;
+            } catch (Exception e) {
+                return 0;
+            }
         });
     }
 
