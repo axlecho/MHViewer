@@ -376,7 +376,7 @@ public class FavoritesScene extends BaseScene implements
         if (favCat >= 0 && favCat < 10) {
             favCatName = mFavCatArray[favCat];
         } else if (favCat == FavListUrlBuilder.FAV_CAT_LOCAL) {
-            favCatName = getString(R.string.local_favorites);
+            favCatName = getString(R.string.local_favorites) + currentSource.name();
         } else {
             favCatName = getString(R.string.cloud_favorites);
         }
@@ -810,6 +810,7 @@ public class FavoritesScene extends BaseScene implements
             showTip(R.string.check_update_start,BaseScene.LENGTH_SHORT);
         }
         view.setExpanded(false);
+        updateSearchBar();
     }
 
     @Override
