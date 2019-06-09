@@ -24,6 +24,7 @@
             android:icon="@drawable/v_homepage_black_x24"/>
 
         <item
+            android:visible="false"
             android:id="@+id/nav_subscription"
             android:title="@string/subscription"
             android:icon="@drawable/v_eh_subscription_black_x24"/>
@@ -44,6 +45,7 @@
             android:icon="@drawable/v_history_black_x24"/>
 
         <item
+            android:visible="false"
             android:id="@+id/nav_downloads"
             android:title="@string/downloads"
             android:icon="@drawable/v_download_black_x24"/>
