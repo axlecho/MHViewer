@@ -11,10 +11,11 @@ import com.axlecho.api.MHApi
 import com.axlecho.api.MHComicDetail
 import com.hippo.ehviewer.client.data.GalleryDetail
 import com.hippo.ehviewer.dao.ReadingRecord
+import io.reactivex.BackpressureStrategy
+import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
-import io.reactivex.rxkotlin.flatMapIterable
 import io.reactivex.schedulers.Schedulers
 
 class CheckUpdateService : Service() {
@@ -78,12 +79,18 @@ class CheckUpdateService : Service() {
     private fun checkUpdate() {
         var current = 1
         val infos = EhDB.getAllLocalFavorites()
-        handle = Observable.just(infos)
-                .flatMapIterable()
+        handle = Flowable.just(infos)
+                .flatMapIterable { list -> list }
+                .parallel(4)
                 .concatMap {
                     MHApi.INSTANCE.select(it.source).info(it.gid)
                             .onErrorResumeNext(Observable.empty())
-                }.subscribeOn(Schedulers.io())
+                            .toFlowable(BackpressureStrategy.BUFFER)
+                            .subscribeOn(Schedulers.io())
+                }
+
+                .runOn(Schedulers.io())
+                .sequential()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
                     sendNotification(it.info.posted, "Check ${it.info.title}", infos.size, current)
