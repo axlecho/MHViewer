@@ -16,30 +16,107 @@
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tool="http://schemas.android.com/tools"
     android:id="@+id/main_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.hippo.widget.ContentLayout
-        android:id="@+id/content_layout"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
 
-    <com.hippo.ehviewer.widget.SearchLayout
-        android:id="@+id/search_layout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="horizontal">
 
-    <com.hippo.ehviewer.widget.SearchBar
-        android:id="@+id/search_bar"
-        style="@style/CardView.Normal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/gallery_search_bar_margin_h"
-        android:layout_marginTop="@dimen/gallery_search_bar_margin_v"
-        android:layout_marginRight="@dimen/gallery_search_bar_margin_h" />
+            <LinearLayout
+                android:background="?attr/colorPrimary"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:paddingTop="32dp">
 
-    <com.hippo.widget.FabLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+                <TextView
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:paddingTop="16dp"
+                    android:paddingBottom="16dp"
+                    android:gravity="center"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="HH"
+                    android:textSize="@dimen/text_small"
+                    android:textColor="?attr/colorAccent"/>
+
+                <TextView
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:paddingTop="16dp"
+                    android:paddingBottom="16dp"
+                    android:gravity="center"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="BGM"
+                    android:textSize="@dimen/text_small"
+                    android:textColor="@android:color/white"/>
+
+                <TextView
+                    android:textColor="@android:color/white"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:paddingTop="16dp"
+                    android:paddingBottom="16dp"
+                    android:gravity="center"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="MHG"
+                    android:textSize="@dimen/text_small"/>
+            </LinearLayout>
+
+            <View
+                android:layout_width="2dp"
+                android:layout_height="match_parent"
+                android:background="@drawable/shadow_right" />
+        </LinearLayout>
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="5">
+
+            <com.hippo.widget.ContentLayout
+                android:id="@+id/content_layout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <com.hippo.ehviewer.widget.SearchLayout
+                android:id="@+id/search_layout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <com.hippo.ehviewer.widget.SearchBar
+                android:id="@+id/search_bar"
+                style="@style/CardView.Normal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/gallery_search_bar_margin_h"
+                android:layout_marginTop="@dimen/gallery_search_bar_margin_v"
+                android:layout_marginRight="@dimen/gallery_search_bar_margin_h" />
+        </FrameLayout>
+
+
+    </LinearLayout>
+
+
+    <com.hippo.widget.FabLayout
         android:id="@+id/fab_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -54,7 +131,7 @@
 
     </com.hippo.widget.FabLayout>
 
-    <com.hippo.widget.FabLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+    <com.hippo.widget.FabLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingRight="@dimen/corner_fab_margin"
