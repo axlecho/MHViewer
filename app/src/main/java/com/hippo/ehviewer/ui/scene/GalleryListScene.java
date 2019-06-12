@@ -42,6 +42,8 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import androidx.annotation.IntDef;
@@ -165,6 +167,8 @@ public final class GalleryListScene extends BaseScene
     private View mSearchFab;
     @Nullable
     private FabLayout mFabLayout;
+    @Nullable
+    private RadioGroup mSourceBar;
     @Nullable
     private ViewTransition mViewTransition;
     @Nullable
@@ -650,7 +654,8 @@ public final class GalleryListScene extends BaseScene
         mSearchLayout.setPadding(mSearchLayout.getPaddingLeft(), mSearchLayout.getPaddingTop() + paddingTopSB,
                 mSearchLayout.getPaddingRight(), mSearchLayout.getPaddingBottom() + paddingBottomFab);
 
-        bindSource();
+        mSourceBar = (RadioGroup) ViewUtils.$$(mainLayout,R.id.source_bar);
+        bindSource(mSourceBar);
         mFabLayout.setAutoCancel(true);
         mFabLayout.setExpanded(false);
         mFabLayout.setHidePrimaryFab(false);
@@ -680,7 +685,6 @@ public final class GalleryListScene extends BaseScene
         }
 
         guideQuickSearch();
-
         return view;
     }
 
@@ -1666,7 +1670,7 @@ public final class GalleryListScene extends BaseScene
         }
     }
 
-    private void bindSource() {
+    private void bindSource(ViewGroup parent) {
         LayoutInflater inflater = getLayoutInflater2();
         if (mFabLayout == null) {
             return;
@@ -1677,16 +1681,15 @@ public final class GalleryListScene extends BaseScene
         }
 
         for (MHApiSource source : MHApiSource.values()) {
-            FloatingActionButton btn = (FloatingActionButton) inflater.inflate(R.layout.item_second_action_button, mFabLayout,false);
-
-            TextDrawable bg = new TextDrawable(source.name().substring(0, 1), 0.75f);
-            bg.setTextColor(Color.WHITE);
-            bg.setBackgroundColor(Color.TRANSPARENT);
-            btn.setImageDrawable(bg);
-            btn.setTag(source);
-            // btn.setId();
-            mFabLayout.addView(btn,0);
+            RadioButton item = (RadioButton) inflater.inflate(R.layout.item_source_bar, parent ,false);
+            item.setText(source.name().substring(0,2));
+            item.setTag(source);
+            item.setId(View.generateViewId());
+            parent.addView(item);
+            item.setOnClickListener(v -> {
+                switchSource((MHApiSource)v.getTag());
+                mHelper.refresh();
+            });
         }
-        mFabLayout.invalidate();
     }
 }

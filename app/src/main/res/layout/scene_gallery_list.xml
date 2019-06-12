@@ -32,54 +32,15 @@
             android:layout_weight="1"
             android:orientation="horizontal">
 
-            <LinearLayout
-                android:background="?attr/colorPrimary"
+            <RadioGroup
+                android:id="@+id/source_bar"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
+                android:background="?attr/widgetColorThemePrimary"
                 android:gravity="center_horizontal"
                 android:orientation="vertical"
-                android:paddingTop="32dp">
-
-                <TextView
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:background="?android:attr/selectableItemBackgroundBorderless"
-                    android:paddingTop="16dp"
-                    android:paddingBottom="16dp"
-                    android:gravity="center"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="HH"
-                    android:textSize="@dimen/text_small"
-                    android:textColor="?attr/colorAccent"/>
-
-                <TextView
-                    android:background="?android:attr/selectableItemBackgroundBorderless"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:paddingTop="16dp"
-                    android:paddingBottom="16dp"
-                    android:gravity="center"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="BGM"
-                    android:textSize="@dimen/text_small"
-                    android:textColor="@android:color/white"/>
-
-                <TextView
-                    android:textColor="@android:color/white"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:background="?android:attr/selectableItemBackgroundBorderless"
-                    android:paddingTop="16dp"
-                    android:paddingBottom="16dp"
-                    android:gravity="center"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="MHG"
-                    android:textSize="@dimen/text_small"/>
-            </LinearLayout>
+                android:paddingTop="32dp"/>
 
             <View
                 android:layout_width="2dp"
@@ -121,7 +82,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingRight="@dimen/corner_fab_margin"
-        android:paddingBottom="@dimen/corner_fab_margin">
+        android:paddingBottom="@dimen/corner_fab_margin"
+        android:visibility="gone">
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             style="@style/Widget.Design.FloatingActionButton"
