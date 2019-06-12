@@ -24,7 +24,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -34,7 +33,6 @@ import android.text.TextUtils;
 import android.util.Pair;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -47,6 +45,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.RatingBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -63,7 +63,6 @@ import androidx.transition.TransitionInflater;
 
 import com.axlecho.api.MHApi;
 import com.axlecho.api.MHApiSource;
-import com.axlecho.api.MhException;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.Gson;
 import com.hippo.android.resource.AttrResources;
@@ -71,7 +70,6 @@ import com.hippo.annotation.Implemented;
 import com.hippo.beerbelly.BeerBelly;
 import com.hippo.drawable.AddDeleteDrawable;
 import com.hippo.drawable.RoundSideRectDrawable;
-import com.hippo.drawable.TextDrawable;
 import com.hippo.drawerlayout.DrawerLayout;
 import com.hippo.ehviewer.AppConfig;
 import com.hippo.ehviewer.EhApplication;
@@ -135,8 +133,7 @@ import java.util.List;
 
 public class GalleryDetailScene extends BaseScene implements View.OnClickListener,
         com.hippo.ehviewer.download.DownloadManager.DownloadInfoListener,
-        View.OnLongClickListener, FabLayout.OnClickFabListener,
-        FabLayout.OnExpandListener {
+        View.OnLongClickListener{
 
     public final static String KEY_ACTION = "action";
     public static final String ACTION_GALLERY_INFO = "action_gallery_info";
@@ -255,18 +252,8 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
     @Nullable
     private PopupMenu mPopupMenu;
     @Nullable
-    private FabLayout mFabLayout;
-    @Nullable
-    private final Animator.AnimatorListener mActionFabAnimatorListener = new SimpleAnimatorListener() {
-        @Override
-        public void onAnimationEnd(Animator animation) {
-            if (null != mFabLayout) {
-                ((View) mFabLayout.getPrimaryFab()).setVisibility(View.INVISIBLE);
-            }
-        }
-    };
-    @Nullable
-    private AddDeleteDrawable mActionFabDrawable;
+    private RadioGroup mSourceBar;
+
     @WholeLifeCircle
     private int mDownloadState;
     @Nullable
@@ -286,22 +273,6 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
     private boolean mModifingFavorites;
     private boolean mShowActionFab = true;
     private int mHideActionFabSlop;
-    private final ViewTreeObserver.OnScrollChangedListener mOnScrollListener = new ViewTreeObserver.OnScrollChangedListener() {
-        private int oldY;
-
-        @Override
-        public void onScrollChanged() {
-
-            int dy = mainView.getScrollY() - oldY;
-            if (dy >= mHideActionFabSlop) {
-                hideActionFab();
-            } else if (dy <= -mHideActionFabSlop / 2) {
-                showActionFab();
-            }
-            oldY = mainView.getScrollY();
-
-        }
-    };
 
     private static String getRatingText(float rating, Resources resources) {
         int resId;
@@ -358,47 +329,6 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
             }
         }
         return null;
-    }
-
-    @Override
-    public void onExpand(boolean expanded) {
-        if (null == mActionFabDrawable) {
-            return;
-        }
-
-        if (expanded) {
-            setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.LEFT);
-            setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.RIGHT);
-            mActionFabDrawable.setDelete(ANIMATE_TIME);
-        } else {
-            setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.LEFT);
-            setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.RIGHT);
-            mActionFabDrawable.setAdd(ANIMATE_TIME,currentSource);
-        }
-    }
-
-    @Override
-    public void onClickPrimaryFab(FabLayout view, FloatingActionButton fab) {
-        if (STATE_NORMAL == mState) {
-            view.toggle();
-        }
-    }
-
-    @Override
-    public void onClickSecondaryFab(FabLayout view, FloatingActionButton fab, int position) {
-        if (fab.getTag() instanceof MHApiSource) {
-            MHApiSource source = (MHApiSource) fab.getTag();
-            MHApi.Companion.getINSTANCE().select(source);
-            mActionFabDrawable.setSource(source);
-            switchSource();
-        }
-        view.setExpanded(false);
-    }
-
-    @Override
-    @Implemented(FabLayout.OnClickFabListener.class)
-    public void onLongClickSecondaryFab(FabLayout view, FloatingActionButton fab, int position) {
-        // showTip("test",BaseScene.LENGTH_LONG );
     }
 
     private void handleArgs(Bundle args) {
@@ -561,18 +491,8 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
         mainView = (ScrollView) ViewUtils.$$(main, R.id.scroll_view);
         View progressView = ViewUtils.$$(main, R.id.progress_view);
         mTip = (TextView) ViewUtils.$$(main, R.id.tip);
-        mFabLayout = (FabLayout) ViewUtils.$$(main, R.id.fab_layout);
-        bindSource();
-        mFabLayout.setAutoCancel(true);
-        mFabLayout.setExpanded(false);
-        mFabLayout.setHidePrimaryFab(false);
-        mFabLayout.setOnClickFabListener(this);
-        mFabLayout.setOnExpandListener(this);
-
-        addAboveSnackView(mFabLayout);
-        mActionFabDrawable = new AddDeleteDrawable(context, resources.getColor(R.color.primary_drawable_dark),currentSource);
-        mFabLayout.getPrimaryFab().setImageDrawable(mActionFabDrawable);
-        mainView.getViewTreeObserver().addOnScrollChangedListener(mOnScrollListener);
+        mSourceBar = (RadioGroup) ViewUtils.$$(view, R.id.source_bar);
+        bindSource(mSourceBar);
 
         mViewTransition = new ViewTransition(mainView, progressView, mTip);
 
@@ -782,8 +702,7 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
         mViewTransition2 = null;
 
         mPopupMenu = null;
-        mActionFabDrawable = null;
-        mFabLayout = null;
+
     }
 
     private boolean prepareData() {
@@ -1048,28 +967,26 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
         // bindPreviews(gd);
     }
 
-    private void bindSource() {
+    private void bindSource(ViewGroup parent) {
         LayoutInflater inflater = getLayoutInflater2();
-        if (mFabLayout == null) {
-            return;
-        }
-
         if (inflater == null) {
             return;
         }
 
         for (MHApiSource source : MHApiSource.values()) {
-            FloatingActionButton btn = (FloatingActionButton) inflater.inflate(R.layout.item_second_action_button, mFabLayout, false);
-
-            TextDrawable bg = new TextDrawable(source.name().substring(0, 1), 0.75f);
-            bg.setTextColor(Color.WHITE);
-            bg.setBackgroundColor(Color.TRANSPARENT);
-            btn.setImageDrawable(bg);
-            btn.setTag(source);
-            // btn.setId();
-            mFabLayout.addView(btn, 0);
+            RadioButton item = (RadioButton) inflater.inflate(R.layout.item_source_bar, parent, false);
+            item.setText(source.name().substring(0, 2));
+            item.setTag(source);
+            item.setId(View.generateViewId());
+            parent.addView(item);
+            if (source == currentSource) {
+                item.setChecked(true);
+            }
+            item.setOnClickListener(v -> {
+                MHApi.Companion.getINSTANCE().select((MHApiSource) v.getTag());
+                switchSource();
+            });
         }
-        mFabLayout.invalidate();
     }
 
     private void bindIntro(String intro) {
@@ -1436,11 +1353,6 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
 
     @Override
     public void onBackPressed() {
-        if (null != mFabLayout && mFabLayout.isExpanded()) {
-            mFabLayout.setExpanded(false);
-            return;
-        }
-
         if (mViewTransition != null && mThumb != null &&
                 mViewTransition.getShownViewIndex() == 0 && mThumb.isShown()) {
             int[] location = new int[2];
@@ -1558,8 +1470,7 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
             }
         }
         MHApi.Companion.getINSTANCE().select(currentSource);
-        mActionFabDrawable.setSource(currentSource);
-        showTip(GetText.getString(R.string.error_not_found),BaseScene.LENGTH_SHORT);
+        showTip(GetText.getString(R.string.error_not_found), BaseScene.LENGTH_SHORT);
     }
 
     private void onGetGalleryDetailSuccess(GalleryDetail result) {
@@ -1607,28 +1518,6 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
 
     private void onModifyFavoritesCancel(boolean addOrRemove) {
         mModifingFavorites = false;
-    }
-
-    private void showActionFab() {
-        if (null != mFabLayout && STATE_NORMAL == mState && !mShowActionFab) {
-            mShowActionFab = true;
-            View fab = mFabLayout.getPrimaryFab();
-            fab.setVisibility(View.VISIBLE);
-            fab.setRotation(-45.0f);
-            fab.animate().scaleX(1.0f).scaleY(1.0f).rotation(0.0f).setListener(null)
-                    .setDuration(ANIMATE_TIME).setStartDelay(0L)
-                    .setInterpolator(AnimationUtils.FAST_SLOW_INTERPOLATOR).start();
-        }
-    }
-
-    private void hideActionFab() {
-        if (null != mFabLayout && STATE_NORMAL == mState && mShowActionFab) {
-            mShowActionFab = false;
-            View fab = mFabLayout.getPrimaryFab();
-            fab.animate().scaleX(0.0f).scaleY(0.0f).setListener(mActionFabAnimatorListener)
-                    .setDuration(ANIMATE_TIME).setStartDelay(0L)
-                    .setInterpolator(AnimationUtils.SLOW_FAST_INTERPOLATOR).start();
-        }
     }
 
     @IntDef({STATE_INIT, STATE_NORMAL, STATE_REFRESH, STATE_REFRESH_HEADER, STATE_FAILED})
@@ -2202,5 +2091,6 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
     }
 
     @Override
-    public void loadSource() {}
+    public void loadSource() {
+    }
 }

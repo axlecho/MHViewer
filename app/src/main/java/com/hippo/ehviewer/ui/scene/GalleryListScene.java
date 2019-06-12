@@ -1686,6 +1686,9 @@ public final class GalleryListScene extends BaseScene
             item.setTag(source);
             item.setId(View.generateViewId());
             parent.addView(item);
+            if(source == currentSource) {
+                item.setChecked(true);
+            }
             item.setOnClickListener(v -> {
                 switchSource((MHApiSource)v.getTag());
                 mHelper.refresh();

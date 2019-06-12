@@ -43,6 +43,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -63,7 +65,6 @@ import com.hippo.android.resource.AttrResources;
 import com.hippo.annotation.Implemented;
 import com.hippo.drawable.AddDeleteDrawable;
 import com.hippo.drawable.DrawerArrowDrawable;
-import com.hippo.drawable.TextDrawable;
 import com.hippo.easyrecyclerview.EasyRecyclerView;
 import com.hippo.easyrecyclerview.FastScroller;
 import com.hippo.ehviewer.CheckUpdateService;
@@ -131,6 +132,8 @@ public class FavoritesScene extends BaseScene implements
     @Nullable
     @ViewLifeCircle
     private FabLayout mFabLayout;
+    @Nullable
+    private RadioGroup mSourceBar;
 
     @Nullable
     @ViewLifeCircle
@@ -318,7 +321,8 @@ public class FavoritesScene extends BaseScene implements
         mSearchBar.setAllowEmptySearch(false);
         updateSearchBar();
         mSearchBarMover = new SearchBarMover(this, mSearchBar, mRecyclerView);
-        bindSource();
+        mSourceBar = (RadioGroup) ViewUtils.$$(view,R.id.source_bar);
+        bindSource(mSourceBar);
         mFabLayout.setAutoCancel(true);
         mFabLayout.setExpanded(false);
         mFabLayout.setHidePrimaryFab(false);
@@ -1391,7 +1395,7 @@ public class FavoritesScene extends BaseScene implements
         }
     };
 
-    private void bindSource() {
+    private void bindSource(ViewGroup parent) {
         LayoutInflater inflater = getLayoutInflater2();
         if (mFabLayout == null) {
             return;
@@ -1402,16 +1406,18 @@ public class FavoritesScene extends BaseScene implements
         }
 
         for (MHApiSource source : MHApiSource.values()) {
-            FloatingActionButton btn = (FloatingActionButton) inflater.inflate(R.layout.item_second_action_button, mFabLayout, false);
-
-            TextDrawable bg = new TextDrawable(source.name().substring(0, 1), 0.75f);
-            bg.setTextColor(Color.WHITE);
-            bg.setBackgroundColor(Color.TRANSPARENT);
-            btn.setImageDrawable(bg);
-            btn.setTag(source);
-            // btn.setId();
-            mFabLayout.addView(btn, 0);
+            RadioButton item = (RadioButton) inflater.inflate(R.layout.item_source_bar, parent ,false);
+            item.setText(source.name().substring(0,2));
+            item.setTag(source);
+            item.setId(View.generateViewId());
+            parent.addView(item);
+            if(source == currentSource) {
+                item.setChecked(true);
+            }
+            item.setOnClickListener(v -> {
+                switchSource((MHApiSource)v.getTag());
+                mHelper.refresh();
+            });
         }
-        mFabLayout.invalidate();
     }
 }

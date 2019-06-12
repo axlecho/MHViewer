@@ -96,18 +96,8 @@ public class AddDeleteDrawable extends Drawable {
         canvas.rotate(canvasRotate);
 
 
-        if (mSource != null) {
-            // Draw text
-            textPaint.setAlpha((int) ((1 - mProgress) * 255));
-            String text = mSource.name().substring(0, 1);
-            updateTextSizeIfDirty(bounds);
-            canvas.drawText(text, x, y, textPaint);
-            mPaint.setAlpha((int) (mProgress * 255));
-            canvas.drawPath(mPath, mPaint);
-        } else {
-            canvas.drawPath(mPath, mPaint);
 
-        }
+        canvas.drawPath(mPath, mPaint);
         canvas.restore();
     }
 
