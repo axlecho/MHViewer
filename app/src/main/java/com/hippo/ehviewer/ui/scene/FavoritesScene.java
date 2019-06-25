@@ -841,7 +841,7 @@ public class FavoritesScene extends BaseScene implements
             mHelper.refresh();
         } else {
             Intent intent = new Intent(getActivity2(), CheckUpdateService.class);
-            intent.setAction(CheckUpdateService.Companion.getACTION_START());
+            intent.setAction(CheckUpdateService.ACTION_START);
             // context.bindService()
             context.startService(intent);
             showTip(R.string.check_update_start, BaseScene.LENGTH_SHORT);

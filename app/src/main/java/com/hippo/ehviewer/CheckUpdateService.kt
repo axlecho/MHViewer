@@ -6,10 +6,14 @@ import android.content.Context
 import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.axlecho.api.MHApi
+import com.axlecho.api.MHApiSource
 import com.axlecho.api.MHComicDetail
+import com.axlecho.api.MHComicInfo
 import com.hippo.ehviewer.client.data.GalleryDetail
+import com.hippo.ehviewer.client.data.GalleryInfo
 import com.hippo.ehviewer.dao.ReadingRecord
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
@@ -21,7 +25,8 @@ import io.reactivex.schedulers.Schedulers
 class CheckUpdateService : Service() {
 
     companion object {
-        val ACTION_START = "start"
+        const val TAG = "service_update"
+        const val ACTION_START = "start"
     }
 
     private var mListener: UpdateListener? = null
@@ -78,13 +83,14 @@ class CheckUpdateService : Service() {
 
     private fun checkUpdate() {
         var current = 1
-        val infos = EhDB.getAllLocalFavorites()
-        handle = Flowable.just(infos)
+
+        val favorites = EhDB.getAllLocalFavorites()
+        handle = Flowable.just(favorites)
                 .flatMapIterable { list -> list }
                 .parallel(4)
                 .concatMap {
                     MHApi.INSTANCE.select(it.source).info(it.gid)
-                            .onErrorResumeNext(Observable.empty())
+                            .onErrorResumeNext(Observable.just(buildErrorItem(it)))
                             .toFlowable(BackpressureStrategy.BUFFER)
                             .subscribeOn(Schedulers.io())
                 }
@@ -93,13 +99,18 @@ class CheckUpdateService : Service() {
                 .sequential()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
-                    sendNotification(it.info.posted, "Check ${it.info.title}", infos.size, current)
+                    Log.v(TAG,"${it.source.name}@${it.info.title}    ${it.updateTime}")
+                    if(it.updateTime == -1L) {
+                        sendNotification(it.info.posted, "${it.info.title} failed", favorites.size, current)
+                    } else {
+                        updateDatabase(it)
+                        sendNotification(it.info.posted, "${it.info.title} done", favorites.size, current)
+                    }
                     current++
-                    update(it)
                 }
     }
 
-    private fun update(item: MHComicDetail) {
+    private fun updateDatabase(item: MHComicDetail) {
         val detail = GalleryDetail(item)
         var record = EhDB.getReadingRecord(detail.id)
         if (record == null) {
@@ -119,5 +130,11 @@ class CheckUpdateService : Service() {
                 .setProgress(total, current, false)
         mNotifyManager?.notify(1, builder.build())
         mListener?.update(total == current, current, total)
+    }
+
+    private fun buildErrorItem(info:GalleryInfo) :MHComicDetail{
+        return MHComicDetail(MHComicInfo(info.gid,info.title,info.titleJpn,"",0,"","",0.0f,false,info.source),
+                "",0,0,false,
+                0, arrayListOf(), arrayListOf(),info.source,-1)
     }
 }
