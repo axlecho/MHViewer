@@ -87,16 +87,14 @@ class CheckUpdateService : Service() {
         val favorites = EhDB.getAllLocalFavorites()
         handle = Flowable.just(favorites)
                 .flatMapIterable { list -> list }
-                .parallel(4)
+                // .parallel(4)
                 .concatMap {
                     MHApi.INSTANCE.select(it.source).info(it.gid)
                             .onErrorResumeNext(Observable.just(buildErrorItem(it)))
                             .toFlowable(BackpressureStrategy.BUFFER)
                             .subscribeOn(Schedulers.io())
                 }
-
-                .runOn(Schedulers.io())
-                .sequential()
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
                     Log.v(TAG,"${it.source.name}@${it.info.title}    ${it.updateTime}")
