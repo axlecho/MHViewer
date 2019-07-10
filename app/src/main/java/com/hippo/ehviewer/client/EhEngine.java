@@ -234,8 +234,15 @@ public class EhEngine {
     }
 
     public static GalleryListParser.Result getGalleryList(@Nullable EhClient.Task task, OkHttpClient okHttpClient,
-                                                          String url,int page) throws Throwable {
-        MHMutiItemResult<MHComicInfo> comics = MHApi.Companion.getINSTANCE().top(url,page).blockingFirst();
+
+                                                          String type,int page) throws Throwable {
+        MHMutiItemResult<MHComicInfo> comics;
+        if(type.equals("top")) {
+            comics = MHApi.Companion.getINSTANCE().top(type, page).blockingFirst();
+        } else {
+            comics = MHApi.Companion.getINSTANCE().recent(page).blockingFirst();
+        }
+
         GalleryListParser.Result result = new GalleryListParser.Result();
         result.pages = comics.getPages();
         result.nextPage = comics.getCurrentPage() + 1;
