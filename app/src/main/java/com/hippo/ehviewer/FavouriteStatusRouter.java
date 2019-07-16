@@ -30,32 +30,20 @@ public class FavouriteStatusRouter {
 
   private final IntIdGenerator idGenerator = new IntIdGenerator(Settings.getInt(KEY_DATA_MAP_NEXT_ID, 0));
   @SuppressLint("UseSparseArrays")
-  private final HashMap<Integer, Map<Long, GalleryInfo>> maps = new HashMap<>();
+  private final HashMap<Long, Map<String, GalleryInfo>> maps = new HashMap<>();
 
   private List<Listener> listeners = new ArrayList<>();
 
-  public int saveDataMap(Map<Long, GalleryInfo> map) {
-    int id = idGenerator.nextId();
-    maps.put(id, map);
-    Settings.putInt(KEY_DATA_MAP_NEXT_ID, idGenerator.nextId());
-    return id;
+  public int saveDataMap(Map<String, GalleryInfo> map) {
+    return -1;
   }
 
-  public Map<Long, GalleryInfo> restoreDataMap(int id) {
+  public Map<String, GalleryInfo> restoreDataMap(int id) {
     return maps.remove(id);
   }
 
-  public void modifyFavourites(long gid, int slot) {
-    for (Map<Long, GalleryInfo> map : maps.values()) {
-      GalleryInfo info = map.get(gid);
-      if (info != null) {
-        info.favoriteSlot = slot;
-      }
-    }
+  public void modifyFavourites(String gid, int slot) {
 
-    for (Listener listener : listeners) {
-      listener.onModifyFavourites(gid, slot);
-    }
   }
 
   public void addListener(Listener listener) {
@@ -67,6 +55,6 @@ public class FavouriteStatusRouter {
   }
 
   public interface Listener {
-    void onModifyFavourites(long gid, int slot);
+    void onModifyFavourites(String gid, int slot);
   }
 }

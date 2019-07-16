@@ -1134,7 +1134,7 @@ public class FavoritesScene extends BaseScene implements
                 boolean local = mUrlBuilder.getFavCat() == FavListUrlBuilder.FAV_CAT_LOCAL;
 
                 if (mModifyAdd) {
-                    long[] gidArray = new long[mModifyGiList.size()];
+                    String[] gidArray = new String[mModifyGiList.size()];
                     String[] tokenArray = new String[mModifyGiList.size()];
                     for (int i = 0, n = mModifyGiList.size(); i < n; i++) {
                         GalleryInfo gi = mModifyGiList.get(i);
@@ -1152,7 +1152,7 @@ public class FavoritesScene extends BaseScene implements
                     request.setArgs(gidArray, tokenArray, mModifyFavCat);
                     mClient.execute(request);
                 } else {
-                    long[] gidArray = new long[mModifyGiList.size()];
+                    String[] gidArray = new String[mModifyGiList.size()];
                     for (int i = 0, n = mModifyGiList.size(); i < n; i++) {
                         gidArray[i] = mModifyGiList.get(i).gid;
                     }

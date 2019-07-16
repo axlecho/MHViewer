@@ -33,7 +33,7 @@ public abstract class GalleryInfoContentHelper extends ContentLayout.ContentHelp
   private static final String KEY_DATA_MAP = "data_map";
 
   @SuppressLint("UseSparseArrays")
-  private Map<Long, GalleryInfo> map = new HashMap<>();
+  private Map<String, GalleryInfo> map = new HashMap<>();
   private FavouriteStatusRouter.Listener listener;
 
   public GalleryInfoContentHelper() {
@@ -98,7 +98,7 @@ public abstract class GalleryInfoContentHelper extends ContentLayout.ContentHelp
     int id = bundle.getInt(KEY_DATA_MAP, IntIdGenerator.INVALID_ID);
     if (id != IntIdGenerator.INVALID_ID) {
       FavouriteStatusRouter router = EhApplication.getFavouriteStatusRouter();
-      Map<Long, GalleryInfo> map = router.restoreDataMap(id);
+      Map<String, GalleryInfo> map = router.restoreDataMap(id);
       if (map != null) {
         this.map = map;
       }

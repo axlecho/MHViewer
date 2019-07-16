@@ -60,6 +60,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import de.greenrobot.dao.query.LazyList;
@@ -181,14 +182,14 @@ public class EhDB {
         }
 
         // Get GalleryInfo list
-        SparseJLArray<GalleryInfo> map = new SparseJLArray<>();
+        HashMap<String,GalleryInfo> map = new HashMap<>();
         try {
             Cursor cursor = oldDB.rawQuery("select * from " + OldDBHelper.TABLE_GALLERY, null);
             if (cursor != null) {
                 if (cursor.moveToFirst()) {
                     while (!cursor.isAfterLast()) {
                         GalleryInfo gi = new GalleryInfo();
-                        gi.gid = cursor.getInt(0);
+                        gi.gid = cursor.getString(0);
                         gi.token = cursor.getString(1);
                         gi.title = cursor.getString(2);
                         gi.posted = cursor.getString(3);
@@ -387,12 +388,12 @@ public class EhDB {
         }
     }
 
-    public static synchronized void removeDownloadInfo(long gid) {
+    public static synchronized void removeDownloadInfo(String gid) {
         sDaoSession.getDownloadsDao().deleteByKey(gid);
     }
 
     @Nullable
-    public static synchronized String getDownloadDirname(long gid) {
+    public static synchronized String getDownloadDirname(String gid) {
         DownloadDirnameDao dao = sDaoSession.getDownloadDirnameDao();
         DownloadDirname raw = dao.load(gid);
         if (raw != null) {
@@ -405,7 +406,7 @@ public class EhDB {
     /**
      * Insert or update
      */
-    public static synchronized void putDownloadDirname(long gid, String dirname) {
+    public static synchronized void putDownloadDirname(String gid, String dirname) {
         DownloadDirnameDao dao = sDaoSession.getDownloadDirnameDao();
         DownloadDirname raw = dao.load(gid);
         if (raw != null) { // Update
@@ -419,7 +420,7 @@ public class EhDB {
         }
     }
 
-    public static synchronized void removeDownloadDirname(long gid) {
+    public static synchronized void removeDownloadDirname(String gid) {
         DownloadDirnameDao dao = sDaoSession.getDownloadDirnameDao();
         dao.deleteByKey(gid);
     }

@@ -88,7 +88,7 @@ public class EhApplication extends RecordingApplication {
     private OkHttpClient mOkHttpClient;
     private ImageBitmapHelper mImageBitmapHelper;
     private Conaco<ImageBitmap> mConaco;
-    private LruCache<Long, GalleryDetail> mGalleryDetailCache;
+    private LruCache<String, GalleryDetail> mGalleryDetailCache;
     private SimpleDiskCache mSpiderInfoCache;
     private DownloadManager mDownloadManager;
     private Hosts mHosts;
@@ -338,7 +338,7 @@ public class EhApplication extends RecordingApplication {
     }
 
     @NonNull
-    public static LruCache<Long, GalleryDetail> getGalleryDetailCache(@NonNull Context context) {
+    public static LruCache<String, GalleryDetail> getGalleryDetailCache(@NonNull Context context) {
         EhApplication application = ((EhApplication) context.getApplicationContext());
         if (application.mGalleryDetailCache == null) {
             // Max size 25, 3 min timeout

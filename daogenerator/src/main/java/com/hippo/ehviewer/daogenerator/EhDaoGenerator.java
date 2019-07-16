@@ -83,7 +83,7 @@ public class EhDaoGenerator {
         entity.setClassNameDao("DownloadsDao");
         entity.setSuperclass("GalleryInfo");
         // GalleryInfo data
-        entity.addLongProperty("gid").primaryKey().notNull();
+        entity.addStringProperty("gid").primaryKey().notNull();
         entity.addStringProperty("token");
         entity.addStringProperty("title");
         entity.addStringProperty("titleJpn");
@@ -113,7 +113,7 @@ public class EhDaoGenerator {
         Entity entity = schema.addEntity("DownloadDirname");
         entity.setTableName("DOWNLOAD_DIRNAME");
         entity.setClassNameDao("DownloadDirnameDao");
-        entity.addLongProperty("gid").primaryKey().notNull();
+        entity.addStringProperty("gid").primaryKey().notNull();
         entity.addStringProperty("dirname");
     }
 
@@ -123,7 +123,7 @@ public class EhDaoGenerator {
         entity.setClassNameDao("HistoryDao");
         entity.setSuperclass("GalleryInfo");
         // GalleryInfo data
-        entity.addLongProperty("gid").primaryKey().notNull();
+        entity.addStringProperty("gid").primaryKey().notNull();
         entity.addStringProperty("token");
         entity.addStringProperty("title");
         entity.addStringProperty("titleJpn");
@@ -162,7 +162,7 @@ public class EhDaoGenerator {
         entity.setClassNameDao("LocalFavoritesDao");
         entity.setSuperclass("GalleryInfo");
         // GalleryInfo data
-        entity.addLongProperty("gid").notNull();
+        entity.addStringProperty("gid").notNull();
         entity.addStringProperty("token");
         entity.addStringProperty("title");
         entity.addStringProperty("titleJpn");
@@ -183,7 +183,7 @@ public class EhDaoGenerator {
         entity.setClassNameDao("BookmarksBao");
         entity.setSuperclass("GalleryInfo");
         // GalleryInfo data
-        entity.addLongProperty("gid").primaryKey().notNull();
+        entity.addStringProperty("gid").primaryKey().notNull();
         entity.addStringProperty("token");
         entity.addStringProperty("title");
         entity.addStringProperty("titleJpn");

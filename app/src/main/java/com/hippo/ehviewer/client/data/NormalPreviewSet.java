@@ -71,7 +71,7 @@ public class NormalPreviewSet extends PreviewSet {
     }
 
     @Override
-    public GalleryPreview getGalleryPreview(long gid, int index) {
+    public GalleryPreview getGalleryPreview(String gid, int index) {
         GalleryPreview galleryPreview = new GalleryPreview();
         galleryPreview.position = mPositionList.get(index);
         galleryPreview.imageKey = mImageKeyList.get(index);
@@ -85,7 +85,7 @@ public class NormalPreviewSet extends PreviewSet {
     }
 
     @Override
-    public void load(LoadImageView view, long gid, int index) {
+    public void load(LoadImageView view, String gid, int index) {
         view.setClip(mOffsetXList.get(index), mOffsetYList.get(index),
                 mClipWidthList.get(index), mClipHeightList.get(index));
         view.load(mImageKeyList.get(index), mImageUrlList.get(index));

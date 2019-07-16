@@ -92,7 +92,7 @@ public class RestoreDownloadPreference extends TaskPreference {
                 if (spiderInfo == null) {
                     return null;
                 }
-                long gid = spiderInfo.gid;
+                String gid = spiderInfo.gid;
                 if (mManager.containDownloadInfo(gid)) {
                     return null;
                 }

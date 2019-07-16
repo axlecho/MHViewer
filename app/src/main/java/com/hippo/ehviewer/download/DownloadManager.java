@@ -58,7 +58,7 @@ public class DownloadManager implements SpiderQueen.OnSpiderListener {
     // All download info list
     private final LinkedList<DownloadInfo> mAllInfoList;
     // All download info map
-    private final SparseJLArray<DownloadInfo> mAllInfoMap;
+    private final HashMap<String,DownloadInfo> mAllInfoMap;
     // label and info list map, without default label info list
     private final Map<String, LinkedList<DownloadInfo>> mMap;
     // All labels without default label
@@ -103,7 +103,7 @@ public class DownloadManager implements SpiderQueen.OnSpiderListener {
         mAllInfoList = new LinkedList<>(allInfoList);
 
         // Create all info map
-        SparseJLArray<DownloadInfo> allInfoMap = new SparseJLArray<>(allInfoList.size() + 10);
+        HashMap<String,DownloadInfo> allInfoMap = new HashMap<>(allInfoList.size() + 10);
         mAllInfoMap = allInfoMap;
 
         for (int i = 0, n = allInfoList.size(); i < n; i++) {
@@ -154,8 +154,8 @@ public class DownloadManager implements SpiderQueen.OnSpiderListener {
         return false;
     }
 
-    public boolean containDownloadInfo(long gid) {
-        return mAllInfoMap.indexOfKey(gid) >= 0;
+    public boolean containDownloadInfo(String gid) {
+        return mAllInfoMap.get(gid) != null;
     }
 
     @NonNull
@@ -178,7 +178,7 @@ public class DownloadManager implements SpiderQueen.OnSpiderListener {
         return mAllInfoMap.get(gid);
     }
 
-    public int getDownloadState(long gid) {
+    public int getDownloadState(String gid) {
         DownloadInfo info = mAllInfoMap.get(gid);
         if (null != info) {
             return info.state;
@@ -450,7 +450,7 @@ public class DownloadManager implements SpiderQueen.OnSpiderListener {
     }
 
 
-    public void stopDownload(long gid) {
+    public void stopDownload(String gid) {
         DownloadInfo info = stopDownloadInternal(gid);
         if (info != null) {
             // Update listener
@@ -510,7 +510,7 @@ public class DownloadManager implements SpiderQueen.OnSpiderListener {
         }
     }
 
-    public void deleteDownload(long gid) {
+    public void deleteDownload(String gid) {
         stopDownloadInternal(gid);
         DownloadInfo info = mAllInfoMap.get(gid);
         if (info != null) {
@@ -619,16 +619,16 @@ public class DownloadManager implements SpiderQueen.OnSpiderListener {
     // Update in DB
     // Update listener
     // No ensureDownload
-    private DownloadInfo stopDownloadInternal(long gid) {
+    private DownloadInfo stopDownloadInternal(String gid) {
         // Check current task
-        if (mCurrentTask != null && mCurrentTask.gid == gid) {
+        if (mCurrentTask != null && mCurrentTask.gid.equals(gid)) {
             // Stop current
             return stopCurrentDownloadInternal();
         }
 
         for (Iterator<DownloadInfo> iterator = mWaitList.iterator(); iterator.hasNext();) {
             DownloadInfo info = iterator.next();
-            if (info.gid == gid) {
+            if (info.gid.equals(gid)) {
                 // Remove from wait list
                 iterator.remove();
                 // Update state
@@ -673,31 +673,7 @@ public class DownloadManager implements SpiderQueen.OnSpiderListener {
     // Update in DB
     // Update mDownloadListener
     private void stopRangeDownloadInternal(LongList gidList) {
-        // Two way
-        if (gidList.size() < mWaitList.size()) {
-            for (int i = 0, n = gidList.size(); i < n; i++) {
-                stopDownloadInternal(gidList.get(i));
-            }
-        } else {
-            // Check current task
-            if (mCurrentTask != null && gidList.contains(mCurrentTask.gid)) {
-                // Stop current
-                stopCurrentDownloadInternal();
-            }
 
-            // Check all in wait list
-            for (Iterator<DownloadInfo> iterator = mWaitList.iterator(); iterator.hasNext();) {
-                DownloadInfo info = iterator.next();
-                if (gidList.contains(info.gid)) {
-                    // Remove from wait list
-                    iterator.remove();
-                    // Update state
-                    info.state = DownloadInfo.STATE_NONE;
-                    // Update in DB
-                    EhDB.putDownloadInfo(info);
-                }
-            }
-        }
     }
 
     /**

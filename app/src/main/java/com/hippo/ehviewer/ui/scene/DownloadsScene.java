@@ -682,94 +682,7 @@ public class DownloadsScene extends ToolbarScene
 
     @Override
     public void onClickSecondaryFab(FabLayout view, FloatingActionButton fab, int position) {
-        Context context = getContext2();
-        Activity activity = getActivity2();
-        EasyRecyclerView recyclerView = mRecyclerView;
-        if (null == context || null == activity || null == recyclerView) {
-            return;
-        }
 
-        if (0 == position) {
-            recyclerView.checkAll();
-        } else {
-            List<DownloadInfo> list = mList;
-            if (list == null) {
-                return;
-            }
-
-            LongList gidList = null;
-            List<DownloadInfo> downloadInfoList = null;
-            boolean collectGid = position == 1 || position == 2 || position == 3; // Start, Stop, Delete
-            boolean collectDownloadInfo = position == 3 || position == 4; // Delete or Move
-            if (collectGid) {
-                gidList = new LongList();
-            }
-            if (collectDownloadInfo) {
-                downloadInfoList = new LinkedList<>();
-            }
-
-            SparseBooleanArray stateArray = recyclerView.getCheckedItemPositions();
-            for (int i = 0, n = stateArray.size(); i < n; i++) {
-                if (stateArray.valueAt(i)) {
-                    DownloadInfo info = list.get(stateArray.keyAt(i));
-                    if (collectDownloadInfo) {
-                        downloadInfoList.add(info);
-                    }
-                    if (collectGid) {
-                        gidList.add(info.gid);
-                    }
-                }
-            }
-
-            switch (position) {
-                case 1: { // Start
-                    Intent intent = new Intent(activity, DownloadService.class);
-                    intent.setAction(DownloadService.ACTION_START_RANGE);
-                    intent.putExtra(DownloadService.KEY_GID_LIST, gidList);
-                    activity.startService(intent);
-                    // Cancel check mode
-                    recyclerView.outOfCustomChoiceMode();
-                    break;
-                }
-                case 2: { // Stop
-                    if (null != mDownloadManager) {
-                        mDownloadManager.stopRangeDownload(gidList);
-                    }
-                    // Cancel check mode
-                    recyclerView.outOfCustomChoiceMode();
-                    break;
-                }
-                case 3: { // Delete
-                    CheckBoxDialogBuilder builder = new CheckBoxDialogBuilder(context,
-                            getString(R.string.download_remove_dialog_message_2, gidList.size()),
-                            getString(R.string.download_remove_dialog_check_text),
-                            Settings.getRemoveImageFiles());
-                    DeleteRangeDialogHelper helper = new DeleteRangeDialogHelper(
-                            downloadInfoList, gidList, builder);
-                    builder.setTitle(R.string.download_remove_dialog_title)
-                            .setPositiveButton(android.R.string.ok, helper)
-                            .show();
-                    break;
-                }
-                case 4: {// Move
-                    List<DownloadLabel> labelRawList = EhApplication.getDownloadManager(context).getLabelList();
-                    List<String> labelList = new ArrayList<>(labelRawList.size() + 1);
-                    labelList.add(getString(R.string.default_download_label_name));
-                    for (int i = 0, n = labelRawList.size(); i < n; i++) {
-                        labelList.add(labelRawList.get(i).getLabel());
-                    }
-                    String[] labels = labelList.toArray(new String[labelList.size()]);
-
-                    MoveDialogHelper helper = new MoveDialogHelper(labels, downloadInfoList);
-
-                    new AlertDialog.Builder(context)
-                            .setTitle(R.string.download_move_dialog_title)
-                            .setItems(labels, helper)
-                            .show();
-                    break;
-                }
-            }
-        }
     }
 
     @Override
@@ -1155,10 +1068,7 @@ public class DownloadsScene extends ToolbarScene
 
         @Override
         public long getItemId(int position) {
-            if (mList == null || position < 0 || position >= mList.size()) {
-                return 0;
-            }
-            return mList.get(position).gid;
+            return -1;
         }
 
         @Override
@@ -1177,24 +1087,6 @@ public class DownloadsScene extends ToolbarScene
         public void onBindViewHolder(DownloadHolder holder, int position) {
             if (mList == null) {
                 return;
-            }
-            DownloadInfo info = mList.get(position);
-            holder.thumb.load(EhCacheKeyFactory.getThumbKey(info.gid), info.thumb,
-                    new ThumbDataContainer(info), true);
-            holder.title.setText(EhUtils.getSuitableTitle(info));
-            holder.uploader.setText(info.uploader);
-            holder.rating.setRating(info.rating);
-            TextView category = holder.category;
-            String newCategoryText = EhUtils.getCategory(info.category);
-            if (!newCategoryText.equals(category.getText())) {
-                category.setText(newCategoryText);
-                category.setBackgroundColor(EhUtils.getCategoryColor(info.category));
-            }
-            bindForState(holder, info);
-
-            // Update transition name
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                ViewCompat.setTransitionName(holder.thumb, TransitionNameFactory.getThumbTransitionName(info.gid));
             }
         }
 

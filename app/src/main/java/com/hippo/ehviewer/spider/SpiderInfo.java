@@ -39,7 +39,7 @@ public class SpiderInfo {
     static final String TOKEN_FAILED = "failed";
 
     public int startPage = 0;
-    public long gid = -1;
+    public String gid = "-1";
     public String token = null;
     public int pages = -1;
     public int previewPages = -1;
@@ -117,7 +117,7 @@ public class SpiderInfo {
             // Start page
             spiderInfo.startPage = getStartPage(line);
             // Gid
-            spiderInfo.gid = Long.parseLong(IOUtils.readAsciiLine(is));
+            spiderInfo.gid = IOUtils.readAsciiLine(is);
             // Token
             spiderInfo.token = IOUtils.readAsciiLine(is);
             // Deprecated, mode, skip it
@@ -156,7 +156,7 @@ public class SpiderInfo {
             // Ignore
         }
 
-        if (spiderInfo == null || spiderInfo.gid == -1 || spiderInfo.token == null ||
+        if (spiderInfo == null || spiderInfo.gid.equals("-1") || spiderInfo.token == null ||
                 spiderInfo.pages == -1 || spiderInfo.pTokenMap == null) {
             return null;
         } else {
@@ -173,7 +173,7 @@ public class SpiderInfo {
             writer.write("\n");
             writer.write(String.format("%08x", startPage >= 0 ? startPage : 0)); // Avoid negative
             writer.write("\n");
-            writer.write(Long.toString(gid));
+            writer.write(gid);
             writer.write("\n");
             writer.write("1");
             writer.write("\n");

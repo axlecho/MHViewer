@@ -90,7 +90,7 @@ public final class GalleryInfoScene extends ToolbarScene implements EasyRecycler
         mKeys.add(resources.getString(R.string.header_key));
         mValues.add(resources.getString(R.string.header_value));
         mKeys.add(resources.getString(R.string.key_gid));
-        mValues.add(Long.toString(gd.gid));
+        mValues.add(gd.gid);
         mKeys.add(resources.getString(R.string.key_token));
         mValues.add(gd.token);
         mKeys.add(resources.getString(R.string.key_url));

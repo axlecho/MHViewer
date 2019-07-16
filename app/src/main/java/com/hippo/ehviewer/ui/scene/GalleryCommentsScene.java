@@ -53,6 +53,8 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.axlecho.api.MHApi;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.hippo.android.resource.AttrResources;
 import com.hippo.easyrecyclerview.EasyRecyclerView;
@@ -104,7 +106,7 @@ public final class GalleryCommentsScene extends ToolbarScene
 
     private long mApiUid;
     private String mApiKey;
-    private long mGid;
+    private String mGid;
     private String mToken;
     @Nullable
     private GalleryComment[] mComments;
@@ -146,7 +148,7 @@ public final class GalleryCommentsScene extends ToolbarScene
 
         mApiUid = args.getLong(KEY_API_UID, -1L);
         mApiKey = args.getString(KEY_API_KEY);
-        mGid = args.getLong(KEY_GID, -1L);
+        mGid = args.getString(KEY_GID);
         mToken = args.getString(KEY_TOKEN, null);
         Parcelable[] parcelables = args.getParcelableArray(KEY_COMMENTS);
         if (parcelables instanceof GalleryComment[]) {
@@ -161,7 +163,7 @@ public final class GalleryCommentsScene extends ToolbarScene
     private void onRestore(@NonNull Bundle savedInstanceState) {
         mApiUid = savedInstanceState.getLong(KEY_API_UID, -1L);
         mApiKey = savedInstanceState.getString(KEY_API_KEY);
-        mGid = savedInstanceState.getLong(KEY_GID, -1L);
+        mGid = savedInstanceState.getString(KEY_GID);
         mToken = savedInstanceState.getString(KEY_TOKEN, null);
         Parcelable[] parcelables = savedInstanceState.getParcelableArray(KEY_COMMENTS);
         if (parcelables instanceof GalleryComment[]) {
@@ -174,7 +176,7 @@ public final class GalleryCommentsScene extends ToolbarScene
         super.onSaveInstanceState(outState);
         outState.putLong(KEY_API_UID, mApiUid);
         outState.putString(KEY_API_KEY, mApiKey);
-        outState.putLong(KEY_GID, mGid);
+        outState.putString(KEY_GID, mGid);
         outState.putString(KEY_TOKEN, mToken);
         outState.putParcelableArray(KEY_COMMENTS, mComments);
     }
@@ -552,11 +554,7 @@ public final class GalleryCommentsScene extends ToolbarScene
 
     @Nullable
     private String getGalleryDetailUrl() {
-        if (mGid != -1 && mToken != null) {
-            return EhUrl.getGalleryDetailUrl(mGid, mToken, 0, false);
-        } else {
-            return null;
-        }
+        return MHApi.Companion.getINSTANCE().pageUrl(mGid);
     }
 
     @Override

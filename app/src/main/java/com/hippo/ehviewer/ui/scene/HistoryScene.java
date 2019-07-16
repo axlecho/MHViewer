@@ -343,7 +343,7 @@ public class HistoryScene extends ToolbarScene
             if (null == mLazyList) {
                 return super.getItemId(position);
             } else {
-                return mLazyList.get(position).gid;
+                return  position;
             }
         }
 
@@ -381,7 +381,7 @@ public class HistoryScene extends ToolbarScene
 
             // Update transition name
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                long gid = gi.gid;
+                String gid = gi.gid;
                 ViewCompat.setTransitionName(holder.thumb, TransitionNameFactory.getThumbTransitionName(gid));
             }
         }

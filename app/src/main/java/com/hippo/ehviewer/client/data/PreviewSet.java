@@ -28,7 +28,7 @@ public abstract class PreviewSet implements Parcelable {
 
     public abstract String getPageUrlAt(int index);
 
-    public abstract GalleryPreview getGalleryPreview(long gid, int index);
+    public abstract GalleryPreview getGalleryPreview(String gid, int index);
 
-    public abstract void load(LoadImageView view, long gid, int index);
+    public abstract void load(LoadImageView view, String gid, int index);
 }

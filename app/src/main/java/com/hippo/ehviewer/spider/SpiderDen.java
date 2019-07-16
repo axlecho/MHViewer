@@ -47,7 +47,7 @@ public final class SpiderDen {
     @Nullable
     private final UniFile mDownloadDir;
     private volatile int mMode = SpiderQueen.MODE_READ;
-    private final long mGid;
+    private final String mGid;
 
     @Nullable
     private static SimpleDiskCache sCache;
@@ -75,16 +75,16 @@ public final class SpiderDen {
         UniFile dir = Settings.getDownloadLocation();
         if (dir != null) {
             // Read from DB
-            String dirname = EhDB.getDownloadDirname(galleryInfo.getCid());
+            String dirname = EhDB.getDownloadDirname(galleryInfo.getId());
             if (null != dirname) {
                 // Some dirname may be invalid in some version
                 dirname = FileUtils.sanitizeFilename(dirname);
-                EhDB.putDownloadDirname(galleryInfo.getCid(), dirname);
+                EhDB.putDownloadDirname(galleryInfo.getId(), dirname);
             }
 
             // Find it
             if (null == dirname) {
-                UniFile[] files = dir.listFiles(new StartWithFilenameFilter(galleryInfo.getCid() + "-"));
+                UniFile[] files = dir.listFiles(new StartWithFilenameFilter(galleryInfo.getId() + "-"));
                 if (null != files) {
                     // Get max-length-name dir
                     int maxLength = -1;
@@ -99,15 +99,15 @@ public final class SpiderDen {
                         }
                     }
                     if (null != dirname) {
-                        EhDB.putDownloadDirname(galleryInfo.getCid(), dirname);
+                        EhDB.putDownloadDirname(galleryInfo.getId(), dirname);
                     }
                 }
             }
 
             // Create it
             if (null == dirname) {
-                dirname = FileUtils.sanitizeFilename(galleryInfo.getCid() + "-" + EhUtils.getSuitableTitle(galleryInfo));
-                EhDB.putDownloadDirname(galleryInfo.getCid(), dirname);
+                dirname = FileUtils.sanitizeFilename(galleryInfo.getId() + "-" + EhUtils.getSuitableTitle(galleryInfo));
+                EhDB.putDownloadDirname(galleryInfo.getId(), dirname);
             }
 
             return dir.subFile(dirname);
@@ -117,7 +117,7 @@ public final class SpiderDen {
     }
 
     public SpiderDen(GalleryInfo galleryInfo) {
-        mGid = galleryInfo.getCid();
+        mGid = galleryInfo.getId();
         mDownloadDir = getGalleryDownloadDir(galleryInfo);
     }
 

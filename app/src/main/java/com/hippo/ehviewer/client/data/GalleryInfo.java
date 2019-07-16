@@ -101,7 +101,7 @@ public class GalleryInfo implements Parcelable {
         "language:dutch",
     };
 
-    public long gid ;
+    public String gid ;
     public String cid;
     public String token;
     public String title;
@@ -124,8 +124,8 @@ public class GalleryInfo implements Parcelable {
     public int spanGroupIndex;
     public MHApiSource source;
 
-    public long getCid() {
-        return Long.parseLong(cid.replaceAll("-",""));
+    public String getCid() {
+        return cid;
     }
 
     public String getId() {
@@ -177,7 +177,7 @@ public class GalleryInfo implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeLong(this.gid);
+        dest.writeString(this.gid);
         dest.writeString(this.cid);
         dest.writeString(this.token);
         dest.writeString(this.title);
@@ -241,7 +241,7 @@ public class GalleryInfo implements Parcelable {
         this.token = info.token;
     }
     protected GalleryInfo(Parcel in) {
-        this.gid = in.readLong();
+        this.gid = in.readString();
         this.cid = in.readString();
         this.token = in.readString();
         this.title = in.readString();

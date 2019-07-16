@@ -47,6 +47,7 @@ import com.hippo.yorozuya.collect.SparseJBArray;
 import com.hippo.yorozuya.collect.SparseJLArray;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.HashMap;
 
 public class DownloadService extends Service implements DownloadManager.DownloadListener {
 
@@ -83,8 +84,8 @@ public class DownloadService extends Service implements DownloadManager.Download
     private NotificationDelay m509Delay;
 
 
-    private final static SparseJBArray sItemStateArray = new SparseJBArray();
-    private final static SparseJLArray<String> sItemTitleArray = new SparseJLArray<>();
+    private final static HashMap<String,Object> sItemStateArray = new HashMap<>();
+    private final static HashMap<String,String> sItemTitleArray = new HashMap<>();
 
     private static int sFailedCount;
     private static int sFinishedCount;
@@ -165,8 +166,8 @@ public class DownloadService extends Service implements DownloadManager.Download
                 mDownloadManager.startAllDownload();
             }
         } else if (ACTION_STOP.equals(action)) {
-            long gid = intent.getLongExtra(KEY_GID, -1);
-            if (gid != -1 && mDownloadManager != null) {
+            String gid = intent.getStringExtra(KEY_GID);
+            if (gid.equals("-1") && mDownloadManager != null) {
                 mDownloadManager.stopDownload(gid);
             }
         } else if (ACTION_STOP_CURRENT.equals(action)) {
@@ -183,8 +184,8 @@ public class DownloadService extends Service implements DownloadManager.Download
                 mDownloadManager.stopAllDownload();
             }
         } else if (ACTION_DELETE.equals(action)) {
-            long gid = intent.getLongExtra(KEY_GID, -1);
-            if (gid != -1 && mDownloadManager != null) {
+            String gid = intent.getStringExtra(KEY_GID);
+            if (gid != null && mDownloadManager != null) {
                 mDownloadManager.deleteDownload(gid);
             }
         } else if (ACTION_DELETE_RANGE.equals(action)) {
@@ -297,7 +298,7 @@ public class DownloadService extends Service implements DownloadManager.Download
         ensureDownloadingBuilder();
 
         Bundle bundle = new Bundle();
-        bundle.putLong(DownloadsScene.KEY_GID, info.gid);
+        bundle.putString(DownloadsScene.KEY_GID, info.gid);
         Intent activityIntent = new Intent(this, MainActivity.class);
         activityIntent.setAction(StageActivity.ACTION_START_SCENE);
         activityIntent.putExtra(StageActivity.KEY_SCENE_NAME, DownloadsScene.class.getName());
@@ -362,8 +363,8 @@ public class DownloadService extends Service implements DownloadManager.Download
         ensureDownloadedBuilder();
 
         boolean finish = info.state == DownloadInfo.STATE_FINISH;
-        long gid = info.gid;
-        int index = sItemStateArray.indexOfKey(gid);
+        String gid = info.gid;
+        int index = (Integer)sItemStateArray.get(gid);
         if (index < 0) { // Not contain
             sItemStateArray.put(gid, finish);
             sItemTitleArray.put(gid, EhUtils.getSuitableTitle(info));
@@ -374,7 +375,7 @@ public class DownloadService extends Service implements DownloadManager.Download
                 sFailedCount++;
             }
         } else { // Contain
-            boolean oldFinish = sItemStateArray.valueAt(index);
+            boolean oldFinish = (Boolean)sItemStateArray.get(index);
             sItemStateArray.put(gid, finish);
             sItemTitleArray.put(gid, EhUtils.getSuitableTitle(info));
             if (oldFinish && !finish) {
@@ -391,7 +392,7 @@ public class DownloadService extends Service implements DownloadManager.Download
         if (sFinishedCount != 0 && sFailedCount == 0) {
             if (sFinishedCount == 1) {
                 if (sItemTitleArray.size() >= 1) {
-                    text = getString(R.string.stat_download_done_line_succeeded, sItemTitleArray.valueAt(0));
+                    text = getString(R.string.stat_download_done_line_succeeded, sItemTitleArray.get(0));
                 } else {
                     Log.d("TAG", "WTF, sItemTitleArray is null");
                     text = getString(R.string.error_unknown);
@@ -404,7 +405,7 @@ public class DownloadService extends Service implements DownloadManager.Download
         } else if (sFinishedCount == 0 && sFailedCount != 0) {
             if (sFailedCount == 1) {
                 if (sItemTitleArray.size() >= 1) {
-                    text = getString(R.string.stat_download_done_line_failed, sItemTitleArray.valueAt(0));
+                    text = getString(R.string.stat_download_done_line_failed, sItemTitleArray.get(0));
                 } else {
                     Log.d("TAG", "WTF, sItemTitleArray is null");
                     text = getString(R.string.error_unknown);
@@ -423,11 +424,11 @@ public class DownloadService extends Service implements DownloadManager.Download
         if (needStyle) {
             style = new NotificationCompat.InboxStyle();
             style.setBigContentTitle(getString(R.string.stat_download_done_title));
-            SparseJBArray stateArray = sItemStateArray;
-            SparseJLArray<String> titleArray = sItemTitleArray;
+            HashMap stateArray = sItemStateArray;
+            HashMap<String,String> titleArray = sItemTitleArray;
             for (int i = 0, n = stateArray.size(); i < n; i++) {
-                long id = stateArray.keyAt(i);
-                boolean fin = stateArray.valueAt(i);
+                long id = (Long)stateArray.get(i);
+                boolean fin = (Boolean)stateArray.get(i);
                 String title = titleArray.get(id);
                 if (title == null) {
                     continue;

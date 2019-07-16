@@ -53,7 +53,7 @@ public class LargePreviewSet extends PreviewSet {
     }
 
     @Override
-    public GalleryPreview getGalleryPreview(long gid, int index) {
+    public GalleryPreview getGalleryPreview(String gid, int index) {
         GalleryPreview galleryPreview = new GalleryPreview();
         galleryPreview.position = mPositionList.get(index);
         galleryPreview.imageKey = EhCacheKeyFactory.getLargePreviewKey(gid, galleryPreview.position);
@@ -63,7 +63,7 @@ public class LargePreviewSet extends PreviewSet {
     }
 
     @Override
-    public void load(LoadImageView view, long gid, int index) {
+    public void load(LoadImageView view, String gid, int index) {
         view.resetClip();
         view.load(EhCacheKeyFactory.getLargePreviewKey(gid, mPositionList.get(index)),
                 mImageUrlList.get(index));

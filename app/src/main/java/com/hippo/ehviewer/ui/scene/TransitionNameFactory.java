@@ -18,19 +18,19 @@ package com.hippo.ehviewer.ui.scene;
 
 public final class TransitionNameFactory {
 
-    public static String getThumbTransitionName(long gid) {
+    public static String getThumbTransitionName(String gid) {
         return "thumb:" + gid;
     }
 
-    public static String getTitleTransitionName(long gid) {
+    public static String getTitleTransitionName(String gid) {
         return "title:" + gid;
     }
 
-    public static String getUploaderTransitionName(long gid) {
+    public static String getUploaderTransitionName(String gid) {
         return "uploader:" + gid;
     }
 
-    public static String getCategoryTransitionName(long gid) {
+    public static String getCategoryTransitionName(String gid) {
         return "category:" + gid;
     }
 }

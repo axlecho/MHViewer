@@ -62,6 +62,7 @@ import java.io.OutputStream;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -112,7 +113,7 @@ public final class SpiderQueen implements Runnable {
             "/509s.gif"
     };
 
-    private static final SparseJLArray<SpiderQueen> sQueenMap = new SparseJLArray<>();
+    private static final HashMap<String,SpiderQueen> sQueenMap = new HashMap<>();
 
     @NonNull
     private final OkHttpClient mHttpClient;
@@ -288,11 +289,11 @@ public final class SpiderQueen implements Runnable {
                                                 @NonNull GalleryInfo galleryInfo, @Mode int mode) {
         OSUtils.checkMainLoop();
 
-        SpiderQueen queen = sQueenMap.get(galleryInfo.getCid());
+        SpiderQueen queen = sQueenMap.get(galleryInfo.getId());
         if (queen == null) {
             EhApplication application = (EhApplication) context.getApplicationContext();
             queen = new SpiderQueen(application, galleryInfo);
-            sQueenMap.put(galleryInfo.getCid(), queen);
+            sQueenMap.put(galleryInfo.getId(), queen);
             // Set mode
             queen.setMode(mode);
             queen.start();
@@ -313,7 +314,7 @@ public final class SpiderQueen implements Runnable {
         if (queen.mReadReference == 0 && queen.mDownloadReference == 0) {
             // Stop and remove if there is no reference
             queen.stop();
-            sQueenMap.remove(queen.mGalleryInfo.getCid());
+            sQueenMap.remove(queen.mGalleryInfo.getId());
         }
     }
 
@@ -697,19 +698,19 @@ public final class SpiderQueen implements Runnable {
         if (downloadDir != null) {
             UniFile file = downloadDir.findFile(SPIDER_INFO_FILENAME);
             spiderInfo = SpiderInfo.read(file);
-            if (spiderInfo != null && spiderInfo.gid == mGalleryInfo.getCid() &&
+            if (spiderInfo != null && spiderInfo.gid.equals(mGalleryInfo.getId()) &&
                     spiderInfo.token.equals(mGalleryInfo.token)) {
                 return spiderInfo;
             }
         }
 
         // Read from cache
-        InputStreamPipe pipe = mSpiderInfoCache.getInputStreamPipe(Long.toString(mGalleryInfo.getCid()));
+        InputStreamPipe pipe = mSpiderInfoCache.getInputStreamPipe(mGalleryInfo.getId());
         if (null != pipe) {
             try {
                 pipe.obtain();
                 spiderInfo = SpiderInfo.read(pipe.open());
-                if (spiderInfo != null && spiderInfo.gid == mGalleryInfo.getCid() &&
+                if (spiderInfo != null && spiderInfo.gid.equals(mGalleryInfo.getId()) &&
                         spiderInfo.token.equals(mGalleryInfo.token)) {
                     return spiderInfo;
                 }
@@ -731,7 +732,7 @@ public final class SpiderQueen implements Runnable {
 
         try {
             SpiderInfo spiderInfo = new SpiderInfo();
-            spiderInfo.gid = mGalleryInfo.getCid();
+            spiderInfo.gid = mGalleryInfo.getId();
             spiderInfo.token = mGalleryInfo.token;
 
             data = MHApi.Companion.getINSTANCE().data(mGalleryInfo.gid, mGalleryInfo.cid).blockingFirst();
@@ -763,7 +764,7 @@ public final class SpiderQueen implements Runnable {
         }
 
         // Read from cache
-        OutputStreamPipe pipe = mSpiderInfoCache.getOutputStreamPipe(Long.toString(mGalleryInfo.getCid()));
+        OutputStreamPipe pipe = mSpiderInfoCache.getOutputStreamPipe(mGalleryInfo.getId());
         try {
             pipe.obtain();
             spiderInfo.write(pipe.open());
@@ -917,24 +918,24 @@ public final class SpiderQueen implements Runnable {
 
     private class SpiderWorker implements Runnable {
 
-        private final long mGid;
+        private final String mGid;
 
         public SpiderWorker() {
-            mGid = mGalleryInfo.getCid();
+            mGid = mGalleryInfo.getId();
         }
 
         // false for stop
-        private boolean downloadImage(long gid, int index, String pToken, String previousPToken, boolean force) {
+        private boolean downloadImage(String gid, int index, String pToken, String previousPToken, boolean force) {
             if (DEBUG_LOG) {
                 Log.d(TAG, "download image ");
             }
+
             String pageUrl = null;
             String error = null;
             boolean interrupt = false;
 
             for (int i = 0; i < 5; i++) {
-                String cid = mGalleryInfo.cid;
-                String targetImageUrl = null;
+                 String targetImageUrl = null;
                 pageUrl = data.getData().get(index);
                 if (DEBUG_LOG) {
                     Log.d(TAG, pageUrl);

@@ -68,10 +68,7 @@ public class CleanRedundancyPreference extends TaskPreference {
             if (index >= 0) {
                 name = name.substring(0, index);
             }
-            long gid = NumberUtils.parseLongSafely(name, -1L);
-            if (-1L == gid) {
-                return false;
-            }
+            String gid = name;
             if (mManager.containDownloadInfo(gid)) {
                 return false;
             }

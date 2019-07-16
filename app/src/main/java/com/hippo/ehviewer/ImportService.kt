@@ -114,7 +114,7 @@ class ImportService : Service() {
         }
 
         var current = 0
-        val error = MHComicInfo(-1, "", "", "", -1, "", "", 0.0f, false, MHApiSource.Hanhan);
+        val error = MHComicInfo("-1", "", "", "", -1, "", "", 0.0f, false, MHApiSource.Hanhan);
 
         importHandle = Observable.just(result)
                 .flatMapIterable { ids -> ids }
@@ -133,7 +133,7 @@ class ImportService : Service() {
                 .doOnError { e -> Log.d(TAG, e.message) }
                 .doOnComplete { sendNotification("success $success,failed $failed", "Done") }
                 .subscribe {
-                    if (it.gid != -1L) {
+                    if (it.gid != "-1") {
                         save(it)
                         success ++
                         sendNotification("success",it.title ,result.size,current)

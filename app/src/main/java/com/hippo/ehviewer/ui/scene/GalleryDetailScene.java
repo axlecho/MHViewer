@@ -260,7 +260,7 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
     private String mAction;
     @Nullable
     private GalleryInfo mGalleryInfo;
-    private long mGid;
+    private String mGid;
     private String mToken;
     @Nullable
     private GalleryDetail mGalleryDetail;
@@ -347,24 +347,24 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
                 MHApi.Companion.getINSTANCE().select(mGalleryInfo.source);
             }
         } else if (ACTION_GID_TOKEN.equals(action)) {
-            mGid = args.getLong(KEY_GID);
+            mGid = args.getString(KEY_GID);
             mToken = args.getString(KEY_TOKEN);
         }
     }
 
     @Nullable
     private String getGalleryDetailUrl() {
-        long gid = 0;
+        String gid= "";
         if (mGalleryDetail != null) {
             gid = mGalleryDetail.gid;
         } else if (mGalleryInfo != null) {
             gid = mGalleryInfo.gid;
         }
-        return MHApi.Companion.getINSTANCE().pageUrl((int) gid);
+        return MHApi.Companion.getINSTANCE().pageUrl( gid);
     }
 
     // -1 for error
-    private long getGid() {
+    private String getGid() {
         if (mGalleryDetail != null) {
             return mGalleryDetail.gid;
         } else if (mGalleryInfo != null) {
@@ -372,7 +372,7 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
         } else if (ACTION_GID_TOKEN.equals(mAction)) {
             return mGid;
         } else {
-            return -1;
+            return "-1";
         }
     }
 
@@ -437,7 +437,7 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
     private void onRestore(Bundle savedInstanceState) {
         mAction = savedInstanceState.getString(KEY_ACTION);
         mGalleryInfo = savedInstanceState.getParcelable(KEY_GALLERY_INFO);
-        mGid = savedInstanceState.getLong(KEY_GID);
+        mGid = savedInstanceState.getString(KEY_GID);
         mToken = savedInstanceState.getString(KEY_TOKEN);
         mGalleryDetail = savedInstanceState.getParcelable(KEY_GALLERY_DETAIL);
         mRequestId = savedInstanceState.getInt(KEY_REQUEST_ID);
@@ -453,7 +453,7 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
         if (mGalleryInfo != null) {
             outState.putParcelable(KEY_GALLERY_INFO, mGalleryInfo);
         }
-        outState.putLong(KEY_GID, mGid);
+        outState.putString(KEY_GID, mGid);
         if (mToken != null) {
             outState.putString(KEY_TOKEN, mAction);
         }
@@ -470,8 +470,8 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
                               @Nullable Bundle savedInstanceState) {
 
         // Get download state
-        long gid = getGid();
-        if (gid != -1) {
+        String gid = getGid();
+        if (!gid.equals("-1")) {
             Context context = getContext2();
             AssertUtils.assertNotNull(context);
             mDownloadState = EhApplication.getDownloadManager(context).getDownloadState(gid);
@@ -713,8 +713,8 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
             return true;
         }
 
-        long gid = getGid();
-        if (gid == -1) {
+        String gid = getGid();
+        if (gid.equals("-1")) {
             return false;
         }
 
@@ -1084,9 +1084,9 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
     }
 
     private void setTransitionName() {
-        long gid = getGid();
+        String gid = getGid();
 
-        if (gid != -1 && mThumb != null &&
+        if (!gid.equals("-1") && mThumb != null &&
                 mTitle != null && mUploader != null && mCategory != null) {
             ViewCompat.setTransitionName(mThumb, TransitionNameFactory.getThumbTransitionName(gid));
             ViewCompat.setTransitionName(mTitle, TransitionNameFactory.getTitleTransitionName(gid));
@@ -1179,8 +1179,8 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
         if (null == context) {
             return;
         }
-        long gid = getGid();
-        if (-1L == gid) {
+        String gid = getGid();
+        if (gid.equals("-1")) {
             return;
         }
         File temp = AppConfig.createTempFile();
@@ -1315,7 +1315,7 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
                 return;
             }
             Bundle args = new Bundle();
-            args.putLong(GalleryCommentsScene.KEY_GID, mGalleryDetail.gid);
+            args.putString(GalleryCommentsScene.KEY_GID, mGalleryDetail.gid);
             args.putParcelableArray(GalleryCommentsScene.KEY_COMMENTS,mGalleryDetail.comments);
             startScene(new Announcer(GalleryCommentsScene.class)
                     .setArgs(args)
@@ -1407,8 +1407,8 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
 
     private void updateDownloadState() {
         Context context = getContext2();
-        long gid = getGid();
-        if (null == context || -1L == gid) {
+        String gid = getGid();
+        if (null == context ||gid.equals("-1")) {
             return;
         }
 
@@ -1639,9 +1639,9 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
 
     private static class RateGalleryListener extends EhCallback<GalleryDetailScene, RateGalleryParser.Result> {
 
-        private final long mGid;
+        private final String mGid;
 
-        public RateGalleryListener(Context context, int stageId, String sceneTag, long gid) {
+        public RateGalleryListener(Context context, int stageId, String sceneTag, String gid) {
             super(context, stageId, sceneTag);
             mGid = gid;
         }

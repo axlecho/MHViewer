@@ -70,7 +70,7 @@ public class EhUrl {
     private static final String URL_PREFIX_THUMB_E = "https://ul.ehgt.org/";
     private static final String URL_PREFIX_THUMB_EX = "https://exhentai.org/t/";
 
-    public static String getGalleryDetailUrl(long gid, String token) {
+    public static String getGalleryDetailUrl(String gid, String token) {
         return getGalleryDetailUrl(gid, token, 0, false);
     }
 
@@ -144,7 +144,7 @@ public class EhUrl {
         }
     }
 
-    public static String getGalleryDetailUrl(long gid, String token, int index, boolean allComment) {
+    public static String getGalleryDetailUrl(String gid, String token, int index, boolean allComment) {
         UrlBuilder builder = new UrlBuilder(getHost() + "g/" + gid + '/' + token + '/');
         if (index != 0) {
             builder.addQuery("p", index);

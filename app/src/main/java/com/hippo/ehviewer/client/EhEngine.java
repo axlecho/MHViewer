@@ -331,13 +331,8 @@ public class EhEngine {
     }
 
     public static GalleryDetail getGalleryDetail(@Nullable EhClient.Task task, OkHttpClient okHttpClient,
-                                                 String cid) throws Throwable {
-         MHComicDetail info = MHApi.Companion.getINSTANCE().info(Long.parseLong(cid)).blockingFirst();
-        try {
-            info.getComments().addAll(MHApi.Companion.getINSTANCE().comment(Long.parseLong(cid), 1).blockingFirst().getDatas());
-        } catch (Exception e){
-
-        }
+                                                 String gid) throws Throwable {
+        MHComicDetail info = MHApi.Companion.getINSTANCE().info(gid).blockingFirst();
         GalleryDetail detail = new GalleryDetail(info);
 
         List<GalleryChapterGroup> list = new ArrayList<>();
@@ -360,42 +355,7 @@ public class EhEngine {
     public static RateGalleryParser.Result rateGallery(@Nullable EhClient.Task task,
                                                        OkHttpClient okHttpClient, long apiUid, String apiKey, long gid,
                                                        String token, float rating) throws Throwable {
-        final JSONObject json = new JSONObject();
-        json.put("method", "rategallery");
-        json.put("apiuid", apiUid);
-        json.put("apikey", apiKey);
-        json.put("gid", gid);
-        json.put("token", token);
-        json.put("rating", (int) Math.ceil(rating * 2));
-        final RequestBody requestBody = RequestBody.create(MEDIA_TYPE_JSON, json.toString());
-        String url = EhUrl.getApiUrl();
-        String referer = EhUrl.getGalleryDetailUrl(gid, token);
-        String origin = EhUrl.getOrigin();
-        Log.d(TAG, url);
-        Request request = new EhRequestBuilder(url, referer, origin)
-                .post(requestBody)
-                .build();
-        Call call = okHttpClient.newCall(request);
-
-        // Put call
-        if (null != task) {
-            task.setCall(call);
-        }
-
-        String body = null;
-        Headers headers = null;
-        int code = -1;
-        try {
-            Response response = call.execute();
-            code = response.code();
-            headers = response.headers();
-            body = response.body().string();
-            return RateGalleryParser.parse(body);
-        } catch (Throwable e) {
-            ExceptionUtils.throwIfFatal(e);
-            throwException(call, code, headers, body, e);
-            throw e;
-        }
+        return null;
     }
 
     public static GalleryComment[] commentGallery(@Nullable EhClient.Task task,
@@ -526,110 +486,16 @@ public class EhEngine {
 
     public static Pair<String, String>[] getTorrentList(@Nullable EhClient.Task task, OkHttpClient okHttpClient,
                                                         String url, long gid, String token) throws Throwable {
-        String referer = EhUrl.getGalleryDetailUrl(gid, token);
-        Log.d(TAG, url);
-        Request request = new EhRequestBuilder(url, referer).build();
-        Call call = okHttpClient.newCall(request);
-
-        // Put call
-        if (null != task) {
-            task.setCall(call);
-        }
-
-        String body = null;
-        Headers headers = null;
-        Pair<String, String>[] result;
-        int code = -1;
-        try {
-            Response response = call.execute();
-            code = response.code();
-            headers = response.headers();
-            body = response.body().string();
-            result = TorrentParser.parse(body);
-        } catch (Throwable e) {
-            ExceptionUtils.throwIfFatal(e);
-            throwException(call, code, headers, body, e);
-            throw e;
-        }
-
-        return result;
+        return null;
     }
 
     public static Pair<String, Pair<String, String>[]> getArchiveList(@Nullable EhClient.Task task, OkHttpClient okHttpClient,
                                                                       String url, long gid, String token) throws Throwable {
-        String referer = EhUrl.getGalleryDetailUrl(gid, token);
-        Log.d(TAG, url);
-        Request request = new EhRequestBuilder(url, referer).build();
-        Call call = okHttpClient.newCall(request);
-
-        // Put call
-        if (null != task) {
-            task.setCall(call);
-        }
-
-        String body = null;
-        Headers headers = null;
-        Pair<String, Pair<String, String>[]> result;
-        int code = -1;
-        try {
-            Response response = call.execute();
-            code = response.code();
-            headers = response.headers();
-            body = response.body().string();
-            result = ArchiveParser.parse(body);
-        } catch (Throwable e) {
-            ExceptionUtils.throwIfFatal(e);
-            throwException(call, code, headers, body, e);
-            throw e;
-        }
-
-        return result;
+       return null;
     }
 
     public static Void downloadArchive(@Nullable EhClient.Task task, OkHttpClient okHttpClient,
                                        long gid, String token, String or, String res) throws Throwable {
-        if (or == null || or.length() == 0) {
-            throw new EhException("Invalid form param or: " + or);
-        }
-        if (res == null || res.length() == 0) {
-            throw new EhException("Invalid res: " + res);
-        }
-        FormBody.Builder builder = new FormBody.Builder();
-        builder.add("hathdl_xres", res);
-        String url = EhUrl.getDownloadArchive(gid, token, or);
-        String referer = EhUrl.getGalleryDetailUrl(gid, token);
-        String origin = EhUrl.getOrigin();
-        Log.d(TAG, url);
-        Request request = new EhRequestBuilder(url, referer, origin)
-                .post(builder.build())
-                .build();
-        Call call = okHttpClient.newCall(request);
-
-        // Put call
-        if (null != task) {
-            task.setCall(call);
-        }
-
-        String body = null;
-        Headers headers = null;
-        int code = -1;
-        try {
-            Response response = call.execute();
-            code = response.code();
-            headers = response.headers();
-            body = response.body().string();
-            throwException(call, code, headers, body, null);
-        } catch (Throwable e) {
-            ExceptionUtils.throwIfFatal(e);
-            throwException(call, code, headers, body, e);
-            throw e;
-        }
-
-        Matcher m = PATTERN_NEED_HATH_CLIENT.matcher(body);
-        if (m.find()) {
-            throw new NoHAtHClientException("No H@H client");
-        }
-
         return null;
     }
 
