@@ -23,14 +23,20 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Debug;
 import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.collection.LruCache;
+
+import com.axlecho.api.MHApi;
+import com.axlecho.api.MHApiSource;
+import com.axlecho.api.MHContext;
 import com.getkeepsafe.relinker.ReLinker;
 import com.hippo.a7zip.A7Zip;
 import com.hippo.a7zip.A7ZipExtractLite;
@@ -58,12 +64,16 @@ import com.hippo.yorozuya.FileUtils;
 import com.hippo.yorozuya.IntIdGenerator;
 import com.hippo.yorozuya.OSUtils;
 import com.hippo.yorozuya.SimpleHandler;
+
+import org.jetbrains.annotations.NotNull;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
 import okhttp3.OkHttpClient;
 
 public class EhApplication extends RecordingApplication {
@@ -111,7 +121,8 @@ public class EhApplication extends RecordingApplication {
                 if (Settings.getSaveCrashLog()) {
                     Crash.saveCrashLog(instance, e);
                 }
-            } catch (Throwable ignored) { }
+            } catch (Throwable ignored) {
+            }
 
             if (handler != null) {
                 handler.uncaughtException(t, e);
@@ -132,7 +143,23 @@ public class EhApplication extends RecordingApplication {
         BitmapUtils.initialize(this);
         Image.initialize(this);
         A7Zip.loadLibrary(A7ZipExtractLite.LIBRARY, libname -> ReLinker.loadLibrary(EhApplication.this, libname));
+        MHApi.Companion.setContext(new MHContext() {
+            @NotNull
+            @Override
+            public String loadAuthorization() {
+                SharedPreferences spf = getSharedPreferences("MH", MODE_PRIVATE);
+                if (spf == null) return "";
+                String auth = spf.getString("auth", "");
+                if (auth == null) return "";
+                return auth;
+            }
 
+            @Override
+            public void saveAuthorization(@NotNull String s) {
+                SharedPreferences spf = getSharedPreferences("MH", MODE_PRIVATE);
+                spf.edit().putString("auth", s).apply();
+            }
+        });
         if (EhDB.needMerge()) {
             EhDB.mergeOldDB(this);
         }
@@ -173,7 +200,7 @@ public class EhApplication extends RecordingApplication {
 
         // Update version code
         try {
-            PackageInfo pi= getPackageManager().getPackageInfo(getPackageName(), 0);
+            PackageInfo pi = getPackageManager().getPackageInfo(getPackageName(), 0);
             Settings.putVersionCode(pi.versionCode);
         } catch (PackageManager.NameNotFoundException e) {
             // Ignore

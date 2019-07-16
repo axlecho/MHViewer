@@ -26,38 +26,27 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+
+import com.axlecho.api.MHApi;
+import com.axlecho.api.pica.PicaApi;
 import com.google.android.material.textfield.TextInputLayout;
-import com.hippo.ehviewer.EhApplication;
 import com.hippo.ehviewer.R;
 import com.hippo.ehviewer.Settings;
-import com.hippo.ehviewer.UrlOpener;
-import com.hippo.ehviewer.client.EhClient;
-import com.hippo.ehviewer.client.EhRequest;
 import com.hippo.ehviewer.client.EhUrl;
-import com.hippo.ehviewer.client.EhUtils;
-import com.hippo.ehviewer.client.parser.ProfileParser;
 import com.hippo.ehviewer.ui.MainActivity;
-import com.hippo.ehviewer.widget.RecaptchaView;
-import com.hippo.scene.Announcer;
-import com.hippo.scene.SceneFragment;
 import com.hippo.util.ExceptionUtils;
 import com.hippo.yorozuya.AssertUtils;
-import com.hippo.yorozuya.IntIdGenerator;
 import com.hippo.yorozuya.ViewUtils;
+
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 public final class SignInScene extends SolidScene implements EditText.OnEditorActionListener,
         View.OnClickListener {
-
-    private static final String KEY_REQUEST_ID = "request_id";
-
-    private static final int REQUEST_CODE_WEBVIEW = 0;
-    private static final int REQUEST_CODE_COOKIE = 0;
-
-    /*---------------
-     View life cycle
-     ---------------*/
     @Nullable
     private View mProgress;
     @Nullable
@@ -68,55 +57,22 @@ public final class SignInScene extends SolidScene implements EditText.OnEditorAc
     private EditText mUsername;
     @Nullable
     private EditText mPassword;
-    private EditText mRecaptcha;
-    private RecaptchaView mRecaptchaView;
-    @Nullable
-    private View mRegister;
     @Nullable
     private View mSignIn;
     @Nullable
-    private TextView mSignInViaWebView;
-    @Nullable
-    private TextView mSignInViaCookies;
-    @Nullable
     private TextView mSkipSigningIn;
 
-    private boolean mSigningIn;
-    private int mRequestId = IntIdGenerator.INVALID_ID;
+    private Disposable handle;
 
     @Override
     public boolean needShowLeftDrawer() {
         return false;
     }
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        if (savedInstanceState == null) {
-            onInit();
-        } else {
-            onRestore(savedInstanceState);
-        }
-    }
-
-    private void onInit() {
-    }
-
-    private void onRestore(Bundle savedInstanceState) {
-        mRequestId = savedInstanceState.getInt(KEY_REQUEST_ID);
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putInt(KEY_REQUEST_ID, mRequestId);
-    }
-
     @Nullable
     @Override
     public View onCreateView2(LayoutInflater inflater, @Nullable ViewGroup container,
-            @Nullable Bundle savedInstanceState) {
+                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.scene_login, container, false);
 
         View loginForm = ViewUtils.$$(view, R.id.login_form);
@@ -127,35 +83,13 @@ public final class SignInScene extends SolidScene implements EditText.OnEditorAc
         mPasswordLayout = (TextInputLayout) ViewUtils.$$(loginForm, R.id.password_layout);
         mPassword = mPasswordLayout.getEditText();
         AssertUtils.assertNotNull(mPassword);
-        mRecaptcha = (EditText) ViewUtils.$$(loginForm, R.id.recaptcha);
-        mRecaptchaView = (RecaptchaView) ViewUtils.$$(loginForm, R.id.recaptcha_image);
-        mRegister = ViewUtils.$$(loginForm, R.id.register);
         mSignIn = ViewUtils.$$(loginForm, R.id.sign_in);
-        mSignInViaWebView = (TextView) ViewUtils.$$(loginForm, R.id.sign_in_via_webview);
-        mSignInViaCookies = (TextView) ViewUtils.$$(loginForm, R.id.sign_in_via_cookies);
         mSkipSigningIn = (TextView) ViewUtils.$$(loginForm, R.id.skip_signing_in);
 
-        mSignInViaWebView.setPaintFlags(mSignInViaWebView.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
-        mSignInViaCookies.setPaintFlags(mSignInViaCookies.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
-        mSkipSigningIn.setPaintFlags(mSignInViaCookies.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
-
+        mSkipSigningIn.setPaintFlags(Paint.UNDERLINE_TEXT_FLAG);
         mPassword.setOnEditorActionListener(this);
-
-        mRegister.setOnClickListener(this);
         mSignIn.setOnClickListener(this);
-        mSignInViaWebView.setOnClickListener(this);
-        mSignInViaCookies.setOnClickListener(this);
         mSkipSigningIn.setOnClickListener(this);
-
-        Context context = getContext2();
-        AssertUtils.assertNotNull(context);
-        EhApplication application = (EhApplication) context.getApplicationContext();
-        if (application.containGlobalStuff(mRequestId)) {
-            mSigningIn = true;
-            // request exist
-            showProgress(false);
-        }
-
         return view;
     }
 
@@ -178,10 +112,7 @@ public final class SignInScene extends SolidScene implements EditText.OnEditorAc
         mPasswordLayout = null;
         mUsername = null;
         mPassword = null;
-        mRegister = null;
         mSignIn = null;
-        mSignInViaWebView = null;
-        mSignInViaCookies = null;
         mSkipSigningIn = null;
     }
 
@@ -204,16 +135,6 @@ public final class SignInScene extends SolidScene implements EditText.OnEditorAc
         }
     }
 
-    @Override
-    protected void onSceneResult(int requestCode, int resultCode, Bundle data) {
-        if (REQUEST_CODE_WEBVIEW == requestCode) {
-            if (RESULT_OK == resultCode) {
-                getProfile();
-            }
-        } else {
-            super.onSceneResult(requestCode, resultCode, data);
-        }
-    }
 
     @Override
     public void onClick(View v) {
@@ -222,14 +143,8 @@ public final class SignInScene extends SolidScene implements EditText.OnEditorAc
             return;
         }
 
-        if (mRegister == v) {
-            UrlOpener.openUrl(activity, EhUrl.URL_REGISTER, false);
-        } else if (mSignIn == v) {
+        if (mSignIn == v) {
             signIn();
-        } else if (mSignInViaWebView == v) {
-            startScene(new Announcer(WebViewSignInScene.class).setRequestCode(this, REQUEST_CODE_WEBVIEW));
-        } else if (mSignInViaCookies == v) {
-            startScene(new Announcer(CookieSignInScene.class).setRequestCode(this, REQUEST_CODE_COOKIE));
         } else if (mSkipSigningIn == v) {
             // Set gallery size SITE_E if skip sign in
             Settings.putGallerySite(EhUrl.SITE_E);
@@ -250,10 +165,6 @@ public final class SignInScene extends SolidScene implements EditText.OnEditorAc
     }
 
     private void signIn() {
-        if (mSigningIn) {
-            return;
-        }
-
         Context context = getContext2();
         MainActivity activity = getActivity2();
         if (null == context || null == activity || null == mUsername || null == mPassword || null == mUsernameLayout ||
@@ -281,41 +192,10 @@ public final class SignInScene extends SolidScene implements EditText.OnEditorAc
         hideSoftInput();
         showProgress(true);
 
-        // Clean up for sign in
-        EhUtils.signOut(context);
-
-        String challenge = mRecaptchaView.getChallenge();
-        String response = mRecaptcha.getText().toString();
-
-        EhCallback callback = new SignInListener(context,
-                activity.getStageId(), getTag());
-        mRequestId = ((EhApplication) context.getApplicationContext()).putGlobalStuff(callback);
-        EhRequest request = new EhRequest()
-                .setMethod(EhClient.METHOD_SIGN_IN)
-                .setArgs(username, password, challenge, response)
-                .setCallback(callback);
-        EhApplication.getEhClient(context).execute(request);
-
-        mSigningIn = true;
-    }
-
-    private void getProfile() {
-        Context context = getContext2();
-        MainActivity activity = getActivity2();
-        if (null == context || null == activity) {
-            return;
-        }
-
-        hideSoftInput();
-        showProgress(true);
-
-        EhCallback callback = new GetProfileListener(context,
-                activity.getStageId(), getTag());
-        mRequestId = ((EhApplication) context.getApplicationContext()).putGlobalStuff(callback);
-        EhRequest request = new EhRequest()
-                .setMethod(EhClient.METHOD_GET_PROFILE)
-                .setCallback(callback);
-        EhApplication.getEhClient(context).execute(request);
+        handle = PicaApi.Companion.getINSTANCE().login(username, password)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(s -> redirectTo(), this::onSignInEnd);
     }
 
     private void redirectTo() {
@@ -327,7 +207,7 @@ public final class SignInScene extends SolidScene implements EditText.OnEditorAc
         finish();
     }
 
-    private void whetherToSkip(Exception e) {
+    private void whetherToSkip(Throwable e) {
         Context context = getContext2();
         if (null == context) {
             return;
@@ -340,103 +220,13 @@ public final class SignInScene extends SolidScene implements EditText.OnEditorAc
                 .show();
     }
 
-    public void onSignInEnd(Exception e) {
+    public void onSignInEnd(Throwable e) {
         Context context = getContext2();
         if (null == context) {
             return;
         }
 
-        if (EhApplication.getEhCookieStore(context).hasSignedIn()) {
-            getProfile();
-        } else {
-            mSigningIn = false;
-            hideProgress();
-            whetherToSkip(e);
-        }
-    }
-
-    public void onGetProfileEnd() {
-        mSigningIn = false;
-        updateAvatar();
-        redirectTo();
-    }
-
-    private class SignInListener extends EhCallback<SignInScene, String> {
-
-        public SignInListener(Context context, int stageId, String sceneTag) {
-            super(context, stageId, sceneTag);
-        }
-
-        @Override
-        public void onSuccess(String result) {
-            getApplication().removeGlobalStuff(this);
-            Settings.putDisplayName(result);
-
-            SignInScene scene = getScene();
-            if (scene != null) {
-                scene.onSignInEnd(null);
-            }
-        }
-
-        @Override
-        public void onFailure(Exception e) {
-            getApplication().removeGlobalStuff(this);
-            e.printStackTrace();
-
-            SignInScene scene = getScene();
-            if (scene != null) {
-                scene.onSignInEnd(e);
-            }
-        }
-
-        @Override
-        public void onCancel() {
-            getApplication().removeGlobalStuff(this);
-        }
-
-        @Override
-        public boolean isInstance(SceneFragment scene) {
-            return scene instanceof SignInScene;
-        }
-    }
-
-    private class GetProfileListener extends EhCallback<SignInScene, ProfileParser.Result> {
-
-        public GetProfileListener(Context context, int stageId, String sceneTag) {
-            super(context, stageId, sceneTag);
-        }
-
-        @Override
-        public void onSuccess(ProfileParser.Result result) {
-            getApplication().removeGlobalStuff(this);
-            Settings.putDisplayName(result.displayName);
-            Settings.putAvatar(result.avatar);
-
-            SignInScene scene = getScene();
-            if (scene != null) {
-                scene.onGetProfileEnd();
-            }
-        }
-
-        @Override
-        public void onFailure(Exception e) {
-            getApplication().removeGlobalStuff(this);
-            e.printStackTrace();
-
-            SignInScene scene = getScene();
-            if (scene != null) {
-                scene.onGetProfileEnd();
-            }
-        }
-
-        @Override
-        public void onCancel() {
-            getApplication().removeGlobalStuff(this);
-        }
-
-        @Override
-        public boolean isInstance(SceneFragment scene) {
-            return scene instanceof SignInScene;
-        }
+        hideProgress();
+        whetherToSkip(e);
     }
 }

@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2016 Hippo Seven
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,12 +14,11 @@
   ~ limitations under the License.
   -->
 
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <ScrollView
         android:id="@+id/login_form"
@@ -39,15 +37,15 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:padding="@dimen/keyline_margin"
-                android:src="@mipmap/ic_launcher"/>
+                android:src="@mipmap/ic_launcher" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/username_layout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:minWidth="@dimen/single_max_width"
-                android:hint="@string/username">
+                android:hint="@string/username"
+                android:minWidth="@dimen/single_max_width">
 
                 <com.hippo.widget.HackyTextInputEditText
                     android:id="@+id/username"
@@ -56,7 +54,7 @@
                     android:imeOptions="actionNext"
                     android:inputType="text"
                     android:maxLines="1"
-                    android:singleLine="true"/>
+                    android:singleLine="true" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -65,8 +63,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:minWidth="@dimen/single_max_width"
                 android:hint="@string/password"
+                android:minWidth="@dimen/single_max_width"
                 app:passwordToggleEnabled="true">
 
                 <com.hippo.widget.HackyTextInputEditText
@@ -76,7 +74,7 @@
                     android:imeOptions="actionNext"
                     android:inputType="textPassword"
                     android:maxLines="1"
-                    android:singleLine="true"/>
+                    android:singleLine="true" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -85,44 +83,27 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:minWidth="@dimen/single_max_width"
-                android:hint="@string/recaptcha">
-
-                <com.hippo.widget.HackyTextInputEditText
-                    android:id="@+id/recaptcha"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:imeOptions="actionDone"
-                    android:inputType="text"
-                    android:maxLines="1"
-                    android:singleLine="true"/>
+                android:hint="@string/recaptcha"
+                android:minWidth="@dimen/single_max_width">
 
             </com.google.android.material.textfield.TextInputLayout>
-
-            <com.hippo.ehviewer.widget.RecaptchaView
-                android:id="@+id/recaptcha_image"
-                android:layout_width="wrap_content"
-                android:layout_height="48dp"
-                android:layout_gravity="center_horizontal"
-                android:minWidth="@dimen/single_max_width"
-                android:scaleType="fitCenter"/>
 
             <Space
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
-                android:layout_weight="1"/>
+                android:layout_weight="1" />
 
             <LinearLayout
                 android:id="@+id/buttonPanel"
+                style="?attr/buttonBarStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:gravity="bottom"
                 android:orientation="horizontal"
                 android:paddingLeft="12dp"
-                android:paddingRight="12dp"
                 android:paddingTop="4dp"
-                android:paddingBottom="4dp"
-                android:gravity="bottom"
-                style="?attr/buttonBarStyle">
+                android:paddingRight="12dp"
+                android:paddingBottom="4dp">
 
                 <Button
                     android:id="@+id/register"
@@ -130,9 +111,9 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:text="@string/register"
                     android:textColor="?attr/colorAccent"
-                    android:textStyle="bold"
-                    android:text="@string/register"/>
+                    android:textStyle="bold" />
 
                 <Button
                     android:id="@+id/sign_in"
@@ -140,29 +121,11 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:text="@string/sign_in"
                     android:textColor="?attr/colorPrimary"
-                    android:textStyle="bold"
-                    android:text="@string/sign_in"/>
+                    android:textStyle="bold" />
 
             </LinearLayout>
-
-            <TextView
-                android:id="@+id/sign_in_via_webview"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginBottom="8dp"
-                android:text="@string/sign_in_via_webview"
-                android:textColor="?attr/textColorThemeAccent"/>
-
-            <TextView
-                android:id="@+id/sign_in_via_cookies"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginBottom="8dp"
-                android:text="@string/sign_in_via_cookies"
-                android:textColor="?attr/textColorThemeAccent"/>
 
             <TextView
                 android:id="@+id/skip_signing_in"
@@ -170,7 +133,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:text="@string/skip_signing_in"
-                android:textColor="?attr/textColorThemeAccent"/>
+                android:textColor="?attr/textColorThemeAccent" />
 
         </LinearLayout>
     </ScrollView>
@@ -187,7 +150,7 @@
             style="@style/ProgressView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"/>
+            android:layout_gravity="center" />
 
     </FrameLayout>
 

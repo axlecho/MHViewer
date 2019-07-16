@@ -28,9 +28,11 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.hippo.android.resource.AttrResources;
 import com.hippo.easyrecyclerview.EasyRecyclerView;
 import com.hippo.easyrecyclerview.FastScroller;
@@ -38,17 +40,23 @@ import com.hippo.easyrecyclerview.HandlerDrawable;
 import com.hippo.easyrecyclerview.LayoutManagerUtils;
 import com.hippo.ehviewer.EhApplication;
 import com.hippo.ehviewer.R;
+import com.hippo.ehviewer.ui.scene.SignInScene;
 import com.hippo.refreshlayout.RefreshLayout;
+import com.hippo.scene.Announcer;
+import com.hippo.scene.StageActivity;
 import com.hippo.util.DrawableManager;
 import com.hippo.util.ExceptionUtils;
 import com.hippo.view.ViewTransition;
 import com.hippo.yorozuya.IntIdGenerator;
 import com.hippo.yorozuya.LayoutUtils;
 import com.hippo.yorozuya.collect.IntList;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+
+import retrofit2.HttpException;
 
 public class ContentLayout extends FrameLayout {
 
@@ -202,6 +210,23 @@ public class ContentLayout extends FrameLayout {
 
         private ViewTransition mViewTransition;
 
+        private OnClickListener refreshListener = v -> refresh();
+        private OnClickListener loginListener = new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // login
+                Announcer announcer = new Announcer(SignInScene.class);
+                startScene(announcer);
+                mTipView.setOnClickListener(refreshListener);
+            }
+        };
+
+        public void startScene(Announcer announcer) {
+            Context activity = getContext();
+            if (activity instanceof StageActivity) {
+                ((StageActivity) activity).startScene(announcer);
+            }
+        }
         /**
          * Store data
          */
@@ -214,7 +239,7 @@ public class ContentLayout extends FrameLayout {
 
         /**
          * Store the page divider index
-         *
+         * <p>
          * For example, the data contain page 3, page 4, page 5,
          * page 3 size is 7, page 4 size is 8, page 5 size is 9,
          * so <code>mPageDivider</code> contain 7, 15, 24.
@@ -326,19 +351,14 @@ public class ContentLayout extends FrameLayout {
             mRecyclerView.addOnScrollListener(mOnScrollListener);
             mRefreshLayout.setOnRefreshListener(mOnRefreshListener);
 
-            mTipView.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    refresh();
-                }
-            });
+            mTipView.setOnClickListener(refreshListener);
         }
 
         /**
          * Call {@link #onGetPageData(int, int, int, List)} when get data
          *
          * @param taskId task id
-         * @param page the page to get
+         * @param page   the page to get
          */
         protected abstract void getPageData(int taskId, int type, int page);
 
@@ -350,10 +370,12 @@ public class ContentLayout extends FrameLayout {
 
         protected abstract void notifyItemRangeInserted(int positionStart, int itemCount);
 
-        protected void onScrollToPosition(int postion) {}
+        protected void onScrollToPosition(int postion) {
+        }
 
         @Override
-        public void onShowView(View hiddenView, View shownView) {}
+        public void onShowView(View hiddenView, View shownView) {
+        }
 
         public int getShownViewIndex() {
             return mViewTransition.getShownViewIndex();
@@ -376,8 +398,7 @@ public class ContentLayout extends FrameLayout {
         }
 
         /**
-         * @throws IndexOutOfBoundsException
-         *                if {@code location < 0 || location >= size()}
+         * @throws IndexOutOfBoundsException if {@code location < 0 || location >= size()}
          */
         public E getDataAt(int location) {
             return mData.get(location);
@@ -437,7 +458,7 @@ public class ContentLayout extends FrameLayout {
         private void removeDuplicateData(List<E> data, int start, int end) {
             start = Math.max(0, start);
             end = Math.min(mData.size(), end);
-            for (Iterator<E> iterator = data.iterator(); iterator.hasNext();) {
+            for (Iterator<E> iterator = data.iterator(); iterator.hasNext(); ) {
                 E d = iterator.next();
                 for (int i = start; i < end; i++) {
                     if (isDuplicate(d, mData.get(i))) {
@@ -448,15 +469,20 @@ public class ContentLayout extends FrameLayout {
             }
         }
 
-        protected void onAddData(E data) { }
+        protected void onAddData(E data) {
+        }
 
-        protected void onAddData(List<E> data) { }
+        protected void onAddData(List<E> data) {
+        }
 
-        protected void onRemoveData(E data) { }
+        protected void onRemoveData(E data) {
+        }
 
-        protected void onRemoveData(List<E> data) { }
+        protected void onRemoveData(List<E> data) {
+        }
 
-        protected void onClearData() { }
+        protected void onClearData() {
+        }
 
         public void onGetPageData(int taskId, int pages, int nextPage, List<E> data) {
             if (mCurrentTaskId == taskId) {
@@ -749,6 +775,11 @@ public class ContentLayout extends FrameLayout {
                 String readableError;
                 if (e != null) {
                     e.printStackTrace();
+                    if (e instanceof HttpException && ((HttpException) e).code() == 401) {
+                        // do login
+                        mTipView.setOnClickListener(loginListener);
+                    }
+
                     readableError = ExceptionUtils.getReadableString(e);
                 } else {
                     readableError = getContext().getString(R.string.error_unknown);

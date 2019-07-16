@@ -18,11 +18,13 @@ package com.hippo.util;
 
 import androidx.annotation.NonNull;
 
-import com.axlecho.api.MhException;
+import com.axlecho.api.MHException;
 import com.hippo.ehviewer.GetText;
 import com.hippo.ehviewer.R;
 import com.hippo.ehviewer.client.exception.EhException;
 import com.hippo.network.StatusCodeException;
+
+import org.apache.http.conn.ConnectTimeoutException;
 
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
@@ -32,7 +34,7 @@ import java.net.UnknownHostException;
 
 import javax.net.ssl.SSLException;
 
-import org.apache.http.conn.ConnectTimeoutException;
+import retrofit2.HttpException;
 
 public final class ExceptionUtils {
 
@@ -41,9 +43,13 @@ public final class ExceptionUtils {
     @NonNull
     public static String getReadableString(@NonNull Throwable e) {
         e.printStackTrace();
-        if(e instanceof RuntimeException && e.getCause() instanceof SocketException) {
+        if (e instanceof HttpException && ((HttpException) e).code() > 400) {
+            e = new StatusCodeException(((HttpException) e).code());
+        }
+
+        if (e instanceof RuntimeException && e.getCause() instanceof SocketException) {
             return GetText.getString(R.string.error_socket_exception);
-        }  else if (e instanceof MalformedURLException) {
+        } else if (e instanceof MalformedURLException) {
             return GetText.getString(R.string.error_invalid_url);
         } else if (e instanceof ConnectTimeoutException ||
                 e instanceof SocketTimeoutException) {
@@ -64,7 +70,7 @@ public final class ExceptionUtils {
             return GetText.getString(R.string.error_socket);
         } else if (e instanceof EhException) {
             return e.getMessage();
-        } else if (e instanceof MhException) {
+        } else if (e instanceof MHException) {
             return e.getMessage();
         } else {
             return GetText.getString(R.string.error_unknown);
