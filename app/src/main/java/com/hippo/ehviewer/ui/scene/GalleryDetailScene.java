@@ -1316,6 +1316,7 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
             }
             Bundle args = new Bundle();
             args.putLong(GalleryCommentsScene.KEY_GID, mGalleryDetail.gid);
+            args.putParcelableArray(GalleryCommentsScene.KEY_COMMENTS,mGalleryDetail.comments);
             startScene(new Announcer(GalleryCommentsScene.class)
                     .setArgs(args)
                     .setRequestCode(this, REQUEST_CODE_COMMENT_GALLERY));
