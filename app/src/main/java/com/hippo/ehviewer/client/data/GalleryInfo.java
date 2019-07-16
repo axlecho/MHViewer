@@ -25,83 +25,8 @@ import com.axlecho.api.MHApiSource;
 import com.axlecho.api.MHComicInfo;
 import com.hippo.ehviewer.dao.LocalFavoriteInfo;
 
-import java.util.regex.Pattern;
-
 public class GalleryInfo implements Parcelable {
-
-    /**
-     * ISO 639-1
-     */
-    @SuppressWarnings("unused")
-    public static final String S_LANG_JA = "JA";
-    public static final String S_LANG_EN = "EN";
-    public static final String S_LANG_ZH = "ZH";
-    public static final String S_LANG_NL = "NL";
-    public static final String S_LANG_FR = "FR";
-    public static final String S_LANG_DE = "DE";
-    public static final String S_LANG_HU = "HU";
-    public static final String S_LANG_IT = "IT";
-    public static final String S_LANG_KO = "KO";
-    public static final String S_LANG_PL = "PL";
-    public static final String S_LANG_PT = "PT";
-    public static final String S_LANG_RU = "RU";
-    public static final String S_LANG_ES = "ES";
-    public static final String S_LANG_TH = "TH";
-    public static final String S_LANG_VI = "VI";
-
-    public static final String[] S_LANGS = {
-            S_LANG_EN,
-            S_LANG_ZH,
-            S_LANG_ES,
-            S_LANG_KO,
-            S_LANG_RU,
-            S_LANG_FR,
-            S_LANG_PT,
-            S_LANG_TH,
-            S_LANG_DE,
-            S_LANG_IT,
-            S_LANG_VI,
-            S_LANG_PL,
-            S_LANG_HU,
-            S_LANG_NL,
-    };
-
-    public static final Pattern[] S_LANG_PATTERNS = {
-            Pattern.compile("[(\\[]eng(?:lish)?[)\\]]|英訳", Pattern.CASE_INSENSITIVE),
-            // [(（\[]ch(?:inese)?[)）\]]|[汉漢]化|中[国國][语語]|中文|中国翻訳
-            Pattern.compile("[(\uFF08\\[]ch(?:inese)?[)\uFF09\\]]|[汉漢]化|中[国國][语語]|中文|中国翻訳", Pattern.CASE_INSENSITIVE),
-            Pattern.compile("[(\\[]spanish[)\\]]|[(\\[]Español[)\\]]|スペイン翻訳", Pattern.CASE_INSENSITIVE),
-            Pattern.compile("[(\\[]korean?[)\\]]|韓国翻訳", Pattern.CASE_INSENSITIVE),
-            Pattern.compile("[(\\[]rus(?:sian)?[)\\]]|ロシア翻訳", Pattern.CASE_INSENSITIVE),
-            Pattern.compile("[(\\[]fr(?:ench)?[)\\]]|フランス翻訳", Pattern.CASE_INSENSITIVE),
-            Pattern.compile("[(\\[]portuguese|ポルトガル翻訳", Pattern.CASE_INSENSITIVE),
-            Pattern.compile("[(\\[]thai(?: ภาษาไทย)?[)\\]]|แปลไทย|タイ翻訳", Pattern.CASE_INSENSITIVE),
-            Pattern.compile("[(\\[]german[)\\]]|ドイツ翻訳", Pattern.CASE_INSENSITIVE),
-            Pattern.compile("[(\\[]italiano?[)\\]]|イタリア翻訳", Pattern.CASE_INSENSITIVE),
-            Pattern.compile("[(\\[]vietnamese(?: Tiếng Việt)?[)\\]]|ベトナム翻訳", Pattern.CASE_INSENSITIVE),
-            Pattern.compile("[(\\[]polish[)\\]]|ポーランド翻訳", Pattern.CASE_INSENSITIVE),
-            Pattern.compile("[(\\[]hun(?:garian)?[)\\]]|ハンガリー翻訳", Pattern.CASE_INSENSITIVE),
-            Pattern.compile("[(\\[]dutch[)\\]]|オランダ翻訳", Pattern.CASE_INSENSITIVE),
-    };
-
-    public static final String[] S_LANG_TAGS = {
-        "language:english",
-        "language:chinese",
-        "language:spanish",
-        "language:korean",
-        "language:russian",
-        "language:french",
-        "language:portuguese",
-        "language:thai",
-        "language:german",
-        "language:italian",
-        "language:vietnamese",
-        "language:polish",
-        "language:hungarian",
-        "language:dutch",
-    };
-
-    public String gid ;
+    public String gid;
     public String cid;
     public String token;
     public String title;
@@ -124,12 +49,8 @@ public class GalleryInfo implements Parcelable {
     public int spanGroupIndex;
     public MHApiSource source;
 
-    public String getCid() {
-        return cid;
-    }
-
     public String getId() {
-        return gid + "@" + source.name();
+        return gid + "-" + cid + "@" + source.name();
     }
 
     /**
@@ -139,36 +60,6 @@ public class GalleryInfo implements Parcelable {
 
     public int favoriteSlot = -2;
     public String favoriteName;
-
-    public final void generateSLang() {
-        if (simpleTags != null) {
-            generateSLangFromTags();
-        }
-        if (simpleLanguage == null && title != null) {
-            generateSLangFromTitle();
-        }
-    }
-
-    private void generateSLangFromTags() {
-        for (String tag : simpleTags) {
-            for (int i = 0; i < S_LANGS.length; i++) {
-                if (S_LANG_TAGS[i].equals(tag)) {
-                    simpleLanguage = S_LANGS[i];
-                    return;
-                }
-            }
-        }
-    }
-
-    private void generateSLangFromTitle() {
-        for (int i = 0; i < S_LANGS.length; i++) {
-            if (S_LANG_PATTERNS[i].matcher(title).find()) {
-                simpleLanguage = S_LANGS[i];
-                return;
-            }
-        }
-        simpleLanguage = null;
-    }
 
     @Override
     public int describeContents() {
@@ -200,7 +91,8 @@ public class GalleryInfo implements Parcelable {
         dest.writeInt(this.source.ordinal());
     }
 
-    public GalleryInfo() {}
+    public GalleryInfo() {
+    }
 
     public GalleryInfo(MHComicInfo info) {
         this.gid = info.getGid();
@@ -240,6 +132,7 @@ public class GalleryInfo implements Parcelable {
         this.thumbWidth = info.thumbWidth;
         this.token = info.token;
     }
+
     protected GalleryInfo(Parcel in) {
         this.gid = in.readString();
         this.cid = in.readString();
