@@ -321,7 +321,7 @@ public class FavoritesScene extends BaseScene implements
         mSearchBar.setAllowEmptySearch(false);
         updateSearchBar();
         mSearchBarMover = new SearchBarMover(this, mSearchBar, mRecyclerView);
-        mSourceBar = (RadioGroup) ViewUtils.$$(view,R.id.source_bar);
+        mSourceBar = (RadioGroup) ViewUtils.$$(view, R.id.source_bar);
         bindSource(mSourceBar);
         mFabLayout.setAutoCancel(true);
         mFabLayout.setExpanded(false);
@@ -853,28 +853,7 @@ public class FavoritesScene extends BaseScene implements
     @Override
     @Implemented(FabLayout.OnClickFabListener.class)
     public void onLongClickSecondaryFab(FabLayout view, FloatingActionButton fab, int position) {
-        Context context = getActivity2();
-        if (context == null) {
-            return;
-        }
 
-        if (mUrlBuilder == null) {
-            return;
-        }
-
-        if (fab.getTag() instanceof MHApiSource) {
-            MHApiSource target = (MHApiSource) fab.getTag();
-            new AlertDialog.Builder(context)
-                    .setTitle(context.getResources().getString(R.string.import_collection, target.name(), currentSource.name()))
-                    .setPositiveButton(android.R.string.ok, (dialog, which) -> {
-                        Intent intent = new Intent(getActivity2(), ImportService.class);
-                        intent.setAction(ImportService.Companion.getACTION_START());
-                        intent.putExtra(ImportService.Companion.getKEY_TARGET(), (Parcelable) target);
-                        intent.putExtra(ImportService.Companion.getKEY_SOURCE(), (Parcelable) currentSource);
-                        intent.putExtra(ImportService.Companion.getKEY_LOCAL(), mUrlBuilder.getFavCat() == FavListUrlBuilder.FAV_CAT_LOCAL);
-                        context.startService(intent);
-                    }).create().show();
-        }
     }
 
 
@@ -1406,17 +1385,32 @@ public class FavoritesScene extends BaseScene implements
         }
 
         for (MHApiSource source : MHApiSource.values()) {
-            RadioButton item = (RadioButton) inflater.inflate(R.layout.item_source_bar, parent ,false);
-            item.setText(source.name().substring(0,2));
+            RadioButton item = (RadioButton) inflater.inflate(R.layout.item_source_bar, parent, false);
+            item.setText(source.name().substring(0, 2));
             item.setTag(source);
             item.setId(View.generateViewId());
             parent.addView(item);
-            if(source == currentSource) {
+            if (source == currentSource) {
                 item.setChecked(true);
             }
             item.setOnClickListener(v -> {
-                switchSource((MHApiSource)v.getTag());
+                switchSource((MHApiSource) v.getTag());
                 mHelper.refresh();
+            });
+
+            item.setOnLongClickListener(v -> {
+                MHApiSource target = (MHApiSource) v.getTag();
+                new AlertDialog.Builder(getContext2())
+                        .setTitle(getContext2().getResources().getString(R.string.import_collection, target.name(), currentSource.name()))
+                        .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                            Intent intent = new Intent(getActivity2(), ImportService.class);
+                            intent.setAction(ImportService.Companion.getACTION_START());
+                            intent.putExtra(ImportService.Companion.getKEY_TARGET(), (Parcelable) target);
+                            intent.putExtra(ImportService.Companion.getKEY_SOURCE(), (Parcelable) currentSource);
+                            intent.putExtra(ImportService.Companion.getKEY_LOCAL(), mUrlBuilder.getFavCat() == FavListUrlBuilder.FAV_CAT_LOCAL);
+                            getContext2().startService(intent);
+                        }).create().show();
+                return true;
             });
         }
     }

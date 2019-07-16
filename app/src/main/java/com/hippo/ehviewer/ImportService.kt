@@ -34,7 +34,7 @@ class ImportService : Service() {
         override fun dispose() {}
 
         override fun isDisposed(): Boolean {
-            return false
+            return true
         }
     }
     private var importHandle:Disposable = object :Disposable{
@@ -107,7 +107,6 @@ class ImportService : Service() {
     }
 
     private fun switch(target: MHApiSource) {
-
         MHApi.INSTANCE.select(target)
         if (result.isEmpty()) {
             return
