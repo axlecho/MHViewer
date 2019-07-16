@@ -289,11 +289,11 @@ public final class SpiderQueen implements Runnable {
                                                 @NonNull GalleryInfo galleryInfo, @Mode int mode) {
         OSUtils.checkMainLoop();
 
-        SpiderQueen queen = sQueenMap.get(galleryInfo.getId());
+        SpiderQueen queen = sQueenMap.get(galleryInfo.getCid());
         if (queen == null) {
             EhApplication application = (EhApplication) context.getApplicationContext();
             queen = new SpiderQueen(application, galleryInfo);
-            sQueenMap.put(galleryInfo.getId(), queen);
+            sQueenMap.put(galleryInfo.getCid(), queen);
             // Set mode
             queen.setMode(mode);
             queen.start();
@@ -314,7 +314,7 @@ public final class SpiderQueen implements Runnable {
         if (queen.mReadReference == 0 && queen.mDownloadReference == 0) {
             // Stop and remove if there is no reference
             queen.stop();
-            sQueenMap.remove(queen.mGalleryInfo.getId());
+            sQueenMap.remove(queen.mGalleryInfo.getCid());
         }
     }
 
@@ -698,19 +698,19 @@ public final class SpiderQueen implements Runnable {
         if (downloadDir != null) {
             UniFile file = downloadDir.findFile(SPIDER_INFO_FILENAME);
             spiderInfo = SpiderInfo.read(file);
-            if (spiderInfo != null && spiderInfo.gid.equals(mGalleryInfo.getId()) &&
+            if (spiderInfo != null && spiderInfo.gid.equals(mGalleryInfo.getCid()) &&
                     spiderInfo.token.equals(mGalleryInfo.token)) {
                 return spiderInfo;
             }
         }
 
         // Read from cache
-        InputStreamPipe pipe = mSpiderInfoCache.getInputStreamPipe(mGalleryInfo.getId());
+        InputStreamPipe pipe = mSpiderInfoCache.getInputStreamPipe(mGalleryInfo.getCid());
         if (null != pipe) {
             try {
                 pipe.obtain();
                 spiderInfo = SpiderInfo.read(pipe.open());
-                if (spiderInfo != null && spiderInfo.gid.equals(mGalleryInfo.getId()) &&
+                if (spiderInfo != null && spiderInfo.gid.equals(mGalleryInfo.getCid()) &&
                         spiderInfo.token.equals(mGalleryInfo.token)) {
                     return spiderInfo;
                 }
@@ -732,7 +732,7 @@ public final class SpiderQueen implements Runnable {
 
         try {
             SpiderInfo spiderInfo = new SpiderInfo();
-            spiderInfo.gid = mGalleryInfo.getId();
+            spiderInfo.gid = mGalleryInfo.getCid();
             spiderInfo.token = mGalleryInfo.token;
 
             data = MHApi.Companion.getINSTANCE().data(mGalleryInfo.gid, mGalleryInfo.cid).blockingFirst();
@@ -764,7 +764,7 @@ public final class SpiderQueen implements Runnable {
         }
 
         // Read from cache
-        OutputStreamPipe pipe = mSpiderInfoCache.getOutputStreamPipe(mGalleryInfo.getId());
+        OutputStreamPipe pipe = mSpiderInfoCache.getOutputStreamPipe(mGalleryInfo.getCid());
         try {
             pipe.obtain();
             spiderInfo.write(pipe.open());
@@ -921,7 +921,7 @@ public final class SpiderQueen implements Runnable {
         private final String mGid;
 
         public SpiderWorker() {
-            mGid = mGalleryInfo.getId();
+            mGid = mGalleryInfo.getCid();
         }
 
         // false for stop

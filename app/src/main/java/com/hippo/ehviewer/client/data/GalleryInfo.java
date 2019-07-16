@@ -23,6 +23,7 @@ import androidx.annotation.Nullable;
 
 import com.axlecho.api.MHApiSource;
 import com.axlecho.api.MHComicInfo;
+import com.hippo.ehviewer.dao.HistoryInfo;
 import com.hippo.ehviewer.dao.LocalFavoriteInfo;
 
 public class GalleryInfo implements Parcelable {
@@ -50,9 +51,12 @@ public class GalleryInfo implements Parcelable {
     public MHApiSource source;
 
     public String getId() {
-        return gid + "-" + cid + "@" + source.name();
+        return gid + "@" + source.name();
     }
 
+    public String getCid() {
+        return gid + "-" + cid + "@" + source.name();
+    }
     /**
      * language from title
      */
@@ -109,6 +113,31 @@ public class GalleryInfo implements Parcelable {
     }
 
     public GalleryInfo(LocalFavoriteInfo info) {
+        this.source = MHApiSource.valueOf(info.getId().split("@")[1]);
+        this.title = info.title;
+        this.rating = info.rating;
+        this.category = info.category;
+        this.uploader = info.uploader;
+        this.titleJpn = info.titleJpn;
+        this.rated = info.rated;
+        this.posted = info.posted;
+        this.pages = info.pages;
+        this.thumb = info.thumb;
+        this.cid = info.cid;
+        this.gid = info.gid;
+        this.favoriteName = info.favoriteName;
+        this.favoriteSlot = info.favoriteSlot;
+        this.simpleLanguage = info.simpleLanguage;
+        this.simpleTags = info.simpleTags;
+        this.spanGroupIndex = info.spanGroupIndex;
+        this.spanIndex = info.spanIndex;
+        this.spanSize = info.spanSize;
+        this.thumbHeight = info.thumbHeight;
+        this.thumbWidth = info.thumbWidth;
+        this.token = info.token;
+    }
+
+    public GalleryInfo(HistoryInfo info) {
         this.source = MHApiSource.valueOf(info.getId().split("@")[1]);
         this.title = info.title;
         this.rating = info.rating;

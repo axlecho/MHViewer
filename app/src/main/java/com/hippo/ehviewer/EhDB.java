@@ -608,10 +608,11 @@ public class EhDB {
 
     public static synchronized void putHistoryInfo(GalleryInfo galleryInfo) {
         HistoryDao dao = sDaoSession.getHistoryDao();
-        HistoryInfo info = dao.load(galleryInfo.gid);
+        HistoryInfo info = dao.load(galleryInfo.getId());
         if (null != info) {
             // Update time
             info.time = System.currentTimeMillis();
+            info.setId(galleryInfo.getId());
             dao.update(info);
         } else {
             // New history

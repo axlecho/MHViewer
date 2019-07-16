@@ -32,7 +32,7 @@ public class EhDaoGenerator {
     private static final String OUT_DIR = "../app/src/main/java-gen";
     private static final String DELETE_DIR = "../app/src/main/java-gen/com/hippo/ehviewer/dao";
 
-    private static final int VERSION = 4;
+    private static final int VERSION = 5;
 
     private static final String DOWNLOAD_INFO_PATH = "../app/src/main/java-gen/com/hippo/ehviewer/dao/DownloadInfo.java";
     private static final String HISTORY_INFO_PATH = "../app/src/main/java-gen/com/hippo/ehviewer/dao/HistoryInfo.java";
@@ -123,7 +123,7 @@ public class EhDaoGenerator {
         entity.setClassNameDao("HistoryDao");
         entity.setSuperclass("GalleryInfo");
         // GalleryInfo data
-        entity.addStringProperty("gid").primaryKey().notNull();
+        entity.addStringProperty("gid").notNull();
         entity.addStringProperty("token");
         entity.addStringProperty("title");
         entity.addStringProperty("titleJpn");
@@ -136,6 +136,7 @@ public class EhDaoGenerator {
         // HistoryInfo data
         entity.addIntProperty("mode").notNull();
         entity.addLongProperty("time").notNull();
+        entity.addStringProperty("id").primaryKey().notNull();
     }
 
     private static void addQuickSearch(Schema schema) {
@@ -336,9 +337,11 @@ public class EhDaoGenerator {
                 "\t\t\treturn new HistoryInfo[size];\n" +
                 "\t\t}\n" +
                 "\t};");
+        javaClass.addImport("com.axlecho.api.MHApiSource");
         javaClass.addImport("android.os.Parcel");
         // Add from GalleryInfo constructor
         javaClass.addMethod("\tpublic HistoryInfo(GalleryInfo galleryInfo) {\n" +
+                "\t\tthis.source = MHApiSource.valueOf(galleryInfo.getId().split(\"@\")[1]);\n" +
                 "\t\tthis.gid = galleryInfo.gid;\n" +
                 "\t\tthis.token = galleryInfo.token;\n" +
                 "\t\tthis.title = galleryInfo.title;\n" +
@@ -350,6 +353,7 @@ public class EhDaoGenerator {
                 "\t\tthis.rating = galleryInfo.rating;\n" +
                 "\t\tthis.simpleTags = galleryInfo.simpleTags;\n" +
                 "\t\tthis.simpleLanguage = galleryInfo.simpleLanguage;\n" +
+                "\t\tthis.id = galleryInfo.getId();\n" +
                 "\t}").setConstructor(true);
         javaClass.addImport("com.hippo.ehviewer.client.data.GalleryInfo");
 
