@@ -42,6 +42,7 @@ public class AdvancedFragment extends PreferenceFragment
     private static final String KEY_APP_LANGUAGE = "app_language";
     private static final String KEY_EXPORT_DATA = "export_data";
     private static final String KEY_IMPORT_DATA = "import_data";
+    private static final String KEY_IMPORT_RECORD = "import_record";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -53,12 +54,13 @@ public class AdvancedFragment extends PreferenceFragment
         Preference appLanguage = findPreference(KEY_APP_LANGUAGE);
         Preference exportData = findPreference(KEY_EXPORT_DATA);
         Preference importData = findPreference(KEY_IMPORT_DATA);
+        Preference importRecord = findPreference(KEY_IMPORT_RECORD);
 
         dumpLogcat.setOnPreferenceClickListener(this);
         clearMemoryCache.setOnPreferenceClickListener(this);
         exportData.setOnPreferenceClickListener(this);
         importData.setOnPreferenceClickListener(this);
-
+        importRecord.setOnPreferenceClickListener(this);
         appLanguage.setOnPreferenceChangeListener(this);
     }
 
@@ -104,8 +106,36 @@ public class AdvancedFragment extends PreferenceFragment
             importData(getActivity());
             getActivity().setResult(Activity.RESULT_OK);
             return true;
+        } else if (KEY_IMPORT_RECORD.equals(key)) {
+            importRecord(getActivity());
+            getActivity().setResult(Activity.RESULT_OK);
         }
         return false;
+    }
+
+    private static void importRecord(final Context context) {
+        final File dir = AppConfig.getExternalDataDir();
+        if (null == dir) {
+            Toast.makeText(context, R.string.cant_get_data_dir, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        final String[] files = dir.list();
+        if (null == files || files.length <= 0) {
+            Toast.makeText(context, R.string.cant_find_any_data, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        Arrays.sort(files);
+        new AlertDialog.Builder(context).setItems(files, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                File file = new File(dir, files[which]);
+                String error = EhDB.importDBRecordAndFavorite(context, file);
+                if (null == error) {
+                    error = context.getString(R.string.settings_advanced_import_data_successfully);
+                }
+                Toast.makeText(context, error, Toast.LENGTH_SHORT).show();
+            }
+        }).show();
     }
 
     private static void importData(final Context context) {
