@@ -133,7 +133,7 @@ import java.util.List;
 
 public class GalleryDetailScene extends BaseScene implements View.OnClickListener,
         com.hippo.ehviewer.download.DownloadManager.DownloadInfoListener,
-        View.OnLongClickListener{
+        View.OnLongClickListener {
 
     public final static String KEY_ACTION = "action";
     public static final String ACTION_GALLERY_INFO = "action_gallery_info";
@@ -354,13 +354,13 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
 
     @Nullable
     private String getGalleryDetailUrl() {
-        String gid= "";
+        String gid = "";
         if (mGalleryDetail != null) {
             gid = mGalleryDetail.gid;
         } else if (mGalleryInfo != null) {
             gid = mGalleryInfo.gid;
         }
-        return MHApi.Companion.getINSTANCE().pageUrl( gid);
+        return MHApi.Companion.getINSTANCE().pageUrl(gid);
     }
 
     // -1 for error
@@ -1252,19 +1252,15 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
                 }
             }
         } else if (mRead == v) {
-            GalleryInfo galleryInfo = null;
-            if (mGalleryInfo != null) {
-                galleryInfo = mGalleryInfo;
-            } else if (mGalleryDetail != null) {
-                galleryInfo = mGalleryDetail;
+            if (mGalleryDetail == null) {
+                return;
             }
-            if (galleryInfo != null) {
-                galleryInfo.cid = mGalleryDetail.chapters[0].getChapterAt(0);
-                Intent intent = new Intent(activity, GalleryActivity.class);
-                intent.setAction(GalleryActivity.ACTION_EH);
-                intent.putExtra(GalleryActivity.KEY_GALLERY_INFO, galleryInfo);
-                startActivity(intent);
-            }
+
+            mGalleryDetail.cid = mGalleryDetail.chapters[0].getChapterAt(0);
+            Intent intent = new Intent(activity, GalleryActivity.class);
+            intent.setAction(GalleryActivity.ACTION_EH);
+            intent.putExtra(GalleryActivity.KEY_GALLERY_INFO, mGalleryDetail);
+            startActivity(intent);
         } else if (mInfo == v) {
             Bundle args = new Bundle();
             args.putParcelable(GalleryInfoScene.KEY_GALLERY_DETAIL, mGalleryDetail);
@@ -1316,7 +1312,7 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
             }
             Bundle args = new Bundle();
             args.putString(GalleryCommentsScene.KEY_GID, mGalleryDetail.gid);
-            args.putParcelableArray(GalleryCommentsScene.KEY_COMMENTS,mGalleryDetail.comments);
+            args.putParcelableArray(GalleryCommentsScene.KEY_COMMENTS, mGalleryDetail.comments);
             startScene(new Announcer(GalleryCommentsScene.class)
                     .setArgs(args)
                     .setRequestCode(this, REQUEST_CODE_COMMENT_GALLERY));
@@ -1408,7 +1404,7 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
     private void updateDownloadState() {
         Context context = getContext2();
         String gid = getGid();
-        if (null == context ||gid.equals("-1")) {
+        if (null == context || gid.equals("-1")) {
             return;
         }
 
