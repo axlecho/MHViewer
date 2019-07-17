@@ -9,18 +9,16 @@ import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.axlecho.api.MHApi
-import com.axlecho.api.MHApiSource
 import com.axlecho.api.MHComicDetail
 import com.axlecho.api.MHComicInfo
 import com.hippo.ehviewer.client.data.GalleryDetail
 import com.hippo.ehviewer.client.data.GalleryInfo
 import com.hippo.ehviewer.dao.ReadingRecord
-import io.reactivex.BackpressureStrategy
-import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import java.util.concurrent.TimeUnit
 
 class CheckUpdateService : Service() {
 
@@ -85,20 +83,22 @@ class CheckUpdateService : Service() {
         var current = 1
 
         val favorites = EhDB.getAllLocalFavorites()
-        handle = Flowable.just(favorites)
-                .flatMapIterable { list -> list }
-                // .parallel(4)
-                .concatMap {
-                    MHApi.INSTANCE.select(it.source).info(it.gid)
-                            .onErrorResumeNext(Observable.just(buildErrorItem(it)))
-                            .toFlowable(BackpressureStrategy.BUFFER)
-                            .subscribeOn(Schedulers.io())
+        handle = Observable.fromIterable(favorites)
+                .concatMap { item ->
+                    Observable.interval((3000..5000).random().toLong(), TimeUnit.MILLISECONDS)
+                            .take(1)
+                            .map { item }
+                            .flatMap {
+                                MHApi.INSTANCE.select(it.source).info(it.gid)
+                                        .onErrorResumeNext(Observable.just(buildErrorItem(it)))
+                                        .subscribeOn(Schedulers.io())
+                            }
                 }
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
-                    Log.v(TAG,"${it.source.name}@${it.info.title}    ${it.updateTime}")
-                    if(it.updateTime == -1L) {
+                    Log.v(TAG, "${it.source.name}@${it.info.title}    ${it.updateTime}")
+                    if (it.updateTime == -1L) {
                         sendNotification(it.info.posted, "${it.info.title} failed", favorites.size, current)
                     } else {
                         updateDatabase(it)
@@ -130,9 +130,9 @@ class CheckUpdateService : Service() {
         mListener?.update(total == current, current, total)
     }
 
-    private fun buildErrorItem(info:GalleryInfo) :MHComicDetail{
-        return MHComicDetail(MHComicInfo(info.gid,info.title,info.titleJpn,"",0,"","",0.0f,false,info.source),
-                "",0,0,false,
-                0, arrayListOf(), arrayListOf(),info.source,-1)
+    private fun buildErrorItem(info: GalleryInfo): MHComicDetail {
+        return MHComicDetail(MHComicInfo(info.gid, info.title, info.titleJpn, "", 0, "", "", 0.0f, false, info.source),
+                "", 0, 0, false,
+                0, arrayListOf(), arrayListOf(), info.source, -1)
     }
 }

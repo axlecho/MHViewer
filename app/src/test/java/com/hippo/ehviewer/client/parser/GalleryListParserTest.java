@@ -67,44 +67,4 @@ public class GalleryListParserTest {
   public GalleryListParserTest(String file) {
     this.file = file;
   }
-
-  @Test
-  public void testParse() throws Exception {
-    InputStream resource = GalleryPageApiParserTest.class.getResourceAsStream(file);
-    BufferedSource source = Okio.buffer(Okio.source(resource));
-    String body = source.readUtf8();
-
-    GalleryListParser.Result result = GalleryListParser.parse(body);
-
-    assertEquals(25, result.galleryInfoList.size());
-
-    result.galleryInfoList.forEach(gi -> {
-      assertNotEquals(0, gi.gid);
-      assertNotEquals(0, gi.token);
-      assertNotNull(gi.title);
-
-      //assertNotNull(gi.simpleTags);
-
-      assertNotEquals(0, gi.category);
-      assertNotEquals(EhUtils.UNKNOWN, gi.category);
-      assertNotEquals(0, gi.thumbWidth);
-      assertNotEquals(0, gi.thumbHeight);
-      assertNotNull(gi.thumb);
-      assertNotNull(gi.posted);
-      assertNotEquals(0.0, gi.rating);
-      if (E_MINIMAL.equals(file) ||
-          E_MINIMAL_PLUS.equals(file) ||
-          E_COMPAT.equals(file) ||
-          E_EXTENDED.equals(file) ||
-          EX_MINIMAL.equals(file) ||
-          EX_MINIMAL_PLUS.equals(file) ||
-          EX_COMPAT.equals(file) ||
-          EX_EXTENDED.equals(file)) {
-        assertNotNull(gi.uploader);
-      } else {
-        assertNull(gi.uploader);
-      }
-      assertNotEquals(0, gi.pages);
-    });
-  }
 }

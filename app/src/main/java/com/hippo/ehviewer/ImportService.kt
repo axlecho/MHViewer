@@ -15,6 +15,7 @@ import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import java.util.concurrent.TimeUnit
 
 class ImportService : Service() {
 
@@ -30,14 +31,14 @@ class ImportService : Service() {
     private var result = arrayListOf<MHComicInfo>()
     private var success = 0
     private var failed = 0
-    private var collectionHandle:Disposable = object:Disposable{
+    private var collectionHandle: Disposable = object : Disposable {
         override fun dispose() {}
 
         override fun isDisposed(): Boolean {
             return true
         }
     }
-    private var importHandle:Disposable = object :Disposable{
+    private var importHandle: Disposable = object : Disposable {
         override fun dispose() {
 
         }
@@ -66,7 +67,7 @@ class ImportService : Service() {
             return
         }
 
-        if(!collectionHandle.isDisposed || !importHandle.isDisposed) {
+        if (!collectionHandle.isDisposed || !importHandle.isDisposed) {
             return
         }
 
@@ -74,10 +75,10 @@ class ImportService : Service() {
         if (ACTION_START == action) {
             val source = intent.getParcelableExtra<MHApiSource>(KEY_SOURCE)
             val target = intent.getParcelableExtra<MHApiSource>(KEY_TARGET)
-            val isLocal = intent.getBooleanExtra(KEY_LOCAL,false)
+            val isLocal = intent.getBooleanExtra(KEY_LOCAL, false)
             result.clear()
-            if(isLocal) {
-                startImportLocal(source,target)
+            if (isLocal) {
+                startImportLocal(source, target)
             } else {
                 startImport(source, target)
             }
@@ -93,15 +94,15 @@ class ImportService : Service() {
                 .doOnError { t -> Log.d(TAG, t.message) }
                 .doOnComplete { switch(target) }
                 .subscribe {
-                    sendNotification("===> " + it.currentPage, "Getting collections",it.pages,it.currentPage)
+                    sendNotification("===> " + it.currentPage, "Getting collections", it.pages, it.currentPage)
                     result.addAll(it.datas)
                 }
     }
 
-    private fun startImportLocal(source:MHApiSource,target:MHApiSource) {
+    private fun startImportLocal(source: MHApiSource, target: MHApiSource) {
         val ret = EhDB.getLocalFavorites(source.name)
-        for(r in ret) {
-            result.add(MHComicInfo(r.gid,r.title,"","",-1,"","",0.0f,false,source))
+        for (r in ret) {
+            result.add(MHComicInfo(r.gid, r.title, "", "", -1, "", "", 0.0f, false, source))
         }
         switch(target)
     }
@@ -115,17 +116,20 @@ class ImportService : Service() {
         var current = 0
         val error = MHComicInfo("-1", "", "", "", -1, "", "", 0.0f, false, MHApiSource.Hanhan);
 
-        importHandle = Observable.just(result)
-                .flatMapIterable { ids -> ids }
-                .flatMap {
-                    item ->
-                        MHApi.INSTANCE.switchSource(item, target)
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .doOnError {
-                                sendNotification("failed",item.title ,result.size,current)
+        importHandle = Observable.fromIterable(result)
+                .concatMap { item ->
+                    Observable.interval((3000..5000).random().toLong(), TimeUnit.MILLISECONDS)
+                            .take(1)
+                            .map { item }
+                            .flatMap {
+                                MHApi.INSTANCE.switchSource(it, target)
+                                        .subscribeOn(Schedulers.io())
+                                        .observeOn(AndroidSchedulers.mainThread())
+                                        .doOnError {
+                                            sendNotification("failed", item.title, result.size, current)
+                                        }
+                                        .onErrorResumeNext(Observable.just(error))
                             }
-                            .onErrorResumeNext(Observable.just(error))
                 }
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -134,13 +138,13 @@ class ImportService : Service() {
                 .subscribe {
                     if (it.gid != "-1") {
                         save(it)
-                        success ++
-                        sendNotification("success",it.title ,result.size,current)
+                        success++
+                        sendNotification("success", it.title, result.size, current)
                     } else {
-                        failed ++
+                        failed++
 
                     }
-                    current ++
+                    current++
                 }
     }
 
@@ -148,7 +152,7 @@ class ImportService : Service() {
         EhDB.putLocalFavorites(GalleryInfo(info))
     }
 
-    private fun sendNotification(message: String, title: String,total:Int = 100,current:Int = 100) {
+    private fun sendNotification(message: String, title: String, total: Int = 100, current: Int = 100) {
         val builder = NotificationCompat.Builder(this)
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentText(message)

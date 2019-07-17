@@ -21,6 +21,8 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Assert;
 import org.junit.Test;
 
+import io.reactivex.Observable;
+
 public class NaturalComparatorTest {
 
   @Test
