@@ -1,31 +1,29 @@
-[![Telegram](https://img.shields.io/badge/chat-Telegram-blue.svg)](https://t.me/ehviewer)
-
-# EhViewer
+# MHViewer
 
 ![Icon](art/launcher_icon-web.png)
 
-这是一个 E-Hentai Android 平台的浏览器。
+这是一个Android 平台的第三方漫画浏览器。
 
-An E-Hentai Application for Android.
+A comic browser for Android.
 
 
 # Screenshot
 
-![screenshot-01](art/screenshot-01.png)
+![screenshot-01](art/main.png)
 
 
 # Build
 
 Windows
 
-    > git clone https://github.com/seven332/EhViewer
-    > cd EhViewer
+    > git clone https://github.com/axlecho/MHViewer.git
+    > cd MHViewer
     > gradlew app:assembleDebug
 
 Linux
 
-    $ git clone https://github.com/seven332/EhViewer
-    $ cd EhViewer
+    $ git clone https://github.com/axlecho/MHViewer.git
+    $ cd MHViewer
     $ ./gradlew app:assembleDebug
 
 生成的 apk 文件在 app\build\outputs\apk 目录下
@@ -39,6 +37,7 @@ The apk is in app\build\outputs\apk
 
 Here is the libraries
 
+- [EhViewer](https://github.com/seven332/EhViewer)
 - [AOSP](http://source.android.com/)
 - [android-advancedrecyclerview](https://github.com/h6ah4i/android-advancedrecyclerview)
 - [Apache Commons Lang](https://commons.apache.org/proper/commons-lang/)
@@ -57,7 +56,7 @@ Here is the libraries
 
 # License
 
-    Copyright (C) 2014-2019 Hippo Seven
+    Copyright (C) 2014-2019 Axlecho
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -70,5 +69,3 @@ Here is the libraries
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
-
-ic_launcher 图标为 Hippo Seven 所有，所有权利保留
