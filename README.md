@@ -6,6 +6,7 @@
 
 A comic browser for Android.
 
+使用说明：[350722@bangumi](http://bangumi.tv/group/topic/350722)
 
 # Screenshot
 
