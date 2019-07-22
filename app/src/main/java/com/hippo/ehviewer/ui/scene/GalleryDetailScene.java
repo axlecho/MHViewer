@@ -1256,6 +1256,14 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
                 return;
             }
 
+            if(mGalleryDetail.chapters == null ||
+                    mGalleryDetail.chapters.length == 0 ||
+                    mGalleryDetail.chapters[0].size() == 0
+            ) {
+                showTip(R.string.no_chapter,BaseScene.LENGTH_SHORT);
+                return;
+            }
+
             mGalleryDetail.cid = mGalleryDetail.chapters[0].getChapterAt(0);
             Intent intent = new Intent(activity, GalleryActivity.class);
             intent.setAction(GalleryActivity.ACTION_EH);

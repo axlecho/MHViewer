@@ -220,6 +220,7 @@
     <string name="rate_successfully">評分成功</string>
     <string name="rate_failed">評分失敗</string>
     <string name="no_torrents">沒有種子</string>
+    <string name="no_chapter">沒有章节</string>
     <string name="torrents">種子</string>
     <string name="favorited">已收藏</string>
     <string name="not_favorited">未收藏</string>
