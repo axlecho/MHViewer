@@ -229,7 +229,7 @@ public class EhApplication extends RecordingApplication {
 
     private void update() {
         int version = Settings.getVersionCode();
-        if (version < 52) {
+        if (version < 4) {
             Settings.putGuideGallery(true);
         }
     }
