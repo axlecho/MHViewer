@@ -202,7 +202,7 @@ public final class SignInScene extends SolidScene implements EditText.OnEditorAc
         Settings.putNeedSignIn(false);
         MainActivity activity = getActivity2();
         if (null != activity) {
-            startSceneForCheckStep(CHECK_STEP_SIGN_IN, getArguments());
+            startSceneForCheckStep(CHECK_STEP_SELECT_SITE, getArguments());
         }
         finish();
     }
