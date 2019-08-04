@@ -186,6 +186,7 @@
     <string name="duplicate_name">已存在相同名称</string>
 
     <string name="go_to_hint">第 %1$d 页，共 %2$d 页</string>
+    <string name="category_tip">分类</string>
 
     <!-- search_min_rating -->
     <string name="star_2">2 星</string>

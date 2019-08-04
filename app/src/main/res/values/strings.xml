@@ -230,6 +230,7 @@
     <string name="duplicate_name">This name is already in use.</string>
 
     <string name="go_to_hint">Page %1$d, total %2$d pages</string>
+    <string name="category_tip">Category</string>
 
     <!-- search_min_rating -->
     <string name="star_2">2 stars</string>

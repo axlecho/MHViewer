@@ -185,6 +185,7 @@
     <string name="duplicate_name">已經由重複的名稱了</string>
 
     <string name="go_to_hint">第 %1$d 頁，共 %2$d 頁</string>
+    <string name="category_tip">分類</string>
 
     <!-- search_min_rating -->
     <string name="star_2">2 星</string>

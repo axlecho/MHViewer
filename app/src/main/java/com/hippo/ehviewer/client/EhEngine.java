@@ -233,12 +233,11 @@ public class EhEngine {
         }
     }
 
-    public static GalleryListParser.Result getGalleryList(@Nullable EhClient.Task task, OkHttpClient okHttpClient,
-
-                                                          String type,int page) throws Throwable {
+    public static GalleryListParser.Result getGalleryList(@Nullable EhClient.Task task, OkHttpClient okHttpClient, String type,int page,
+                                                          String time,String category) throws Throwable {
         MHMutiItemResult<MHComicInfo> comics;
         if(type.equals("top")) {
-            comics = MHApi.Companion.getINSTANCE().top(type, page).blockingFirst();
+            comics = MHApi.Companion.getINSTANCE().category().time(time).category(category).top(page).blockingFirst();
         } else {
             comics = MHApi.Companion.getINSTANCE().recent(page).blockingFirst();
         }

@@ -113,6 +113,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 public final class GalleryListScene extends BaseScene
         implements EasyRecyclerView.OnItemClickListener, EasyRecyclerView.OnItemLongClickListener,
@@ -642,7 +643,7 @@ public final class GalleryListScene extends BaseScene
         refreshLayout.setHeaderTranslationY(paddingTopSB);
 
         mLeftDrawable = new DrawerArrowDrawable(context, AttrResources.getAttrColor(context, R.attr.drawableColorPrimary));
-        mRightDrawable = new AddDeleteDrawable(context, AttrResources.getAttrColor(context, R.attr.drawableColorPrimary),null);
+        mRightDrawable = new AddDeleteDrawable(context, AttrResources.getAttrColor(context, R.attr.drawableColorPrimary), null);
         mSearchBar.setLeftDrawable(mLeftDrawable);
         mSearchBar.setRightDrawable(mRightDrawable);
         mSearchBar.setHelper(this);
@@ -654,7 +655,7 @@ public final class GalleryListScene extends BaseScene
         mSearchLayout.setPadding(mSearchLayout.getPaddingLeft(), mSearchLayout.getPaddingTop() + paddingTopSB,
                 mSearchLayout.getPaddingRight(), mSearchLayout.getPaddingBottom() + paddingBottomFab);
 
-        mSourceBar = (RadioGroup) ViewUtils.$$(mainLayout,R.id.source_bar);
+        mSourceBar = (RadioGroup) ViewUtils.$$(mainLayout, R.id.source_bar);
         bindSource(mSourceBar);
         mFabLayout.setAutoCancel(true);
         mFabLayout.setExpanded(false);
@@ -663,7 +664,7 @@ public final class GalleryListScene extends BaseScene
         mFabLayout.setOnExpandListener(this);
         addAboveSnackView(mFabLayout);
 
-        mActionFabDrawable = new AddDeleteDrawable(context, resources.getColor(R.color.primary_drawable_dark),currentSource);
+        mActionFabDrawable = new AddDeleteDrawable(context, resources.getColor(R.color.primary_drawable_dark), currentSource);
         mFabLayout.getPrimaryFab().setImageDrawable(mActionFabDrawable);
 
         mSearchFab.setOnClickListener(this);
@@ -839,67 +840,48 @@ public final class GalleryListScene extends BaseScene
         });
     }
 
+    private String topTime = "";
+    private String topCategory = "";
+
     @Override
     public View onCreateDrawerView(LayoutInflater inflater, @Nullable ViewGroup container,
                                    @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.drawer_list, container, false);
-        Toolbar toolbar = (Toolbar) ViewUtils.$$(view, R.id.toolbar);
-        final TextView tip = (TextView) ViewUtils.$$(view, R.id.tip);
-        final ListView listView = (ListView) ViewUtils.$$(view, R.id.list_view);
-
         Context context = getContext2();
         AssertUtils.assertNotNull(context);
 
-        final List<QuickSearch> list = EhDB.getAllQuickSearch();
-        final ArrayAdapter<QuickSearch> adapter = new ArrayAdapter<>(context, R.layout.item_simple_list, list);
-        listView.setAdapter(adapter);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (null == mHelper || null == mUrlBuilder) {
-                    return;
-                }
+        View view = inflater.inflate(R.layout.drawer_list, container, false);
+        Toolbar toolbar = (Toolbar) ViewUtils.$$(view, R.id.toolbar);
+        final RadioGroup timeView = (RadioGroup) ViewUtils.$$(view, R.id.draw_top_time);
+        final RadioGroup categoryView = (RadioGroup) ViewUtils.$$(view, R.id.draw_top_category);
+        final Set<String> times = MHApi.Companion.getINSTANCE().category().getTime();
+        final Set<String> categorys = MHApi.Companion.getINSTANCE().category().getCategorys();
 
-                mUrlBuilder.set(list.get(position));
-                mUrlBuilder.setPageIndex(0);
-                onUpdateUrlBuilder();
+
+        for (String time : times) {
+            RadioButton button = new RadioButton(view.getContext());
+            button.setText(time);
+            button.setTag(time);
+            timeView.addView(button);
+            button.setOnClickListener(v -> {
+                topTime = (String)v.getTag();
                 mHelper.refresh();
-                setState(STATE_NORMAL);
-                closeDrawer(Gravity.RIGHT);
-            }
-        });
-
-        tip.setText(R.string.quick_search_tip);
-        toolbar.setTitle(R.string.quick_search);
-        toolbar.inflateMenu(R.menu.drawer_gallery_list);
-        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                int id = item.getItemId();
-                switch (id) {
-                    case R.id.action_add:
-                        if (Settings.getQuickSearchTip()) {
-                            showQuickSearchTipDialog(list, adapter, listView, tip);
-                        } else {
-                            showAddQuickSearchDialog(list, adapter, listView, tip);
-                        }
-                        break;
-                    case R.id.action_settings:
-                        startScene(new Announcer(QuickSearchScene.class));
-                        break;
-                }
-                return true;
-            }
-        });
-
-        if (0 == list.size()) {
-            tip.setVisibility(View.VISIBLE);
-            listView.setVisibility(View.GONE);
-        } else {
-            tip.setVisibility(View.GONE);
-            listView.setVisibility(View.VISIBLE);
+            });
         }
 
+        for (String category : categorys) {
+            RadioButton button = new RadioButton(view.getContext());
+            button.setText(category);
+            button.setTag(category);
+            categoryView.addView(button);
+            button.setOnClickListener(v -> {
+                topCategory = (String) v.getTag();
+                mHelper.refresh();
+            });
+        }
+
+        toolbar.setTitle(R.string.category_tip);
+        toolbar.inflateMenu(R.menu.drawer_gallery_list);
+        toolbar.setOnMenuItemClickListener(item -> true);
         return view;
     }
 
@@ -999,7 +981,7 @@ public final class GalleryListScene extends BaseScene
             return;
         }
 
-        if(fab.getTag() instanceof MHApiSource) {
+        if (fab.getTag() instanceof MHApiSource) {
             MHApiSource source = (MHApiSource) fab.getTag();
             switchSource(source);
             mHelper.refresh();
@@ -1010,7 +992,7 @@ public final class GalleryListScene extends BaseScene
 
     @Override
     @Implemented(FabLayout.OnClickFabListener.class)
-    public void onLongClickSecondaryFab(FabLayout view,FloatingActionButton fab,int position) {
+    public void onLongClickSecondaryFab(FabLayout view, FloatingActionButton fab, int position) {
         // showTip("test",BaseScene.LENGTH_LONG );
     }
 
@@ -1027,7 +1009,7 @@ public final class GalleryListScene extends BaseScene
         } else {
             setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.LEFT);
             setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.RIGHT);
-            mActionFabDrawable.setAdd(ANIMATE_TIME,currentSource);
+            mActionFabDrawable.setAdd(ANIMATE_TIME, currentSource);
         }
     }
 
@@ -1386,13 +1368,13 @@ public final class GalleryListScene extends BaseScene
             case SearchBar.STATE_SEARCH:
                 if (newState == SearchBar.STATE_NORMAL) {
                     mLeftDrawable.setMenu(animation ? ANIMATE_TIME : 0);
-                    mRightDrawable.setAdd(animation ? ANIMATE_TIME : 0,null);
+                    mRightDrawable.setAdd(animation ? ANIMATE_TIME : 0, null);
                 }
                 break;
             case SearchBar.STATE_SEARCH_LIST:
                 if (newState == STATE_NORMAL) {
                     mLeftDrawable.setMenu(animation ? ANIMATE_TIME : 0);
-                    mRightDrawable.setAdd(animation ? ANIMATE_TIME : 0,null);
+                    mRightDrawable.setAdd(animation ? ANIMATE_TIME : 0, null);
                 }
                 break;
         }
@@ -1502,7 +1484,7 @@ public final class GalleryListScene extends BaseScene
                 request.setMethod(EhClient.METHOD_SEARCH);
                 request.setCallback(new GetGalleryListListener(getContext(),
                         activity.getStageId(), getTag(), taskId));
-                request.setArgs(url,mUrlBuilder.getPageIndex());
+                request.setArgs(url, mUrlBuilder.getPageIndex());
                 mClient.execute(request);
             } else {
                 String url = mUrlBuilder.build();
@@ -1510,7 +1492,7 @@ public final class GalleryListScene extends BaseScene
                 request.setMethod(EhClient.METHOD_GET_GALLERY_LIST);
                 request.setCallback(new GetGalleryListListener(getContext(),
                         activity.getStageId(), getTag(), taskId));
-                request.setArgs(url,mUrlBuilder.getPageIndex());
+                request.setArgs(url, mUrlBuilder.getPageIndex(), topTime, topCategory);
                 mClient.execute(request);
             }
         }
@@ -1681,16 +1663,16 @@ public final class GalleryListScene extends BaseScene
         }
 
         for (MHApiSource source : MHApiSource.values()) {
-            RadioButton item = (RadioButton) inflater.inflate(R.layout.item_source_bar, parent ,false);
-            item.setText(source.name().substring(0,2));
+            RadioButton item = (RadioButton) inflater.inflate(R.layout.item_source_bar, parent, false);
+            item.setText(source.name().substring(0, 2));
             item.setTag(source);
             item.setId(View.generateViewId());
             parent.addView(item);
-            if(source == currentSource) {
+            if (source == currentSource) {
                 item.setChecked(true);
             }
             item.setOnClickListener(v -> {
-                switchSource((MHApiSource)v.getTag());
+                switchSource((MHApiSource) v.getTag());
                 mHelper.refresh();
             });
         }
