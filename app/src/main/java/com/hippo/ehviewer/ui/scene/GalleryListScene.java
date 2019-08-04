@@ -27,7 +27,6 @@ import android.graphics.Point;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.text.InputType;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
@@ -35,11 +34,9 @@ import android.text.style.ImageSpan;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.RadioButton;
@@ -65,7 +62,6 @@ import com.hippo.app.CheckBoxDialogBuilder;
 import com.hippo.app.EditTextDialogBuilder;
 import com.hippo.drawable.AddDeleteDrawable;
 import com.hippo.drawable.DrawerArrowDrawable;
-import com.hippo.drawable.TextDrawable;
 import com.hippo.drawerlayout.DrawerLayout;
 import com.hippo.easyrecyclerview.EasyRecyclerView;
 import com.hippo.easyrecyclerview.FastScroller;
@@ -97,7 +93,6 @@ import com.hippo.refreshlayout.RefreshLayout;
 import com.hippo.ripple.Ripple;
 import com.hippo.scene.Announcer;
 import com.hippo.scene.SceneFragment;
-import com.hippo.util.AppHelper;
 import com.hippo.util.DrawableManager;
 import com.hippo.view.ViewTransition;
 import com.hippo.widget.ContentLayout;
@@ -114,6 +109,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+
+import static com.hippo.ehviewer.client.data.ListUrlBuilder.MODE_WHATS_HOT;
 
 public final class GalleryListScene extends BaseScene
         implements EasyRecyclerView.OnItemClickListener, EasyRecyclerView.OnItemLongClickListener,
@@ -259,13 +256,15 @@ public final class GalleryListScene extends BaseScene
             mUrlBuilder.setMode(ListUrlBuilder.MODE_SUBSCRIPTION);
         } else if (ACTION_WHATS_HOT.equals(action)) {
             mUrlBuilder.reset();
-            mUrlBuilder.setMode(ListUrlBuilder.MODE_WHATS_HOT);
+            mUrlBuilder.setMode(MODE_WHATS_HOT);
         } else if (ACTION_LIST_URL_BUILDER.equals(action)) {
             ListUrlBuilder builder = args.getParcelable(KEY_LIST_URL_BUILDER);
             if (builder != null) {
                 mUrlBuilder.set(builder);
             }
         }
+
+        updateTopCategory();
     }
 
     @Override
@@ -513,7 +512,7 @@ public final class GalleryListScene extends BaseScene
                 urlBuilder.getPageFrom() == -1 &&
                 urlBuilder.getPageTo() == -1) {
             return resources.getString(R.string.subscription);
-        } else if (ListUrlBuilder.MODE_WHATS_HOT == urlBuilder.getMode()) {
+        } else if (MODE_WHATS_HOT == urlBuilder.getMode()) {
             return resources.getString(R.string.whats_hot);
         } else if (!TextUtils.isEmpty(keyword)) {
             return keyword;
@@ -587,7 +586,7 @@ public final class GalleryListScene extends BaseScene
             checkedItemId = R.id.nav_homepage;
         } else if (ListUrlBuilder.MODE_SUBSCRIPTION == builder.getMode()) {
             checkedItemId = R.id.nav_subscription;
-        } else if (ListUrlBuilder.MODE_WHATS_HOT == builder.getMode()) {
+        } else if (MODE_WHATS_HOT == builder.getMode()) {
             checkedItemId = R.id.nav_whats_hot;
         } else {
             checkedItemId = 0;
@@ -840,8 +839,8 @@ public final class GalleryListScene extends BaseScene
         });
     }
 
-    private String topTime = "";
-    private String topCategory = "";
+    private  RadioGroup timeView;
+    private RadioGroup categoryView;
 
     @Override
     public View onCreateDrawerView(LayoutInflater inflater, @Nullable ViewGroup container,
@@ -851,33 +850,10 @@ public final class GalleryListScene extends BaseScene
 
         View view = inflater.inflate(R.layout.drawer_list, container, false);
         Toolbar toolbar = (Toolbar) ViewUtils.$$(view, R.id.toolbar);
-        final RadioGroup timeView = (RadioGroup) ViewUtils.$$(view, R.id.draw_top_time);
-        final RadioGroup categoryView = (RadioGroup) ViewUtils.$$(view, R.id.draw_top_category);
-        final Set<String> times = MHApi.Companion.getINSTANCE().category().getTime();
-        final Set<String> categorys = MHApi.Companion.getINSTANCE().category().getCategorys();
+        this.timeView = (RadioGroup) ViewUtils.$$(view, R.id.draw_top_time);
+        this.categoryView = (RadioGroup) ViewUtils.$$(view, R.id.draw_top_category);
 
-
-        for (String time : times) {
-            RadioButton button = new RadioButton(view.getContext());
-            button.setText(time);
-            button.setTag(time);
-            timeView.addView(button);
-            button.setOnClickListener(v -> {
-                topTime = (String)v.getTag();
-                mHelper.refresh();
-            });
-        }
-
-        for (String category : categorys) {
-            RadioButton button = new RadioButton(view.getContext());
-            button.setText(category);
-            button.setTag(category);
-            categoryView.addView(button);
-            button.setOnClickListener(v -> {
-                topCategory = (String) v.getTag();
-                mHelper.refresh();
-            });
-        }
+        updateTopCategory();
 
         toolbar.setTitle(R.string.category_tip);
         toolbar.inflateMenu(R.menu.drawer_gallery_list);
@@ -885,6 +861,53 @@ public final class GalleryListScene extends BaseScene
         return view;
     }
 
+
+    private void updateTopCategory() {
+        if(timeView == null || categoryView == null) {
+            return ;
+        }
+        timeView.removeAllViews();
+        categoryView.removeAllViews();
+        if( mUrlBuilder == null || mUrlBuilder.getMode() != MODE_WHATS_HOT) {
+            return;
+        }
+
+        final Set<String> times = MHApi.Companion.getINSTANCE().category().getTimes();
+        final Set<String> categorys = MHApi.Companion.getINSTANCE().category().getCategorys();
+
+        final String defaultTime = MHApi.Companion.getINSTANCE().category().loadTime();
+        final String defaultCategory = MHApi.Companion.getINSTANCE().category().loadCategory();
+
+        for (String time : times) {
+            RadioButton button = new RadioButton(timeView.getContext());
+            button.setText(time);
+            button.setTag(time);
+            button.setId(View.generateViewId());
+            if(time.equals(defaultTime)) {
+                button.setChecked(true);
+            }
+            timeView.addView(button);
+            button.setOnClickListener(v -> {
+                MHApi.Companion.getINSTANCE().category().time((String) v.getTag());
+                mHelper.refresh();
+            });
+        }
+
+        for (String category : categorys) {
+            RadioButton button = new RadioButton(categoryView.getContext());
+            button.setId(View.generateViewId());
+            button.setText(category);
+            button.setTag(category);
+            if(category.equals(defaultCategory)) {
+                button.setChecked(true);
+            }
+            categoryView.addView(button);
+            button.setOnClickListener(v -> {
+                MHApi.Companion.getINSTANCE().category().category((String) v.getTag());
+                mHelper.refresh();
+            });
+        }
+    }
     private boolean checkDoubleClickExit() {
         if (getStackIndex() != 0) {
             return false;
@@ -1386,6 +1409,8 @@ public final class GalleryListScene extends BaseScene
             setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.LEFT);
             setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.RIGHT);
         }
+
+        updateTopCategory();
     }
 
     @Override
@@ -1492,7 +1517,7 @@ public final class GalleryListScene extends BaseScene
                 request.setMethod(EhClient.METHOD_GET_GALLERY_LIST);
                 request.setCallback(new GetGalleryListListener(getContext(),
                         activity.getStageId(), getTag(), taskId));
-                request.setArgs(url, mUrlBuilder.getPageIndex(), topTime, topCategory);
+                request.setArgs(url, mUrlBuilder.getPageIndex());
                 mClient.execute(request);
             }
         }
@@ -1673,6 +1698,7 @@ public final class GalleryListScene extends BaseScene
             }
             item.setOnClickListener(v -> {
                 switchSource((MHApiSource) v.getTag());
+                updateTopCategory();
                 mHelper.refresh();
             });
         }

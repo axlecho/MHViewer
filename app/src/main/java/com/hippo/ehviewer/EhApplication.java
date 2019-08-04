@@ -144,6 +144,36 @@ public class EhApplication extends RecordingApplication {
         Image.initialize(this);
         A7Zip.loadLibrary(A7ZipExtractLite.LIBRARY, libname -> ReLinker.loadLibrary(EhApplication.this, libname));
         MHApi.Companion.setContext(new MHContext() {
+            @Override
+            public void saveTopTime(@NotNull String s, @NotNull MHApiSource mhApiSource) {
+                SharedPreferences spf = getSharedPreferences("MH", MODE_PRIVATE);
+                spf.edit().putString("top_time_" + mhApiSource.name(), s).apply();
+            }
+
+            @Override
+            public void saveTopCategory(@NotNull String s, @NotNull MHApiSource mhApiSource) {
+                SharedPreferences spf = getSharedPreferences("MH", MODE_PRIVATE);
+                spf.edit().putString("top_category_" + mhApiSource.name(), s).apply();
+            }
+
+            @NotNull
+            @Override
+            public String loadTopTime(@NotNull MHApiSource mhApiSource) {
+                SharedPreferences spf = getSharedPreferences("MH", MODE_PRIVATE);
+                if (spf == null) return "";
+                String ret = spf.getString("top_time_" + mhApiSource.name(), "");
+                return ret == null ? "" : ret;
+            }
+
+            @NotNull
+            @Override
+            public String loadTopCategory(@NotNull MHApiSource mhApiSource) {
+                SharedPreferences spf = getSharedPreferences("MH", MODE_PRIVATE);
+                if (spf == null) return "";
+                String ret = spf.getString("top_category_" + mhApiSource.name(), "");
+                return ret == null ? "" : ret;
+            }
+
             @NotNull
             @Override
             public String loadAuthorization() {
