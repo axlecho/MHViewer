@@ -19,7 +19,7 @@
     <dimen name="keyline_margin">16dp</dimen>
     <dimen name="single_max_width">260dp</dimen>
     <dimen name="drawer_max_width">280dp</dimen>
-
+    <dimen name="right_drawer_max_width">140dp</dimen>
     <dimen name="dialog_padding_top_material">18dp</dimen>
 
     <!-- Text size -->

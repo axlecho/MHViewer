@@ -97,6 +97,7 @@ import com.hippo.util.DrawableManager;
 import com.hippo.view.ViewTransition;
 import com.hippo.widget.ContentLayout;
 import com.hippo.widget.FabLayout;
+import com.hippo.widget.RadioGridGroup;
 import com.hippo.widget.SearchBarMover;
 import com.hippo.yorozuya.AnimationUtils;
 import com.hippo.yorozuya.AssertUtils;
@@ -839,8 +840,8 @@ public final class GalleryListScene extends BaseScene
         });
     }
 
-    private  RadioGroup timeView;
-    private RadioGroup categoryView;
+    private RadioGridGroup timeView;
+    private RadioGridGroup categoryView;
 
     @Override
     public View onCreateDrawerView(LayoutInflater inflater, @Nullable ViewGroup container,
@@ -850,25 +851,23 @@ public final class GalleryListScene extends BaseScene
 
         View view = inflater.inflate(R.layout.drawer_list, container, false);
         Toolbar toolbar = (Toolbar) ViewUtils.$$(view, R.id.toolbar);
-        this.timeView = (RadioGroup) ViewUtils.$$(view, R.id.draw_top_time);
-        this.categoryView = (RadioGroup) ViewUtils.$$(view, R.id.draw_top_category);
+        this.timeView = (RadioGridGroup) ViewUtils.$$(view, R.id.draw_top_time);
+        this.categoryView = (RadioGridGroup) ViewUtils.$$(view, R.id.draw_top_category);
 
         updateTopCategory();
 
         toolbar.setTitle(R.string.category_tip);
-        toolbar.inflateMenu(R.menu.drawer_gallery_list);
-        toolbar.setOnMenuItemClickListener(item -> true);
         return view;
     }
 
 
     private void updateTopCategory() {
-        if(timeView == null || categoryView == null) {
-            return ;
+        if (timeView == null || categoryView == null) {
+            return;
         }
         timeView.removeAllViews();
         categoryView.removeAllViews();
-        if( mUrlBuilder == null || mUrlBuilder.getMode() != MODE_WHATS_HOT) {
+        if (mUrlBuilder == null || mUrlBuilder.getMode() != MODE_WHATS_HOT) {
             return;
         }
 
@@ -879,11 +878,11 @@ public final class GalleryListScene extends BaseScene
         final String defaultCategory = MHApi.Companion.getINSTANCE().category().loadCategory();
 
         for (String time : times) {
-            RadioButton button = new RadioButton(timeView.getContext());
+            RadioButton button = (RadioButton) LayoutInflater.from(timeView.getContext()).inflate(R.layout.item_top_category, timeView, false);
             button.setText(time);
             button.setTag(time);
             button.setId(View.generateViewId());
-            if(time.equals(defaultTime)) {
+            if (time.equals(defaultTime)) {
                 button.setChecked(true);
             }
             timeView.addView(button);
@@ -894,11 +893,11 @@ public final class GalleryListScene extends BaseScene
         }
 
         for (String category : categorys) {
-            RadioButton button = new RadioButton(categoryView.getContext());
+            RadioButton button = (RadioButton) LayoutInflater.from(categoryView.getContext()).inflate(R.layout.item_top_category, timeView, false);
             button.setId(View.generateViewId());
             button.setText(category);
             button.setTag(category);
-            if(category.equals(defaultCategory)) {
+            if (category.equals(defaultCategory)) {
                 button.setChecked(true);
             }
             categoryView.addView(button);
@@ -908,6 +907,7 @@ public final class GalleryListScene extends BaseScene
             });
         }
     }
+
     private boolean checkDoubleClickExit() {
         if (getStackIndex() != 0) {
             return false;

@@ -64,7 +64,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_gravity="right"
-            android:maxWidth="@dimen/drawer_max_width"
+            android:maxWidth="@dimen/right_drawer_max_width"
             android:background="?android:attr/windowBackground"
             android:clickable="true"/>
 

@@ -111,6 +111,7 @@
     <color name="grey_150">#fff2f2f2</color>
     <color name="grey_125">#fff3f3f3</color>
     <color name="grey_100">#fff5f5f5</color>
+    <color name="gray_nav">#40dcdcdc</color>
     <color name="brown_500">#ff795548</color>
 
     <color name="colorPrimary">@color/teal_500</color>
