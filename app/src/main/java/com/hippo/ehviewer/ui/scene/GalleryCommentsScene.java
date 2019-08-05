@@ -789,4 +789,9 @@ public final class GalleryCommentsScene extends ToolbarScene
             return scene instanceof GalleryCommentsScene;
         }
     }
+
+
+    @Override
+    public void loadSource() {
+    }
 }
