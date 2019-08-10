@@ -798,6 +798,11 @@ public class EhDB {
             // Bookmarks
             // TODO
 
+            List<ReadingRecord> readingRecordList = session.getReadingRecordDao().queryBuilder().list();
+            for (ReadingRecord record : readingRecordList) {
+                putReadingRecord(record);
+            }
+
             // Filter
             List<Filter> filterList = session.getFilterDao().queryBuilder().list();
             List<Filter> currentFilterList = sDaoSession.getFilterDao().queryBuilder().list();
