@@ -89,7 +89,7 @@ class CheckUpdateService : Service() {
                             .take(1)
                             .map { item }
                             .flatMap {
-                                MHApi.INSTANCE.select(it.source).info(it.gid)
+                                MHApi.INSTANCE.get(it.source).info(it.gid)
                                         .onErrorResumeNext(Observable.just(buildErrorItem(it)))
                                         .subscribeOn(Schedulers.io())
                             }
