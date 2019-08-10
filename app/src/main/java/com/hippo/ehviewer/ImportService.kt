@@ -87,7 +87,7 @@ class ImportService : Service() {
 
     private fun startImport(source: MHApiSource, target: MHApiSource) {
         val uid = "axlecho"
-        MHApi.INSTANCE.select(source)
+        MHApi.INSTANCE.get(source)
         collectionHandle = MHApi.INSTANCE.getAllCollection(uid)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -108,7 +108,7 @@ class ImportService : Service() {
     }
 
     private fun switch(target: MHApiSource) {
-        MHApi.INSTANCE.select(target)
+        MHApi.INSTANCE.get(target)
         if (result.isEmpty()) {
             return
         }
