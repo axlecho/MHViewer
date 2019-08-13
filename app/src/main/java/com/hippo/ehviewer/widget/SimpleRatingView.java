@@ -100,7 +100,7 @@ public class SimpleRatingView extends View {
     public void setRating(float rating) {
         if (mRating != rating) {
             mRating = rating;
-            int ratingInt = MathUtils.clamp((int) Math.ceil(rating * 2), 0, 10);
+            int ratingInt = MathUtils.clamp((int) Math.ceil(rating), 0, 10);
             if (mRatingInt != ratingInt) {
                 mRatingInt = ratingInt;
                 invalidate();
