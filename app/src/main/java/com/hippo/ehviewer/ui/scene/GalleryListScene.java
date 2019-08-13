@@ -1071,7 +1071,7 @@ public final class GalleryListScene extends BaseScene
                 download = true;
                 break;
         }
-        boolean favourite = gi.favoriteSlot == -2;
+        boolean favourite = EhDB.containLocalFavorites(gi);
 
         CharSequence[] items = new CharSequence[]{
                 context.getString(R.string.read),
@@ -1090,17 +1090,15 @@ public final class GalleryListScene extends BaseScene
                             startActivity(intent);
                             break;
                         case 1: // Download
-                            if (download) {
-                                CommonOperations.startDownload(activity, gi, false);
-                            } else {
-                                mDownloadManager.stopDownload(gi.gid);
-                            }
+                            showTip(R.string.download_not_support, LENGTH_SHORT);
                             break;
                         case 2: // Favorites
                             if (favourite) {
-                                CommonOperations.addToFavorites(activity, gi, new AddToFavoriteListener(context, activity.getStageId(), getTag()));
+                                CommonOperations.addToFavorites(activity, gi);
+                                showTip(R.string.add_to_favorite_success, LENGTH_SHORT);
                             } else {
-                                CommonOperations.removeFromFavorites(activity, gi, new RemoveFromFavoriteListener(context, activity.getStageId(), getTag()));
+                                CommonOperations.removeFromFavorites(activity, gi);
+                                showTip(R.string.remove_from_favorite_success, LENGTH_SHORT);
                             }
                             break;
                     }
@@ -1613,58 +1611,6 @@ public final class GalleryListScene extends BaseScene
             if (scene != null) {
                 scene.onGetGalleryListFailure(e, mTaskId);
             }
-        }
-
-        @Override
-        public void onCancel() {
-        }
-
-        @Override
-        public boolean isInstance(SceneFragment scene) {
-            return scene instanceof GalleryListScene;
-        }
-    }
-
-    public static class AddToFavoriteListener extends EhCallback<GalleryListScene, Void> {
-
-        public AddToFavoriteListener(Context context, int stageId, String sceneTag) {
-            super(context, stageId, sceneTag);
-        }
-
-        @Override
-        public void onSuccess(Void result) {
-            showTip(R.string.add_to_favorite_success, LENGTH_SHORT);
-        }
-
-        @Override
-        public void onFailure(Exception e) {
-            showTip(R.string.add_to_favorite_failure, LENGTH_LONG);
-        }
-
-        @Override
-        public void onCancel() {
-        }
-
-        @Override
-        public boolean isInstance(SceneFragment scene) {
-            return scene instanceof GalleryListScene;
-        }
-    }
-
-    public static class RemoveFromFavoriteListener extends EhCallback<GalleryListScene, Void> {
-
-        public RemoveFromFavoriteListener(Context context, int stageId, String sceneTag) {
-            super(context, stageId, sceneTag);
-        }
-
-        @Override
-        public void onSuccess(Void result) {
-            showTip(R.string.remove_from_favorite_success, LENGTH_SHORT);
-        }
-
-        @Override
-        public void onFailure(Exception e) {
-            showTip(R.string.remove_from_favorite_failure, LENGTH_LONG);
         }
 
         @Override

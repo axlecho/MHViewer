@@ -295,6 +295,7 @@
     <string name="go_to">跳到</string>
 
     <!-- Download -->
+    <string name="download_not_support">下載未支持</string>
     <string name="scene_download_title">正在下載 - %s</string>
     <string name="no_download_info">下載的物件將會顯示在此</string>
     <string name="download_state_none">閒置中</string>

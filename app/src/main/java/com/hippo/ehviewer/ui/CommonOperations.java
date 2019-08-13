@@ -182,94 +182,13 @@ public final class CommonOperations {
         }
     }
 
-    private static void doAddToFavorites(Activity activity, GalleryInfo galleryInfo,
-                                         int slot, EhClient.Callback<Void> listener) {
-        if (slot == -1) {
-            EhDB.putLocalFavorites(galleryInfo);
-            listener.onSuccess(null);
-        } else if (slot >= 0 && slot <= 9) {
-            EhClient client = EhApplication.getEhClient(activity);
-            EhRequest request = new EhRequest();
-            request.setMethod(EhClient.METHOD_ADD_FAVORITES);
-            request.setArgs(galleryInfo.gid, galleryInfo.token, slot, "");
-            request.setCallback(listener);
-            client.execute(request);
-        } else {
-            listener.onFailure(new Exception()); // TODO Add text
-        }
+
+    public static void addToFavorites(final Activity activity, final GalleryInfo galleryInfo) {
+        EhDB.putLocalFavorites(galleryInfo);
     }
 
-    public static void addToFavorites(final Activity activity, final GalleryInfo galleryInfo,
-                                      final EhClient.Callback<Void> listener) {
-        int slot = -1;
-        String[] items = new String[11];
-        items[0] = activity.getString(R.string.local_favorites);
-        String[] favCat = Settings.getFavCat();
-        System.arraycopy(favCat, 0, items, 1, 10);
-        if (slot >= -1 && slot <= 9) {
-            String newFavoriteName = slot >= 0 ? items[slot + 1] : null;
-            doAddToFavorites(activity, galleryInfo, slot, new DelegateFavoriteCallback(listener, galleryInfo, newFavoriteName, slot));
-        } else {
-            new ListCheckBoxDialogBuilder(activity, items,
-                    (builder, dialog, position) -> {
-                        int slot1 = position - 1;
-                        String newFavoriteName = (slot1 >= 0 && slot1 <= 9) ? items[slot1 + 1] : null;
-                        doAddToFavorites(activity, galleryInfo, slot1, new DelegateFavoriteCallback(listener, galleryInfo, newFavoriteName, slot1));
-                        if (builder.isChecked()) {
-                            Settings.putDefaultFavSlot(slot1);
-                        } else {
-                            Settings.putDefaultFavSlot(Settings.INVALID_DEFAULT_FAV_SLOT);
-                        }
-                    }, activity.getString(R.string.remember_favorite_collection), false)
-                    .setTitle(R.string.add_favorites_dialog_title)
-                    .setOnCancelListener(dialog -> listener.onCancel())
-                    .show();
-        }
-    }
-
-    public static void removeFromFavorites(Activity activity, GalleryInfo galleryInfo,
-                                           final EhClient.Callback<Void> listener) {
+    public static void removeFromFavorites(Activity activity, GalleryInfo galleryInfo) {
         EhDB.removeLocalFavorites(galleryInfo);
-        EhClient client = EhApplication.getEhClient(activity);
-        EhRequest request = new EhRequest();
-        request.setMethod(EhClient.METHOD_ADD_FAVORITES);
-        request.setArgs(galleryInfo.gid, galleryInfo.token, -1, "");
-        request.setCallback(new DelegateFavoriteCallback(listener, galleryInfo, null, -2));
-        client.execute(request);
-    }
-
-    private static class DelegateFavoriteCallback implements EhClient.Callback<Void> {
-
-        private final EhClient.Callback<Void> delegate;
-        private final GalleryInfo info;
-        private final String newFavoriteName;
-        private final int slot;
-
-        DelegateFavoriteCallback(EhClient.Callback<Void> delegate, GalleryInfo info,
-                                 String newFavoriteName, int slot) {
-            this.delegate = delegate;
-            this.info = info;
-            this.newFavoriteName = newFavoriteName;
-            this.slot = slot;
-        }
-
-        @Override
-        public void onSuccess(Void result) {
-            info.favoriteName = newFavoriteName;
-            info.favoriteSlot = slot;
-            delegate.onSuccess(result);
-            EhApplication.getFavouriteStatusRouter().modifyFavourites(info.gid, slot);
-        }
-
-        @Override
-        public void onFailure(Exception e) {
-            delegate.onFailure(e);
-        }
-
-        @Override
-        public void onCancel() {
-            delegate.onCancel();
-        }
     }
 
     public static void startDownload(final MainActivity activity, final GalleryInfo galleryInfo, boolean forceDefault) {

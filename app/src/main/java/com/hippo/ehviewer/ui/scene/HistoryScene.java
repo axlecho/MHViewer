@@ -274,19 +274,15 @@ public class HistoryScene extends ToolbarScene
         final GalleryInfo gi = mLazyList.get(position);
         new AlertDialog.Builder(context)
                 .setTitle(EhUtils.getSuitableTitle(gi))
-                .setItems(R.array.gallery_list_menu_entries, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        switch (which) {
-                            case 0: // Download
-                                CommonOperations.startDownload(activity, gi, false);
-                                break;
-                            case 1: // Favorites
-                                CommonOperations.addToFavorites(activity, gi,
-                                        new addToFavoriteListener(context,
-                                                activity.getStageId(), getTag()));
-                                break;
-                        }
+                .setItems(R.array.gallery_list_menu_entries, (dialog, which) -> {
+                    switch (which) {
+                        case 0: // Download
+                            CommonOperations.startDownload(activity, gi, false);
+                            break;
+                        case 1: // Favorites
+                            CommonOperations.addToFavorites(activity, gi);
+                            showTip(R.string.add_to_favorite_success, LENGTH_SHORT);
+                            break;
                     }
                 }).show();
         return true;
@@ -435,31 +431,6 @@ public class HistoryScene extends ToolbarScene
             updateLazyList();
             mAdapter.notifyDataSetChanged();
             updateView(true);
-        }
-    }
-
-    private static class addToFavoriteListener extends EhCallback<HistoryScene, Void> {
-
-        public addToFavoriteListener(Context context, int stageId, String sceneTag) {
-            super(context, stageId, sceneTag);
-        }
-
-        @Override
-        public void onSuccess(Void result) {
-            showTip(R.string.add_to_favorite_success, LENGTH_SHORT);
-        }
-
-        @Override
-        public void onFailure(Exception e) {
-            showTip(R.string.add_to_favorite_failure, LENGTH_LONG);
-        }
-
-        @Override
-        public void onCancel() {}
-
-        @Override
-        public boolean isInstance(SceneFragment scene) {
-            return scene instanceof HistoryScene;
         }
     }
 }

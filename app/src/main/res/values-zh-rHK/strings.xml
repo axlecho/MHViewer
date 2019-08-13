@@ -296,6 +296,7 @@
     <string name="go_to">跳頁</string>
 
     <!-- Download -->
+    <string name="download_not_support">下載未支持</string>
     <string name="scene_download_title">下載 - %s</string>
     <string name="no_download_info">這裏是下載項目</string>
     <string name="download_state_none">未啟動</string>
