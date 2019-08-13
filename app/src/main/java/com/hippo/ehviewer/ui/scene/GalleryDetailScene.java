@@ -276,7 +276,7 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
 
     private static String getRatingText(float rating, Resources resources) {
         int resId;
-        switch (Math.round(rating * 2)) {
+        switch (Math.round(rating)) {
             case 0:
                 resId = R.string.rating0;
                 break;
@@ -957,7 +957,7 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
         mFavoredTimes.setText(resources.getString(R.string.favored_times, gd.favoriteCount));
 
         mRatingText.setText(getAllRatingText(gd.rating, gd.ratingCount));
-        mRating.setRating(gd.rating);
+        mRating.setRating(gd.rating / 2.0f);
 
         updateFavoriteDrawable();
 
