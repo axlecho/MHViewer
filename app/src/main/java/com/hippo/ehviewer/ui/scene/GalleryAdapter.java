@@ -213,7 +213,7 @@ abstract class GalleryAdapter extends RecyclerView.Adapter<GalleryHolder> {
                     category.setBackgroundColor(EhUtils.getCategoryColor(gi.category));
                 }
                 // TODO Mess word
-                if (EhUtils.getCategoryColor(gi.category)== EhUtils.BG_COLOR_UNKNOWN) {
+                if (EhUtils.getCategoryColor(gi.category) == EhUtils.BG_COLOR_UNKNOWN) {
                     category.setVisibility(View.INVISIBLE);
                 } else {
                     category.setVisibility(View.VISIBLE);
@@ -246,6 +246,13 @@ abstract class GalleryAdapter extends RecyclerView.Adapter<GalleryHolder> {
                 View category = holder.category;
                 Drawable drawable = category.getBackground();
                 int color = EhUtils.getCategoryColor(gi.category);
+
+                if (color == EhUtils.BG_COLOR_UNKNOWN) {
+                    category.setVisibility(View.INVISIBLE);
+                } else {
+                    category.setVisibility(View.VISIBLE);
+                }
+
                 if (!(drawable instanceof TriangleDrawable)) {
                     drawable = new TriangleDrawable(color);
                     category.setBackgroundDrawable(drawable);
@@ -253,6 +260,8 @@ abstract class GalleryAdapter extends RecyclerView.Adapter<GalleryHolder> {
                     ((TriangleDrawable) drawable).setColor(color);
                 }
                 holder.simpleLanguage.setText(gi.simpleLanguage);
+
+
                 break;
             }
         }
