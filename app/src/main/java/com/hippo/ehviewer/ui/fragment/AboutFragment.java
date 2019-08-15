@@ -28,6 +28,8 @@ import android.util.Base64;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
+
+import com.google.android.material.snackbar.Snackbar;
 import com.hippo.ehviewer.EhApplication;
 import com.hippo.ehviewer.R;
 import com.hippo.ehviewer.ui.CommonOperations;
@@ -47,14 +49,14 @@ public class AboutFragment extends PreferenceFragment
         addPreferencesFromResource(R.xml.about_settings);
 
         Preference author = findPreference(KEY_AUTHOR);
-        Preference donate = findPreference(KEY_DONATE);
-        Preference checkForUpdate = findPreference(KEY_CHECK_FOR_UPDATES);
+        // Preference donate = findPreference(KEY_DONATE);
+        // Preference checkForUpdate = findPreference(KEY_CHECK_FOR_UPDATES);
 
         author.setSummary(getString(R.string.settings_about_author_summary).replace('$', '@'));
 
         author.setOnPreferenceClickListener(this);
-        donate.setOnPreferenceClickListener(this);
-        checkForUpdate.setOnPreferenceClickListener(this);
+        // donate.setOnPreferenceClickListener(this);
+        // checkForUpdate.setOnPreferenceClickListener(this);
     }
 
     @Override
@@ -62,11 +64,12 @@ public class AboutFragment extends PreferenceFragment
         String key = preference.getKey();
         if (KEY_AUTHOR.equals(key)) {
             AppHelper.sendEmail(getActivity(), EhApplication.getDeveloperEmail(),
-                    "About EhViewer", null);
+                    "About MHViewer", null);
         } else if (KEY_DONATE.equals(key)) {
             showDonationDialog();
         } else if (KEY_CHECK_FOR_UPDATES.equals(key)) {
-            CommonOperations.checkUpdate(getActivity(), true);
+             CommonOperations.checkUpdate(getActivity(), true);
+            // Snackbar.make(this.getView(),R.string.download_not_support,Snackbar.LENGTH_SHORT).show();
         }
         return true;
     }

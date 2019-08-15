@@ -170,7 +170,7 @@ public class EhTagDatabase {
   }
 
   public static boolean isPossible(Context context) {
-    return getMetadata(context) != null;
+    return false;
   }
 
   @Nullable

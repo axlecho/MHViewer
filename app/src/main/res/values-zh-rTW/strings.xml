@@ -412,16 +412,11 @@
     <string name="settings_eh_identity_cookies_signed">身份 Cookie 可用於登入該帳號。&lt;br&gt;&lt;b&gt;請注意資料安全&lt;/b&gt;&lt;br&gt;&lt;br&gt;%s</string>
     <string name="settings_eh_identity_cookies_tourist">未登入</string>
     <string name="settings_eh_identity_cookies_copy">複製</string>
-    <string name="settings_u_config">EHentai 設定</string>
-    <string name="settings_u_config_summary">EHentai 網站上的設定</string>
-    <string name="settings_my_tags">我的標籤</string>
-    <string name="settings_my_tags_summary">EHentai 網站上的我的標籤</string>
     <string name="settings_eh_theme">主題</string>
     <string name="settings_eh_theme_light">亮色</string>
     <string name="settings_eh_theme_dark">暗色</string>
     <string name="settings_eh_theme_black">黑色</string>
     <string name="settings_eh_apply_nav_bar_theme_color">導航欄應用主題配色</string>
-    <string name="settings_eh_gallery_site">圖庫站台</string>
     <string name="settings_eh_launch_page">啟動頁</string>
     <string name="settings_eh_list_mode">列表模式</string>
     <string name="settings_eh_list_mode_detail">詳細資料</string>
@@ -433,26 +428,18 @@
     <string name="settings_eh_thumb_size_large">大</string>
     <string name="settings_eh_thumb_size_middle">中</string>
     <string name="settings_eh_thumb_size_small">小</string>
-    <string name="settings_eh_thumb_resolution">縮圖解析度</string>
-    <string name="settings_eh_thumb_resolution_summary">%s，指定解析度可能會使縮圖取得失敗</string>
-    <string name="settings_eh_thumb_resolution_auto">自動</string>
-    <string name="settings_eh_fix_thumb_url">修正縮圖連結</string>
     <string name="settings_eh_default_categories">顯示在首頁的分類</string>
     <string name="settings_eh_default_categories_summary">顯示在首頁的分類就跟預設一樣</string>
     <string name="settings_eh_excluded_tag_namespaces">除標籤命名空間</string>
     <string name="settings_eh_excluded_tag_namespaces_summary">在預設標籤搜尋中排除特定的標籤命名空間</string>
     <string name="settings_eh_excluded_languages">排除語言</string>
     <string name="settings_eh_excluded_languages_summary">在首頁與搜尋中隱藏指定語言的圖庫</string>
-    <string name="settings_eh_show_jpn_title">顯示日文標題</string>
-    <string name="settings_eh_show_jpn_title_summary">需同時在 EHentai 網站設定中啟用 Japanese Title</string>
     <string name="settings_eh_show_gallery_pages">顯示圖庫頁數</string>
     <string name="settings_eh_show_gallery_pages_summary">在圖庫列表中顯示頁數</string>
     <string name="settings_eh_show_tag_translations">顯示標籤翻譯</string>
     <string name="settings_eh_show_tag_translations_summary">顯示翻譯後的標籤而非原始文字（需花費時間來下載資料檔案）</string>
     <string name="settings_eh_tag_translations_source">補充翻譯（由 EhTagTranslator 提供）</string>
     <string name="settings_eh_tag_translations_source_url">https://github.com/Mapaler/EhTagTranslator/wiki</string>
-    <string name="settings_eh_filter">遮蔽圖庫</string>
-    <string name="settings_eh_filter_summary">根據標題、上傳者、標籤遮蔽圖庫</string>
     <string name="settings_eh_cellular_network_warning">行動數據警告</string>
 
     <string name="settings_read">閱讀</string>
@@ -552,7 +539,7 @@
     <string name="settings_advanced_import_data_successfully">成功將資料匯入</string>
 
     <string name="settings_about">關於</string>
-    <string name="settings_about_declaration_summary">EhViewer 與 E-Hentai.org 無任何聯繫</string>
+    <string name="settings_about_declaration_summary">這是壹個Android 平臺的第三方漫畫瀏覽器。</string>
     <string name="settings_about_author">作者</string>
     <string name="settings_about_latest_release">最新版本</string>
     <string name="settings_about_website">網站</string>
@@ -560,7 +547,7 @@
     <string name="settings_about_changelog">更新日誌</string>
     <string name="settings_about_help">說明</string>
     <string name="settings_about_license">授權</string>
-    <string name="settings_about_license_summary">EhViewer 的誕生離不開許多開源專案</string>
+    <string name="settings_about_license_summary">MHViewer 的誕生離不開許多開源專案</string>
     <string name="settings_about_donate">贊助</string>
     <string name="settings_about_donate_message">您的贊助將不會替您產生任何特權，但能夠幫助我能夠繼續維護這個程式。</string>
     <string name="settings_about_donate_alipay">支付寶</string>

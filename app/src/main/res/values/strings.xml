@@ -461,16 +461,11 @@
     <string name="settings_eh_identity_cookies_signed">Identity cookies can be used to sign in to this account.&lt;br&gt;&lt;b&gt;KEEP IT SAFE&lt;/b&gt;&lt;br&gt;&lt;br&gt;%s</string>
     <string name="settings_eh_identity_cookies_tourist">Not signed in.</string>
     <string name="settings_eh_identity_cookies_copy">Copy</string>
-    <string name="settings_u_config">EHentai settings</string>
-    <string name="settings_u_config_summary">Settings on EHentai website</string>
-    <string name="settings_my_tags">My tags</string>
-    <string name="settings_my_tags_summary">My tags on EHentai website</string>
     <string name="settings_eh_theme">Theme</string>
     <string name="settings_eh_theme_light">Light</string>
     <string name="settings_eh_theme_dark">Dark</string>
     <string name="settings_eh_theme_black">Black</string>
     <string name="settings_eh_apply_nav_bar_theme_color">Apply theme color to navigation bar</string>
-    <string name="settings_eh_gallery_site">Gallery site</string>
     <string name="settings_eh_launch_page">Launch page</string>
     <string name="settings_eh_list_mode">List mode</string>
     <string name="settings_eh_list_mode_detail">Detail</string>
@@ -482,26 +477,18 @@
     <string name="settings_eh_thumb_size_large">Large</string>
     <string name="settings_eh_thumb_size_middle">Middle</string>
     <string name="settings_eh_thumb_size_small">Small</string>
-    <string name="settings_eh_thumb_resolution">Thumb resolution</string>
-    <string name="settings_eh_thumb_resolution_summary">Currently %s. Certain resolutions might cause getting thumb failed</string>
-    <string name="settings_eh_thumb_resolution_auto">Auto</string>
-    <string name="settings_eh_fix_thumb_url">Fix thumb url</string>
     <string name="settings_eh_default_categories">Categories on Homepage</string>
     <string name="settings_eh_default_categories_summary">The categories shown as default on Homepage</string>
     <string name="settings_eh_excluded_languages">Excluded languages</string>
     <string name="settings_eh_excluded_languages_summary">Hide galleries in certain languages from the gallery list and searches</string>
     <string name="settings_eh_excluded_tag_namespaces">Excluded tag namespaces</string>
     <string name="settings_eh_excluded_tag_namespaces_summary">Exclude certain namespaces from a default tag search</string>
-    <string name="settings_eh_show_jpn_title">Show Japanese title</string>
-    <string name="settings_eh_show_jpn_title_summary">Require enabling Japanese Title in Settings on EHentai website</string>
     <string name="settings_eh_show_gallery_pages">Show gallery pages</string>
     <string name="settings_eh_show_gallery_pages_summary">Display the number of pages in the gallery list</string>
     <string name="settings_eh_show_tag_translations">Show tag translations</string>
     <string name="settings_eh_show_tag_translations_summary">Show tag translations instead of the original text (It takes time to download the data file)</string>
     <string name="settings_eh_tag_translations_source">Placeholder</string>
     <string name="settings_eh_tag_translations_source_url">https://placeholder</string>
-    <string name="settings_eh_filter">Block gallery</string>
-    <string name="settings_eh_filter_summary">Block gallery by title, uploader and tags</string>
     <string name="settings_eh_cellular_network_warning">Cellular network warning</string>
 
     <string name="settings_read">Read</string>
@@ -601,10 +588,10 @@
     <string name="settings_advanced_import_data_successfully">Data imported successfully</string>
 
     <string name="settings_about">About</string>
-    <string name="settings_about_declaration" translatable="false">EhViewer</string>
-    <string name="settings_about_declaration_summary">EhViewer is not affiliated with E-Hentai.org in any way</string>
+    <string name="settings_about_declaration" translatable="false">MHViewer</string>
+    <string name="settings_about_declaration_summary">MHViewer is a comic browser for Android.</string>
     <string name="settings_about_author">Author</string>
-    <string name="settings_about_author_summary" translatable="false">Hippo &lt;ehviewersu$gmail.com&gt;</string>
+    <string name="settings_about_author_summary" translatable="false">Axlecho &lt;axlecho$gmail.com&gt;</string>
     <string name="settings_about_telegram">Telegram</string>
     <string name="settings_about_latest_release">Latest release</string>
     <string name="settings_about_website">Website</string>
@@ -612,7 +599,7 @@
     <string name="settings_about_changelog">Changelog</string>
     <string name="settings_about_help">Help</string>
     <string name="settings_about_license">License</string>
-    <string name="settings_about_license_summary">EhViewer is made possible thanks to many open source projects</string>
+    <string name="settings_about_license_summary">MHViewer is made possible thanks to many open source projects</string>
     <string name="settings_about_donate">Donate</string>
     <string name="settings_about_donate_message">Your donation can not bring you any privileges. But it helps me maintain this app.</string>
     <string name="settings_about_donate_alipay">Alipay</string>

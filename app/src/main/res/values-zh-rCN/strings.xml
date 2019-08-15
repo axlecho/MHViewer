@@ -416,16 +416,11 @@
     <string name="settings_eh_identity_cookies_signed">身份 Cookie 可用于登录该账号。&lt;br&gt;&lt;b&gt;注意数据安全&lt;/b&gt;&lt;br&gt;&lt;br&gt;%s</string>
     <string name="settings_eh_identity_cookies_tourist">未登录</string>
     <string name="settings_eh_identity_cookies_copy">复制</string>
-    <string name="settings_u_config">EHentai 设置</string>
-    <string name="settings_u_config_summary">EHentai 网站上的设置</string>
-    <string name="settings_my_tags">我的标签</string>
-    <string name="settings_my_tags_summary">EHentai 网站上的我的标签</string>
     <string name="settings_eh_theme">主题</string>
     <string name="settings_eh_theme_light">亮色</string>
     <string name="settings_eh_theme_dark">暗色</string>
     <string name="settings_eh_theme_black">黑色</string>
     <string name="settings_eh_apply_nav_bar_theme_color">导航栏应用主题配色</string>
-    <string name="settings_eh_gallery_site">画廊站点</string>
     <string name="settings_eh_launch_page">启动页</string>
     <string name="settings_eh_list_mode">列表模式</string>
     <string name="settings_eh_list_mode_detail">详情</string>
@@ -437,26 +432,18 @@
     <string name="settings_eh_thumb_size_large">大</string>
     <string name="settings_eh_thumb_size_middle">中</string>
     <string name="settings_eh_thumb_size_small">小</string>
-    <string name="settings_eh_thumb_resolution">缩略图分辨率</string>
-    <string name="settings_eh_thumb_resolution_summary">%s，指定分辨率可能使获取缩略图失败</string>
-    <string name="settings_eh_thumb_resolution_auto">自动</string>
-    <string name="settings_eh_fix_thumb_url">修正缩略图链接</string>
     <string name="settings_eh_default_categories">主页分类显示</string>
     <string name="settings_eh_default_categories_summary">默认在主页所显示的分类</string>
     <string name="settings_eh_excluded_tag_namespaces">排除标签组</string>
     <string name="settings_eh_excluded_tag_namespaces_summary">在默认搜索中排除指定标签组</string>
     <string name="settings_eh_excluded_languages">排除语言</string>
     <string name="settings_eh_excluded_languages_summary">在主页与搜索中隐藏指定语言的画廊</string>
-    <string name="settings_eh_show_jpn_title">显示日文标题</string>
-    <string name="settings_eh_show_jpn_title_summary">需同时在 EHentai 网站设置中启用 Japanese Title</string>
     <string name="settings_eh_show_gallery_pages">显示画廊页数</string>
     <string name="settings_eh_show_gallery_pages_summary">在画廊列表中显示页数</string>
     <string name="settings_eh_show_tag_translations">显示标签翻译</string>
     <string name="settings_eh_show_tag_translations_summary">显示翻译后的标签而非原始文字（需花费时间来下载数据文件）</string>
     <string name="settings_eh_tag_translations_source">补充翻译（由 EhTagTranslator 提供）</string>
     <string name="settings_eh_tag_translations_source_url">https://github.com/Mapaler/EhTagTranslator/wiki</string>
-    <string name="settings_eh_filter">屏蔽画廊</string>
-    <string name="settings_eh_filter_summary">根据标题、上传者、标签屏蔽画廊</string>
     <string name="settings_eh_cellular_network_warning">移动网络警告</string>
 
     <string name="settings_read">阅读</string>
@@ -556,7 +543,7 @@
     <string name="settings_advanced_import_data_successfully">导入数据成功</string>
 
     <string name="settings_about">关于</string>
-    <string name="settings_about_declaration_summary">EhViewer 与 E-Hentai.org 无任何联系</string>
+    <string name="settings_about_declaration_summary">这是一个Android 平台的第三方漫画浏览器。</string>
     <string name="settings_about_author">作者</string>
     <string name="settings_about_latest_release">最新版本</string>
     <string name="settings_about_website">网站</string>
@@ -564,7 +551,7 @@
     <string name="settings_about_changelog">更新日志</string>
     <string name="settings_about_help">帮助</string>
     <string name="settings_about_license">开源许可</string>
-    <string name="settings_about_license_summary">EhViewer 的诞生离不开许多开源项目</string>
+    <string name="settings_about_license_summary">MHViewer 的诞生离不开许多开源项目</string>
     <string name="settings_about_donate">捐赠</string>
     <string name="settings_about_donate_message">你的捐赠不能为你带来特权，但能帮助我继续维护这个应用。</string>
     <string name="settings_about_donate_alipay">支付宝</string>

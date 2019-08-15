@@ -190,6 +190,7 @@ public class EhApplication extends RecordingApplication {
                 spf.edit().putString("auth", s).apply();
             }
         });
+
         if (EhDB.needMerge()) {
             EhDB.mergeOldDB(this);
         }
@@ -241,6 +242,11 @@ public class EhApplication extends RecordingApplication {
         if (DEBUG_PRINT_NATIVE_MEMORY || DEBUG_PRINT_IMAGE_COUNT) {
             debugPrint();
         }
+    }
+
+    public static void signOut(Context context) {
+        SharedPreferences spf = context.getSharedPreferences("MH", MODE_PRIVATE);
+        spf.edit().putString("auth", "").apply();
     }
 
     private void clearTempDir() {
@@ -459,7 +465,7 @@ public class EhApplication extends RecordingApplication {
 
     @NonNull
     public static String getDeveloperEmail() {
-        return "ehviewersu$gmail.com".replace('$', '@');
+        return "axlecho$gmail.com".replace('$', '@');
     }
 
     public void registerActivity(Activity activity) {

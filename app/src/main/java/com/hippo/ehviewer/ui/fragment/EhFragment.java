@@ -36,7 +36,7 @@ public class EhFragment extends PreferenceFragment
 
         Preference theme = findPreference(Settings.KEY_THEME);
         Preference applyNavBarThemeColor = findPreference(Settings.KEY_APPLY_NAV_BAR_THEME_COLOR);
-        Preference gallerySite = findPreference(Settings.KEY_GALLERY_SITE);
+
         Preference listMode = findPreference(Settings.KEY_LIST_MODE);
         Preference detailSize = findPreference(Settings.KEY_DETAIL_SIZE);
         Preference thumbSize = findPreference(Settings.KEY_THUMB_SIZE);
@@ -45,7 +45,6 @@ public class EhFragment extends PreferenceFragment
 
         theme.setOnPreferenceChangeListener(this);
         applyNavBarThemeColor.setOnPreferenceChangeListener(this);
-        gallerySite.setOnPreferenceChangeListener(this);
         listMode.setOnPreferenceChangeListener(this);
         detailSize.setOnPreferenceChangeListener(this);
         thumbSize.setOnPreferenceChangeListener(this);
@@ -69,9 +68,6 @@ public class EhFragment extends PreferenceFragment
             return true;
         } else if (Settings.KEY_APPLY_NAV_BAR_THEME_COLOR.equals(key)) {
             ((EhApplication) getActivity().getApplication()).recreate();
-            return true;
-        } else if (Settings.KEY_GALLERY_SITE.equals(key)) {
-            getActivity().setResult(Activity.RESULT_OK);
             return true;
         } else if (Settings.KEY_LIST_MODE.equals(key)) {
             getActivity().setResult(Activity.RESULT_OK);
