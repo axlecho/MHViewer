@@ -29,11 +29,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
+
 import com.h6ah4i.android.widget.advrecyclerview.animator.GeneralItemAnimator;
 import com.h6ah4i.android.widget.advrecyclerview.animator.SwipeDismissItemAnimator;
 import com.h6ah4i.android.widget.advrecyclerview.swipeable.RecyclerViewSwipeManager;
@@ -68,11 +70,12 @@ import com.hippo.widget.LoadImageView;
 import com.hippo.widget.recyclerview.AutoStaggeredGridLayoutManager;
 import com.hippo.yorozuya.AssertUtils;
 import com.hippo.yorozuya.ViewUtils;
+
 import de.greenrobot.dao.query.LazyList;
 
 public class HistoryScene extends ToolbarScene
         implements EasyRecyclerView.OnItemClickListener,
-        EasyRecyclerView.OnItemLongClickListener{
+        EasyRecyclerView.OnItemLongClickListener {
 
     /*---------------
      View life cycle
@@ -94,7 +97,7 @@ public class HistoryScene extends ToolbarScene
     @Nullable
     @Override
     public View onCreateView3(LayoutInflater inflater,
-            @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+                              @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.scene_history, container, false);
         View content = ViewUtils.$$(view, R.id.content);
         mRecyclerView = (EasyRecyclerView) ViewUtils.$$(content, R.id.recycler_view);
@@ -339,7 +342,7 @@ public class HistoryScene extends ToolbarScene
             if (null == mLazyList) {
                 return super.getItemId(position);
             } else {
-                return  position;
+                return position;
             }
         }
 
@@ -380,6 +383,9 @@ public class HistoryScene extends ToolbarScene
                 String gid = gi.gid;
                 ViewCompat.setTransitionName(holder.thumb, TransitionNameFactory.getThumbTransitionName(gid));
             }
+
+            holder.rating.setVisibility(View.INVISIBLE);
+            holder.category.setVisibility(View.INVISIBLE);
         }
 
         @Override
@@ -393,10 +399,12 @@ public class HistoryScene extends ToolbarScene
         }
 
         @Override
-        public void onSwipeItemStarted(HistoryHolder holder, int position) { }
+        public void onSwipeItemStarted(HistoryHolder holder, int position) {
+        }
 
         @Override
-        public void onSetSwipeBackground(HistoryHolder holder, int position, int type) {}
+        public void onSetSwipeBackground(HistoryHolder holder, int position, int type) {
+        }
 
         @Override
         public SwipeResultAction onSwipeItem(HistoryHolder holder, int position, int result) {
