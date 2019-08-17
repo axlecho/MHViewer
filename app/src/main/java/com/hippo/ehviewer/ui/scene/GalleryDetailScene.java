@@ -335,7 +335,6 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
             if (null != mGalleryInfo) {
                 EhDB.putHistoryInfo(mGalleryInfo);
                 currentSource = mGalleryInfo.source;
-                MHApi.Companion.getINSTANCE().select(mGalleryInfo.source);
             }
         } else if (ACTION_GID_TOKEN.equals(action)) {
             mGid = args.getString(KEY_GID);
@@ -351,7 +350,7 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
         } else if (mGalleryInfo != null) {
             gid = mGalleryInfo.gid;
         }
-        return MHApi.Companion.getINSTANCE().pageUrl(gid);
+        return MHApi.Companion.getINSTANCE().get(currentSource).pageUrl(gid);
     }
 
     // -1 for error
@@ -738,7 +737,7 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
         mRequestId = ((EhApplication) context.getApplicationContext()).putGlobalStuff(callback);
         EhRequest request = new EhRequest()
                 .setMethod(EhClient.METHOD_GET_GALLERY_DETAIL)
-                .setArgs(url)
+                .setArgs(url, currentSource)
                 .setCallback(callback);
         EhApplication.getEhClient(context).execute(request);
 
@@ -970,7 +969,6 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
                 item.setChecked(true);
             }
             item.setOnClickListener(v -> {
-                MHApi.Companion.getINSTANCE().select((MHApiSource) v.getTag());
                 switchSource();
             });
         }
@@ -1128,7 +1126,7 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
         request.setMethod(EhClient.METHOD_SEARCH);
         request.setCallback(new GetGalleryListListener(getContext(),
                 activity.getStageId(), getTag(), 0));
-        request.setArgs(mGalleryInfo.title, 0);
+        request.setArgs(mGalleryInfo.title, 0, currentSource);
         EhApplication.getEhClient(context).execute(request);
     }
 
@@ -1459,7 +1457,6 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
                 return;
             }
         }
-        MHApi.Companion.getINSTANCE().select(currentSource);
         showTip(GetText.getString(R.string.error_not_found), BaseScene.LENGTH_SHORT);
     }
 

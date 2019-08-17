@@ -19,6 +19,7 @@ package com.hippo.ehviewer.client;
 import android.content.Context;
 import android.os.AsyncTask;
 
+import com.axlecho.api.MHApiSource;
 import com.hippo.ehviewer.EhApplication;
 import com.hippo.ehviewer.client.exception.CancelledException;
 import com.hippo.util.ExceptionUtils;
@@ -145,11 +146,11 @@ public class EhClient {
                     case METHOD_SIGN_IN:
                         return EhEngine.signIn(this, mOkHttpClient, (String) params[0], (String) params[1], (String) params[2], (String) params[3]);
                     case METHOD_GET_GALLERY_LIST:
-                        return EhEngine.getGalleryList(this, mOkHttpClient, (String) params[0],(int) params[1]);
+                        return EhEngine.getGalleryList((String) params[0], (int) params[1], (MHApiSource) params[2]);
                     case METHOD_SEARCH:
-                        return EhEngine.search(this,mOkHttpClient,(String)params[0],(int) params[1]);
+                        return EhEngine.search((String) params[0], (int) params[1], (MHApiSource) params[2]);
                     case METHOD_GET_GALLERY_DETAIL:
-                        return EhEngine.getGalleryDetail(this, mOkHttpClient, (String) params[0]);
+                        return EhEngine.getGalleryDetail( (String) params[0],(MHApiSource)params[1]);
                     case METHOD_GET_PREVIEW_SET:
                         return EhEngine.getPreviewSet(this, mOkHttpClient, (String) params[0]);
                     case METHOD_GET_RATE_GALLERY:
@@ -159,7 +160,7 @@ public class EhClient {
                     case METHOD_GET_GALLERY_TOKEN:
                         return EhEngine.getGalleryToken(this, mOkHttpClient, (Long) params[0], (String) params[1], (Integer) params[2]);
                     case METHOD_GET_FAVORITES:
-                        return EhEngine.getFavorites(this, mOkHttpClient, (int) params[0]);
+                        return EhEngine.getFavorites((int) params[0]);
                     case METHOD_ADD_FAVORITES:
                         return EhEngine.addFavorites(this, mOkHttpClient, (Long) params[0], (String) params[1], (Integer) params[2], (String) params[3]);
                     case METHOD_ADD_FAVORITES_RANGE:

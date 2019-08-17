@@ -47,6 +47,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -89,6 +90,7 @@ import com.hippo.yorozuya.SimpleAnimatorListener;
 import com.hippo.yorozuya.StringUtils;
 import com.hippo.yorozuya.ViewUtils;
 import com.hippo.yorozuya.collect.IntList;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -184,7 +186,7 @@ public final class GalleryCommentsScene extends ToolbarScene
     @Nullable
     @Override
     public View onCreateView3(LayoutInflater inflater,
-            @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+                              @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.scene_gallery_comments, container, false);
         mRecyclerView = (EasyRecyclerView) ViewUtils.$$(view, R.id.recycler_view);
         TextView tip = (TextView) ViewUtils.$$(view, R.id.tip);
@@ -383,7 +385,7 @@ public final class GalleryCommentsScene extends ToolbarScene
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         if (which < 0 || which >= menuId.size()) {
-                           return;
+                            return;
                         }
                         int id = menuId.get(which);
                         switch (id) {
@@ -554,7 +556,7 @@ public final class GalleryCommentsScene extends ToolbarScene
 
     @Nullable
     private String getGalleryDetailUrl() {
-        return MHApi.Companion.getINSTANCE().pageUrl(mGid);
+        return MHApi.Companion.getINSTANCE().get(currentSource).pageUrl(mGid);
     }
 
     @Override
@@ -766,8 +768,8 @@ public final class GalleryCommentsScene extends ToolbarScene
         @Override
         public void onSuccess(VoteCommentParser.Result result) {
             showTip(result.expectVote > 0 ?
-                    (0 != result.vote ? R.string.vote_up_successfully : R.string.cancel_vote_up_successfully) :
-                    (0 != result.vote ? R.string.vote_down_successfully : R.string.cancel_vote_down_successfully),
+                            (0 != result.vote ? R.string.vote_up_successfully : R.string.cancel_vote_up_successfully) :
+                            (0 != result.vote ? R.string.vote_down_successfully : R.string.cancel_vote_down_successfully),
                     LENGTH_SHORT);
 
             GalleryCommentsScene scene = getScene();
@@ -782,7 +784,8 @@ public final class GalleryCommentsScene extends ToolbarScene
         }
 
         @Override
-        public void onCancel() {}
+        public void onCancel() {
+        }
 
         @Override
         public boolean isInstance(SceneFragment scene) {

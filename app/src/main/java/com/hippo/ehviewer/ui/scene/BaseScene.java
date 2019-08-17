@@ -288,7 +288,6 @@ public abstract class BaseScene extends SceneFragment {
 
     public void switchSource(MHApiSource source) {
         this.currentSource = source;
-        MHApi.Companion.getINSTANCE().select(currentSource);
         Context context = getContext();
         if(context == null) {
             return;
@@ -306,7 +305,6 @@ public abstract class BaseScene extends SceneFragment {
         }
         SharedPreferences spf = context.getSharedPreferences("SourceState",Context.MODE_PRIVATE);
         currentSource = MHApiSource.valueOf(spf.getString(this.getClass().getSimpleName(),MHApiSource.Bangumi.name()));
-        MHApi.Companion.getINSTANCE().select(currentSource);
     }
 
     @Override

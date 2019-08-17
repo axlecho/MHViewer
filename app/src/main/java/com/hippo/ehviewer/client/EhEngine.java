@@ -22,6 +22,7 @@ import android.util.Pair;
 
 import androidx.annotation.Nullable;
 
+import com.axlecho.api.MHApiSource;
 import com.axlecho.api.MHComicChapter;
 import com.axlecho.api.MHComicDetail;
 import com.axlecho.api.MHComicInfo;
@@ -181,64 +182,12 @@ public class EhEngine {
         }
     }
 
-    private static void fillGalleryList(@Nullable EhClient.Task task, OkHttpClient okHttpClient, List<GalleryInfo> list, String url, boolean filter) throws Throwable {
-        // Filter title and uploader
-        if (filter) {
-            for (int i = 0, n = list.size(); i < n; i++) {
-                GalleryInfo info = list.get(i);
-                if (!sEhFilter.filterTitle(info) || !sEhFilter.filterUploader(info)) {
-                    list.remove(i);
-                    i--;
-                    n--;
-                }
-            }
-        }
-
-        boolean hasTags = false;
-        boolean hasPages = false;
-        boolean hasRated = false;
-        for (GalleryInfo gi : list) {
-            if (gi.simpleTags != null) {
-                hasTags = true;
-            }
-            if (gi.pages != 0) {
-                hasPages = true;
-            }
-            if (gi.rated) {
-                hasRated = true;
-            }
-        }
-
-        boolean needApi = (filter && sEhFilter.needTags() && !hasTags) ||
-                (Settings.getShowGalleryPages() && !hasPages) ||
-                hasRated;
-        if (needApi) {
-            fillGalleryListByApi(task, okHttpClient, list, url);
-        }
-
-        // Filter tag
-        if (filter) {
-            for (int i = 0, n = list.size(); i < n; i++) {
-                GalleryInfo info = list.get(i);
-                if (!sEhFilter.filterTag(info) || !sEhFilter.filterTagNamespace(info)) {
-                    list.remove(i);
-                    i--;
-                    n--;
-                }
-            }
-        }
-
-        for (GalleryInfo info : list) {
-            info.thumb = EhUrl.getFixedPreviewThumbUrl(info.thumb);
-        }
-    }
-
-    public static GalleryListParser.Result getGalleryList(@Nullable EhClient.Task task, OkHttpClient okHttpClient, String type,int page) throws Throwable {
+    public static GalleryListParser.Result getGalleryList(String type, int page, MHApiSource source) {
         MHMutiItemResult<MHComicInfo> comics;
-        if(type.equals("top")) {
-            comics = MHApi.Companion.getINSTANCE().category().top(page).blockingFirst();
+        if (type.equals("top")) {
+            comics = MHApi.Companion.getINSTANCE().get(source).category().top(page).blockingFirst();
         } else {
-            comics = MHApi.Companion.getINSTANCE().recent(page).blockingFirst();
+            comics = MHApi.Companion.getINSTANCE().get(source).recent(page).blockingFirst();
         }
 
         GalleryListParser.Result result = new GalleryListParser.Result();
@@ -253,11 +202,10 @@ public class EhEngine {
         return result;
     }
 
-    public static GalleryListParser.Result search(@Nullable EhClient.Task task, OkHttpClient okHttpClient,
-                                                  String keyword,int page) {
+    public static GalleryListParser.Result search(String keyword, int page, MHApiSource source) {
         GalleryListParser.Result result = new GalleryListParser.Result();
 
-        MHMutiItemResult<MHComicInfo> comics = MHApi.Companion.getINSTANCE().search(keyword,page).blockingFirst();
+        MHMutiItemResult<MHComicInfo> comics = MHApi.Companion.getINSTANCE().get(source).search(keyword, page).blockingFirst();
         result.pages = comics.getPages();
         result.nextPage = comics.getCurrentPage() + 1;
         result.noWatchedTags = false;
@@ -268,6 +216,22 @@ public class EhEngine {
         result.galleryInfoList = list;
         return result;
     }
+
+
+    public static GalleryDetail getGalleryDetail(String gid, MHApiSource source) {
+        MHComicDetail info = MHApi.Companion.getINSTANCE().get(source).info(gid).blockingFirst();
+        GalleryDetail detail = new GalleryDetail(info);
+
+        List<GalleryChapterGroup> list = new ArrayList<>();
+        GalleryChapterGroup g = new GalleryChapterGroup("章节", new ArrayList<>());
+        for (MHComicChapter c : info.getChapters()) {
+            g.addChapter(new GalleryChapter(c.getTitle(), c.getUrl(), false));
+        }
+        list.add(g);
+        detail.chapters = list.toArray(new GalleryChapterGroup[list.size()]);
+        return detail;
+    }
+
 
     // At least, GalleryInfo contain valid gid and token
     public static List<GalleryInfo> fillGalleryListByApi(@Nullable EhClient.Task task, OkHttpClient okHttpClient,
@@ -328,25 +292,9 @@ public class EhEngine {
         }
     }
 
-    public static GalleryDetail getGalleryDetail(@Nullable EhClient.Task task, OkHttpClient okHttpClient,
-                                                 String gid) throws Throwable {
-        MHComicDetail info = MHApi.Companion.getINSTANCE().info(gid).blockingFirst();
-        GalleryDetail detail = new GalleryDetail(info);
-
-        List<GalleryChapterGroup> list = new ArrayList<>();
-        GalleryChapterGroup g = new GalleryChapterGroup("章节",new ArrayList<>());
-        for (MHComicChapter c : info.getChapters()) {
-            g.addChapter(new GalleryChapter(c.getTitle(),c.getUrl(),false));
-        }
-        list.add(g);
-        detail.chapters = list.toArray(new GalleryChapterGroup[list.size()]);
-        return detail;
-    }
-
-
     public static Pair<PreviewSet, Integer> getPreviewSet(
             @Nullable EhClient.Task task, OkHttpClient okHttpClient, String url) throws Throwable {
-        return new Pair<>(null,null);
+        return new Pair<>(null, null);
 
     }
 
@@ -398,15 +346,14 @@ public class EhEngine {
         }
     }
 
-    public static FavoritesParser.Result getFavorites(@Nullable EhClient.Task task, OkHttpClient okHttpClient,
-                                                      int page) throws Throwable {
+    public static FavoritesParser.Result getFavorites(int page) throws Throwable {
 
-        MHMutiItemResult<MHComicInfo>  comics = MHApi.Companion.getINSTANCE().collection("axlecho",page).blockingFirst();
+        MHMutiItemResult<MHComicInfo> comics = BangumiApi.Companion.getINSTANCE().collection("axlecho", page).blockingFirst();
         FavoritesParser.Result result = new FavoritesParser.Result();
         result.pages = comics.getPages();
         result.nextPage = comics.getCurrentPage() + 1;
         result.galleryInfoList = new ArrayList<>();
-        result.catArray = new String[]{"想读","1","2","3","4","5","6","7","8","9"};
+        result.catArray = new String[]{"想读", "1", "2", "3", "4", "5", "6", "7", "8", "9"};
         result.countArray = new int[10];
         result.countArray[0] = 53;
 
@@ -421,7 +368,7 @@ public class EhEngine {
      * @param note   max 250 characters
      */
     public static Void addFavorites(@Nullable EhClient.Task task, OkHttpClient okHttpClient,
-                                    long gid, String token, int dstCat, String note) throws Throwable   {
+                                    long gid, String token, int dstCat, String note) throws Throwable {
         String catStr;
         if (dstCat == -1) {
             catStr = "favdel";
@@ -489,7 +436,7 @@ public class EhEngine {
 
     public static Pair<String, Pair<String, String>[]> getArchiveList(@Nullable EhClient.Task task, OkHttpClient okHttpClient,
                                                                       String url, long gid, String token) throws Throwable {
-       return null;
+        return null;
     }
 
     public static Void downloadArchive(@Nullable EhClient.Task task, OkHttpClient okHttpClient,

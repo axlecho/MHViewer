@@ -871,11 +871,11 @@ public final class GalleryListScene extends BaseScene
             return;
         }
 
-        final Set<String> times = MHApi.Companion.getINSTANCE().category().getTimes();
-        final Set<String> categorys = MHApi.Companion.getINSTANCE().category().getCategorys();
+        final Set<String> times = MHApi.Companion.getINSTANCE().get(currentSource).category().getTimes();
+        final Set<String> categorys = MHApi.Companion.getINSTANCE().get(currentSource).category().getCategorys();
 
-        final String defaultTime = MHApi.Companion.getINSTANCE().category().loadTime();
-        final String defaultCategory = MHApi.Companion.getINSTANCE().category().loadCategory();
+        final String defaultTime = MHApi.Companion.getINSTANCE().get(currentSource).category().loadTime();
+        final String defaultCategory = MHApi.Companion.getINSTANCE().get(currentSource).category().loadCategory();
 
         for (String time : times) {
             RadioButton button = (RadioButton) LayoutInflater.from(timeView.getContext()).inflate(R.layout.item_top_category, timeView, false);
@@ -887,7 +887,7 @@ public final class GalleryListScene extends BaseScene
             }
             timeView.addView(button);
             button.setOnClickListener(v -> {
-                MHApi.Companion.getINSTANCE().category().time((String) v.getTag());
+                MHApi.Companion.getINSTANCE().get(currentSource).category().time((String) v.getTag());
                 mHelper.refresh();
             });
         }
@@ -902,7 +902,7 @@ public final class GalleryListScene extends BaseScene
             }
             categoryView.addView(button);
             button.setOnClickListener(v -> {
-                MHApi.Companion.getINSTANCE().category().category((String) v.getTag());
+                MHApi.Companion.getINSTANCE().get(currentSource).category().category((String) v.getTag());
                 mHelper.refresh();
             });
         }
@@ -1507,7 +1507,7 @@ public final class GalleryListScene extends BaseScene
                 request.setMethod(EhClient.METHOD_SEARCH);
                 request.setCallback(new GetGalleryListListener(getContext(),
                         activity.getStageId(), getTag(), taskId));
-                request.setArgs(url, mUrlBuilder.getPageIndex());
+                request.setArgs(url, mUrlBuilder.getPageIndex(),currentSource);
                 mClient.execute(request);
             } else {
                 String url = mUrlBuilder.build();
@@ -1515,7 +1515,7 @@ public final class GalleryListScene extends BaseScene
                 request.setMethod(EhClient.METHOD_GET_GALLERY_LIST);
                 request.setCallback(new GetGalleryListListener(getContext(),
                         activity.getStageId(), getTag(), taskId));
-                request.setArgs(url, mUrlBuilder.getPageIndex());
+                request.setArgs(url, mUrlBuilder.getPageIndex(),currentSource);
                 mClient.execute(request);
             }
         }

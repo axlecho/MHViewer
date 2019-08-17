@@ -31,7 +31,6 @@ import androidx.annotation.UiThread;
 
 import com.axlecho.api.MHApi;
 import com.axlecho.api.MHComicData;
-import com.axlecho.api.MHConstant;
 import com.hippo.beerbelly.SimpleDiskCache;
 import com.hippo.ehviewer.EhApplication;
 import com.hippo.ehviewer.GetText;
@@ -52,7 +51,6 @@ import com.hippo.yorozuya.IOUtils;
 import com.hippo.yorozuya.MathUtils;
 import com.hippo.yorozuya.OSUtils;
 import com.hippo.yorozuya.Utilities;
-import com.hippo.yorozuya.collect.SparseJLArray;
 import com.hippo.yorozuya.thread.PriorityThread;
 import com.hippo.yorozuya.thread.PriorityThreadFactory;
 
@@ -113,7 +111,7 @@ public final class SpiderQueen implements Runnable {
             "/509s.gif"
     };
 
-    private static final HashMap<String,SpiderQueen> sQueenMap = new HashMap<>();
+    private static final HashMap<String, SpiderQueen> sQueenMap = new HashMap<>();
 
     @NonNull
     private final OkHttpClient mHttpClient;
@@ -735,7 +733,7 @@ public final class SpiderQueen implements Runnable {
             spiderInfo.gid = mGalleryInfo.getCid();
             spiderInfo.token = mGalleryInfo.token;
 
-            data = MHApi.Companion.getINSTANCE().data(mGalleryInfo.gid, mGalleryInfo.cid).blockingFirst();
+            data = MHApi.Companion.getINSTANCE().get(mGalleryInfo.source).data(mGalleryInfo.gid, mGalleryInfo.cid).blockingFirst();
             spiderInfo.pages = data.getData().size();
             spiderInfo.pTokenMap = new SparseArray<>(spiderInfo.pages);
             if (DEBUG_LOG) {
@@ -935,13 +933,13 @@ public final class SpiderQueen implements Runnable {
             boolean interrupt = false;
 
             for (int i = 0; i < 5; i++) {
-                 String targetImageUrl = null;
+                String targetImageUrl = null;
                 pageUrl = data.getData().get(index);
                 if (DEBUG_LOG) {
                     Log.d(TAG, pageUrl);
                 }
                 try {
-                    targetImageUrl = MHApi.Companion.getINSTANCE().raw(pageUrl).blockingFirst();
+                    targetImageUrl = MHApi.Companion.getINSTANCE().get(mGalleryInfo.source).raw(pageUrl).blockingFirst();
                 } catch (Exception e) {
                     error = "Api failed";
                 }
@@ -962,8 +960,7 @@ public final class SpiderQueen implements Runnable {
                     }
 
                     Call call = mHttpClient.newCall(new EhRequestBuilder(targetImageUrl,
-                            MHApi.Companion.getINSTANCE().pageUrl(mGalleryInfo.gid) + mGalleryInfo.cid + ".html")
-
+                            MHApi.Companion.getINSTANCE().get(mGalleryInfo.source).pageUrl(mGalleryInfo.gid) + mGalleryInfo.cid + ".html")
                             .build());
 
                     Response response = call.execute();
