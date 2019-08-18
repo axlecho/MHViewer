@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2016 Hippo Seven
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -390,6 +389,9 @@
     <string name="invalid_host">無效的 host</string>
     <string name="invalid_ip">無效的 IP</string>
 
+    <!-- Plugins Activity -->
+    <string name="plugins">插件</string>
+
     <!-- Gallery Activity -->
     <string name="page_menu_title">第 %d 頁</string>
     <string name="page_menu_refresh">@string/refresh</string>
@@ -602,6 +604,7 @@
     <string name="proxy_invalid_port">無效的通訊埠</string>
 
     <string name="cant_get_data_dir">無法取得檔案資料夾</string>
+    <string name="cant_get_plugins_dir">無法取得插件資料夾</string>
     <string name="cant_find_any_data">找不到任何資料</string>
     <string name="cant_read_the_file">無法讀取檔案</string>
 
@@ -685,5 +688,7 @@
     <string name="settings_privacy_secure">不允許螢幕擷取</string>
     <string name="settings_privacy_secure_summary">啟用後，將無法對本程式進行螢幕擷取，同時，將不會在系統任務切換器中顯示該程式的預覽內容\n\n重新啟動本程式以套用此變更</string>
     <string name="favorite_name">收藏圖庫</string>
+    <string name="settings_advanced_custom_plugins_summary">导入自定义插件</string>
+    <string name="settings_advanced_custom_plugins_title">插件</string>
 
 </resources>

@@ -18,11 +18,14 @@ package com.hippo.ehviewer;
 
 import android.content.Context;
 import android.os.Environment;
+
 import androidx.annotation.Nullable;
+
 import com.hippo.ehviewer.client.exception.ParseException;
 import com.hippo.util.ReadableTime;
 import com.hippo.yorozuya.FileUtils;
 import com.hippo.yorozuya.IOUtils;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -39,6 +42,7 @@ public class AppConfig {
     private static final String LOGCAT = "logcat";
     private static final String DATA = "data";
     private static final String CRASH = "crash";
+    private static final String PLUGINS = "plugins";
 
     private static Context sContext;
 
@@ -106,6 +110,11 @@ public class AppConfig {
     @Nullable
     public static File getExternalDataDir() {
         return getDirInExternalAppDir(DATA);
+    }
+
+    @Nullable
+    public static File getExternalDataPlugins() {
+        return getDirInExternalAppDir(PLUGINS);
     }
 
     @Nullable

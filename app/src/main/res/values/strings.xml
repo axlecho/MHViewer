@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2016 Hippo Seven
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -198,7 +197,7 @@
     <string name="search_sp">Pages:</string>
     <string name="search_sp_to">to</string>
     <!-- A placeholder for other languages -->
-    <string name="search_sp_suffix"/>
+    <string name="search_sp_suffix" />
     <string name="search_sf">Disable default filters for:</string>
     <string name="search_sfl">Language</string>
     <string name="search_sfu">Uploader</string>
@@ -438,6 +437,10 @@
     <string name="invalid_host">Invalid host</string>
     <string name="invalid_ip">Invalid IP</string>
 
+    <!-- Plugins Activity -->
+    <string name="plugins">Plugins</string>
+    <string name="add_plugin_successful">Add plugins %s successful</string>
+
     <!-- Gallery Activity -->
     <string name="page_menu_title">Page %d</string>
     <string name="page_menu_refresh">@string/refresh</string>
@@ -576,6 +579,8 @@
     <string name="settings_advanced_built_in_hosts_summary">Apply the built-in host-to-IP mapping provided by the app.\nIt can be overridden by custom hosts.txt.</string>
     <string name="settings_advanced_custom_hosts_title">Custom hosts.txt</string>
     <string name="settings_advanced_custom_hosts_summary">Map hostnames to IP addresses.\nIt can override built-in hosts.txt.</string>
+    <string name="settings_advanced_custom_plugins_title">Plugins</string>
+    <string name="settings_advanced_custom_plugins_summary">Import custom plugins</string>
     <string name="settings_privacy_pattern_protection_title">Pattern protection</string>
     <string name="settings_privacy_pattern_protection_not_set">Pattern protection has not been set</string>
     <string name="settings_privacy_pattern_protection_set">Pattern protection has been set</string>
@@ -625,6 +630,7 @@
     <string name="proxy_invalid_port">Invalid port</string>
 
     <string name="cant_get_data_dir">Can\'t get data dir</string>
+    <string name="cant_get_plugins_dir">Can\'t get plugins dir</string>
     <string name="cant_find_any_data">Can\'t find any data</string>
     <string name="cant_read_the_file">Can\'t read the file</string>
 

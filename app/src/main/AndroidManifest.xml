@@ -180,6 +180,12 @@
           android:label="@string/hosts"/>
 
         <activity
+            android:name="com.hippo.ehviewer.ui.PluginsActivity"
+            android:configChanges="screenSize|uiMode"
+            android:theme="@style/AppTheme.Toolbar"
+            android:label="@string/plugins"/>
+
+        <activity
             android:name="com.hippo.ehviewer.shortcuts.ShortcutsActivity"
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
             android:excludeFromRecents="true"

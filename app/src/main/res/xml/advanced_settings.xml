@@ -76,9 +76,17 @@
     <com.hippo.preference.ActivityPreference
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:key="custom_hosts"
+        android:title="@string/settings_advanced_custom_plugins_title"
+        android:summary="@string/settings_advanced_custom_plugins_summary"
+        app:activity="com.hippo.ehviewer.ui.PluginsActivity"/>
+
+    <com.hippo.preference.ActivityPreference
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:key="custom_plugins"
         android:title="@string/settings_advanced_custom_hosts_title"
         android:summary="@string/settings_advanced_custom_hosts_summary"
         app:activity="com.hippo.ehviewer.ui.HostsActivity"/>
+
 
     <Preference
         android:key="export_data"

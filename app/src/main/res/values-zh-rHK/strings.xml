@@ -391,6 +391,10 @@
     <string name="invalid_host">無效的 host</string>
     <string name="invalid_ip">無效的 IP</string>
 
+    <!-- Plugins Activity -->
+    <string name="plugins">插件</string>
+
+
     <!-- Gallery Activity -->
     <string name="page_menu_title">第 %d 頁</string>
     <string name="page_menu_refresh">@string/refresh</string>
@@ -603,6 +607,7 @@
     <string name="proxy_invalid_port">無效的端口</string>
 
     <string name="cant_get_data_dir">無法獲取數據文件夾</string>
+    <string name="cant_get_plugins_dir">无法获取插件文件夹</string>
     <string name="cant_find_any_data">找不到任何數據</string>
     <string name="cant_read_the_file">無法讀取文件</string>
 
@@ -686,5 +691,7 @@
     <string name="settings_privacy_secure">不允許荧幕抓取</string>
     <string name="settings_privacy_secure_summary">啟用後，將不能截取該應用的螢幕截圖，同時，將不會在系統任務切換器中顯示該應用的內容預覽\n\n重新啟動應用以生效此更改</string>
     <string name="favorite_name">收藏畫廊</string>
+    <string name="settings_advanced_custom_plugins_summary">导入自定义插件</string>
+    <string name="settings_advanced_custom_plugins_title">插件</string>
 
 </resources>
