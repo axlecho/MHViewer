@@ -68,6 +68,7 @@ import com.hippo.yorozuya.SimpleHandler;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -144,6 +145,13 @@ public class EhApplication extends RecordingApplication {
         Image.initialize(this);
         A7Zip.loadLibrary(A7ZipExtractLite.LIBRARY, libname -> ReLinker.loadLibrary(EhApplication.this, libname));
         MHApi.Companion.setContext(new MHContext() {
+            @NotNull
+            @Override
+            public InputStream getResourceAsStream(@NotNull String s) {
+                int resId = getResources().getIdentifier(s, "raw", getPackageName());
+                return getResources().openRawResource(resId);
+            }
+
             @Override
             public void savePlugin(@NotNull String s, @NotNull String s1) {
                 SharedPreferences spf = getSharedPreferences("plugins", MODE_PRIVATE);
