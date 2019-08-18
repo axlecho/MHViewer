@@ -21,7 +21,6 @@ import android.os.Parcelable;
 
 import androidx.annotation.Nullable;
 
-import com.axlecho.api.MHApiSource;
 import com.axlecho.api.MHComicInfo;
 import com.hippo.ehviewer.dao.HistoryInfo;
 import com.hippo.ehviewer.dao.LocalFavoriteInfo;
@@ -48,15 +47,16 @@ public class GalleryInfo implements Parcelable {
     public int spanSize;
     public int spanIndex;
     public int spanGroupIndex;
-    public MHApiSource source;
+    public String source;
 
     public String getId() {
-        return gid + "@" + source.name();
+        return gid + "@" + source;
     }
 
     public String getCid() {
-        return gid + "-" + cid + "@" + source.name();
+        return gid + "-" + cid + "@" + source;
     }
+
     /**
      * language from title
      */
@@ -92,7 +92,7 @@ public class GalleryInfo implements Parcelable {
         dest.writeInt(this.spanGroupIndex);
         dest.writeInt(this.favoriteSlot);
         dest.writeString(this.favoriteName);
-        dest.writeInt(this.source.ordinal());
+        dest.writeString(this.source);
     }
 
     public GalleryInfo() {
@@ -113,7 +113,7 @@ public class GalleryInfo implements Parcelable {
     }
 
     public GalleryInfo(LocalFavoriteInfo info) {
-        this.source = MHApiSource.valueOf(info.getId().split("@")[1]);
+        this.source = info.getId().split("@")[1];
         this.title = info.title;
         this.rating = info.rating;
         this.category = info.category;
@@ -138,7 +138,7 @@ public class GalleryInfo implements Parcelable {
     }
 
     public GalleryInfo(HistoryInfo info) {
-        this.source = MHApiSource.valueOf(info.getId().split("@")[1]);
+        this.source = info.getId().split("@")[1];
         this.title = info.title;
         this.rating = info.rating;
         this.category = info.category;
@@ -183,7 +183,7 @@ public class GalleryInfo implements Parcelable {
         this.spanGroupIndex = in.readInt();
         this.favoriteSlot = in.readInt();
         this.favoriteName = in.readString();
-        this.source = MHApiSource.values()[in.readInt()];
+        this.source = in.readString();
     }
 
     public static final Parcelable.Creator<GalleryInfo> CREATOR = new Parcelable.Creator<GalleryInfo>() {

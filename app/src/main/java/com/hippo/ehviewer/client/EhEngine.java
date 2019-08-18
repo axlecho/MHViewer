@@ -22,30 +22,25 @@ import android.util.Pair;
 
 import androidx.annotation.Nullable;
 
-import com.axlecho.api.MHApiSource;
+import com.axlecho.api.MHApi;
 import com.axlecho.api.MHComicChapter;
 import com.axlecho.api.MHComicDetail;
 import com.axlecho.api.MHComicInfo;
 import com.axlecho.api.MHMutiItemResult;
 import com.axlecho.api.bangumi.BangumiApi;
-import com.axlecho.api.MHApi;
-import com.google.gson.Gson;
 import com.hippo.ehviewer.AppConfig;
-import com.hippo.ehviewer.EhDB;
 import com.hippo.ehviewer.GetText;
 import com.hippo.ehviewer.R;
 import com.hippo.ehviewer.Settings;
 import com.hippo.ehviewer.client.data.GalleryChapter;
+import com.hippo.ehviewer.client.data.GalleryChapterGroup;
 import com.hippo.ehviewer.client.data.GalleryComment;
 import com.hippo.ehviewer.client.data.GalleryDetail;
 import com.hippo.ehviewer.client.data.GalleryInfo;
-import com.hippo.ehviewer.client.data.GalleryChapterGroup;
 import com.hippo.ehviewer.client.data.PreviewSet;
 import com.hippo.ehviewer.client.exception.CancelledException;
 import com.hippo.ehviewer.client.exception.EhException;
-import com.hippo.ehviewer.client.exception.NoHAtHClientException;
 import com.hippo.ehviewer.client.exception.ParseException;
-import com.hippo.ehviewer.client.parser.ArchiveParser;
 import com.hippo.ehviewer.client.parser.FavoritesParser;
 import com.hippo.ehviewer.client.parser.ForumsParser;
 import com.hippo.ehviewer.client.parser.GalleryApiParser;
@@ -54,7 +49,6 @@ import com.hippo.ehviewer.client.parser.GalleryTokenApiParser;
 import com.hippo.ehviewer.client.parser.ProfileParser;
 import com.hippo.ehviewer.client.parser.RateGalleryParser;
 import com.hippo.ehviewer.client.parser.SignInParser;
-import com.hippo.ehviewer.client.parser.TorrentParser;
 import com.hippo.ehviewer.client.parser.VoteCommentParser;
 import com.hippo.network.StatusCodeException;
 import com.hippo.util.ExceptionUtils;
@@ -66,7 +60,6 @@ import org.json.JSONObject;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import okhttp3.Call;
@@ -182,7 +175,7 @@ public class EhEngine {
         }
     }
 
-    public static GalleryListParser.Result getGalleryList(String type, int page, MHApiSource source) {
+    public static GalleryListParser.Result getGalleryList(String type, int page, String source) {
         MHMutiItemResult<MHComicInfo> comics;
         if (type.equals("top")) {
             comics = MHApi.Companion.getINSTANCE().get(source).category().top(page).blockingFirst();
@@ -202,7 +195,7 @@ public class EhEngine {
         return result;
     }
 
-    public static GalleryListParser.Result search(String keyword, int page, MHApiSource source) {
+    public static GalleryListParser.Result search(String keyword, int page, String source) {
         GalleryListParser.Result result = new GalleryListParser.Result();
 
         MHMutiItemResult<MHComicInfo> comics = MHApi.Companion.getINSTANCE().get(source).search(keyword, page).blockingFirst();
@@ -218,7 +211,7 @@ public class EhEngine {
     }
 
 
-    public static GalleryDetail getGalleryDetail(String gid, MHApiSource source) {
+    public static GalleryDetail getGalleryDetail(String gid, String source) {
         MHComicDetail info = MHApi.Companion.getINSTANCE().get(source).info(gid).blockingFirst();
         GalleryDetail detail = new GalleryDetail(info);
 

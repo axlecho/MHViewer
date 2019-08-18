@@ -31,7 +31,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.os.Parcelable;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
@@ -56,7 +55,8 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.axlecho.api.MHApiSource;
+import com.axlecho.api.MHPlugin;
+import com.axlecho.api.MHPluginManager;
 import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.github.amlcurran.showcaseview.SimpleShowcaseEventListener;
 import com.github.amlcurran.showcaseview.targets.PointTarget;
@@ -396,7 +396,7 @@ public class FavoritesScene extends BaseScene implements
         if (favCat >= 0 && favCat < 10) {
             favCatName = mFavCatArray[favCat];
         } else if (favCat == FavListUrlBuilder.FAV_CAT_LOCAL) {
-            favCatName = getString(R.string.local_favorites) + currentSource.name();
+            favCatName = getString(R.string.local_favorites) + currentSource;
         } else {
             favCatName = getString(R.string.cloud_favorites);
         }
@@ -835,8 +835,8 @@ public class FavoritesScene extends BaseScene implements
             return;
         }
 
-        if (fab.getTag() instanceof MHApiSource) {
-            MHApiSource source = (MHApiSource) fab.getTag();
+        if (fab.getTag() instanceof String) {
+            String source = (String) fab.getTag();
             switchSource(source);
             mHelper.refresh();
         } else {
@@ -951,7 +951,7 @@ public class FavoritesScene extends BaseScene implements
         if (mHelper != null && mHelper.isCurrentTask(taskId)) {
             List<GalleryInfo> list;
             if (TextUtils.isEmpty(keyword)) {
-                list = EhDB.getLocalFavorites(currentSource.name());
+                list = EhDB.getLocalFavorites(currentSource);
             } else {
                 list = EhDB.searchLocalFavorites(keyword);
             }
@@ -1384,29 +1384,29 @@ public class FavoritesScene extends BaseScene implements
             return;
         }
 
-        for (MHApiSource source : MHApiSource.values()) {
+        for (MHPlugin source : MHPluginManager.Companion.getINSTANCE().plugins()) {
             RadioButton item = (RadioButton) inflater.inflate(R.layout.item_source_bar, parent, false);
-            item.setText(source.name().substring(0, 2));
-            item.setTag(source);
+            item.setText(source.getName().substring(0, 2));
+            item.setTag(source.getName());
             item.setId(View.generateViewId());
             parent.addView(item);
-            if (source == currentSource) {
+            if (source.getName().equals(currentSource)) {
                 item.setChecked(true);
             }
             item.setOnClickListener(v -> {
-                switchSource((MHApiSource) v.getTag());
+                switchSource((String) v.getTag());
                 mHelper.refresh();
             });
 
             item.setOnLongClickListener(v -> {
-                MHApiSource target = (MHApiSource) v.getTag();
+                String target = (String) v.getTag();
                 new AlertDialog.Builder(getContext2())
-                        .setTitle(getContext2().getResources().getString(R.string.import_collection, target.name(), currentSource.name()))
+                        .setTitle(getContext2().getResources().getString(R.string.import_collection, target, currentSource))
                         .setPositiveButton(android.R.string.ok, (dialog, which) -> {
                             Intent intent = new Intent(getActivity2(), ImportService.class);
                             intent.setAction(ImportService.Companion.getACTION_START());
-                            intent.putExtra(ImportService.Companion.getKEY_TARGET(), (Parcelable) target);
-                            intent.putExtra(ImportService.Companion.getKEY_SOURCE(), (Parcelable) currentSource);
+                            intent.putExtra(ImportService.Companion.getKEY_TARGET(), target);
+                            intent.putExtra(ImportService.Companion.getKEY_SOURCE(), currentSource);
                             intent.putExtra(ImportService.Companion.getKEY_LOCAL(), mUrlBuilder.getFavCat() == FavListUrlBuilder.FAV_CAT_LOCAL);
                             getContext2().startService(intent);
                         }).create().show();

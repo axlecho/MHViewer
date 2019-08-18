@@ -97,7 +97,7 @@ class CheckUpdateService : Service() {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
-                    Log.v(TAG, "${it.source.name}@${it.info.title}    ${it.updateTime}")
+                    Log.v(TAG, "${it.source}@${it.info.title}    ${it.updateTime}")
                     if (it.updateTime == -1L) {
                         sendNotification(it.info.posted, "${it.info.title} failed", favorites.size, current)
                     } else {

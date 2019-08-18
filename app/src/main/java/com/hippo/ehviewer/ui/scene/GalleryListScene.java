@@ -51,7 +51,8 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.axlecho.api.MHApi;
-import com.axlecho.api.MHApiSource;
+import com.axlecho.api.MHPlugin;
+import com.axlecho.api.MHPluginManager;
 import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.github.amlcurran.showcaseview.SimpleShowcaseEventListener;
 import com.github.amlcurran.showcaseview.targets.PointTarget;
@@ -1004,8 +1005,8 @@ public final class GalleryListScene extends BaseScene
             return;
         }
 
-        if (fab.getTag() instanceof MHApiSource) {
-            MHApiSource source = (MHApiSource) fab.getTag();
+        if (fab.getTag() instanceof String) {
+            String source = (String) fab.getTag();
             switchSource(source);
             mHelper.refresh();
         }
@@ -1507,7 +1508,7 @@ public final class GalleryListScene extends BaseScene
                 request.setMethod(EhClient.METHOD_SEARCH);
                 request.setCallback(new GetGalleryListListener(getContext(),
                         activity.getStageId(), getTag(), taskId));
-                request.setArgs(url, mUrlBuilder.getPageIndex(),currentSource);
+                request.setArgs(url, mUrlBuilder.getPageIndex(), currentSource);
                 mClient.execute(request);
             } else {
                 String url = mUrlBuilder.build();
@@ -1515,7 +1516,7 @@ public final class GalleryListScene extends BaseScene
                 request.setMethod(EhClient.METHOD_GET_GALLERY_LIST);
                 request.setCallback(new GetGalleryListListener(getContext(),
                         activity.getStageId(), getTag(), taskId));
-                request.setArgs(url, mUrlBuilder.getPageIndex(),currentSource);
+                request.setArgs(url, mUrlBuilder.getPageIndex(), currentSource);
                 mClient.execute(request);
             }
         }
@@ -1633,17 +1634,17 @@ public final class GalleryListScene extends BaseScene
             return;
         }
 
-        for (MHApiSource source : MHApiSource.values()) {
+        for (MHPlugin source : MHPluginManager.Companion.getINSTANCE().plugins()) {
             RadioButton item = (RadioButton) inflater.inflate(R.layout.item_source_bar, parent, false);
-            item.setText(source.name().substring(0, 2));
-            item.setTag(source);
+            item.setText(source.getName().substring(0, 2));
+            item.setTag(source.getName());
             item.setId(View.generateViewId());
             parent.addView(item);
-            if (source == currentSource) {
+            if (source.getName().equals(currentSource)) {
                 item.setChecked(true);
             }
             item.setOnClickListener(v -> {
-                switchSource((MHApiSource) v.getTag());
+                switchSource((String) v.getTag());
                 updateTopCategory();
                 mHelper.refresh();
             });

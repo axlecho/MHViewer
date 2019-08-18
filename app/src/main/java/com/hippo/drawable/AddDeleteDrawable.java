@@ -28,7 +28,6 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 
-import com.axlecho.api.MHApiSource;
 import com.hippo.ehviewer.R;
 import com.hippo.yorozuya.MathUtils;
 
@@ -55,12 +54,12 @@ public class AddDeleteDrawable extends Drawable {
     private float mProgress;
     private boolean mAutoUpdateMirror = false;
     private boolean mVerticalMirror = false;
-    private MHApiSource mSource;
+    private String mSource;
 
     /**
      * @param context used to get the configuration for the drawable from
      */
-    public AddDeleteDrawable(Context context, int color,MHApiSource source) {
+    public AddDeleteDrawable(Context context, int color, String source) {
         Resources resources = context.getResources();
 
         mSize = resources.getDimensionPixelSize(R.dimen.add_size);
@@ -94,7 +93,6 @@ public class AddDeleteDrawable extends Drawable {
         canvas.save();
         canvas.translate(bounds.centerX(), bounds.centerY());
         canvas.rotate(canvasRotate);
-
 
 
         canvas.drawPath(mPath, mPaint);
@@ -158,12 +156,12 @@ public class AddDeleteDrawable extends Drawable {
         invalidateSelf();
     }
 
-    public void setAdd(long duration, MHApiSource source) {
-        mSource =source;
+    public void setAdd(long duration, String source) {
+        mSource = source;
         setShape(false, duration);
     }
 
-    public void setSource(MHApiSource source) {
+    public void setSource(String source) {
         mSource = source;
         invalidateSelf();
     }
@@ -200,7 +198,7 @@ public class AddDeleteDrawable extends Drawable {
         }
         textSizeDirty = false;
 
-        String text = mSource.name().substring(0, 1);
+        String text = mSource.substring(0, 1);
         this.contentPercent = 1.0f;
         STANDARD_PAINT.getTextBounds(text, 0, text.length(), textBounds);
         int contentWidth = (int) (bounds.width() * contentPercent);
@@ -210,7 +208,7 @@ public class AddDeleteDrawable extends Drawable {
         float ratio = Math.min(widthRatio, heightRatio);
 
 
-        x = - bounds.centerX();
+        x = -bounds.centerX();
         y = bounds.centerY();
 
         float textSize = STANDARD_TEXT_SIZE * ratio;

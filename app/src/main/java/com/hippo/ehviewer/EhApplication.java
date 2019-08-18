@@ -35,8 +35,8 @@ import androidx.annotation.Nullable;
 import androidx.collection.LruCache;
 
 import com.axlecho.api.MHApi;
-import com.axlecho.api.MHApiSource;
 import com.axlecho.api.MHContext;
+import com.axlecho.api.MHPluginManager;
 import com.getkeepsafe.relinker.ReLinker;
 import com.hippo.a7zip.A7Zip;
 import com.hippo.a7zip.A7ZipExtractLite;
@@ -145,32 +145,55 @@ public class EhApplication extends RecordingApplication {
         A7Zip.loadLibrary(A7ZipExtractLite.LIBRARY, libname -> ReLinker.loadLibrary(EhApplication.this, libname));
         MHApi.Companion.setContext(new MHContext() {
             @Override
-            public void saveTopTime(@NotNull String s, @NotNull MHApiSource mhApiSource) {
-                SharedPreferences spf = getSharedPreferences("MH", MODE_PRIVATE);
-                spf.edit().putString("top_time_" + mhApiSource.name(), s).apply();
-            }
-
-            @Override
-            public void saveTopCategory(@NotNull String s, @NotNull MHApiSource mhApiSource) {
-                SharedPreferences spf = getSharedPreferences("MH", MODE_PRIVATE);
-                spf.edit().putString("top_category_" + mhApiSource.name(), s).apply();
+            public void savePlugin(@NotNull String s, @NotNull String s1) {
+                SharedPreferences spf = getSharedPreferences("plugins", MODE_PRIVATE);
+                spf.edit().putString(s, s1).apply();
             }
 
             @NotNull
             @Override
-            public String loadTopTime(@NotNull MHApiSource mhApiSource) {
+            public String loadPlugin(@NotNull String s) {
+                SharedPreferences spf = getSharedPreferences("plugins", MODE_PRIVATE);
+                if (spf == null) return "";
+                String ret = spf.getString(s, "");
+                if (ret == null) return "";
+                return ret;
+            }
+
+            @NotNull
+            @Override
+            public List<String> getPluginNames() {
+                SharedPreferences spf = getSharedPreferences("plugins", MODE_PRIVATE);
+                return new ArrayList<>(spf.getAll().keySet());
+            }
+
+            @Override
+            public void saveTopTime(@NotNull String s, @NotNull String mhApiSource) {
+                SharedPreferences spf = getSharedPreferences("MH", MODE_PRIVATE);
+                spf.edit().putString("top_time_" + mhApiSource, s).apply();
+            }
+
+            @Override
+            public void saveTopCategory(@NotNull String s, @NotNull String mhApiSource) {
+                SharedPreferences spf = getSharedPreferences("MH", MODE_PRIVATE);
+                spf.edit().putString("top_category_" + mhApiSource, s).apply();
+            }
+
+            @NotNull
+            @Override
+            public String loadTopTime(@NotNull String mhApiSource) {
                 SharedPreferences spf = getSharedPreferences("MH", MODE_PRIVATE);
                 if (spf == null) return "";
-                String ret = spf.getString("top_time_" + mhApiSource.name(), "");
+                String ret = spf.getString("top_time_" + mhApiSource, "");
                 return ret == null ? "" : ret;
             }
 
             @NotNull
             @Override
-            public String loadTopCategory(@NotNull MHApiSource mhApiSource) {
+            public String loadTopCategory(@NotNull String mhApiSource) {
                 SharedPreferences spf = getSharedPreferences("MH", MODE_PRIVATE);
                 if (spf == null) return "";
-                String ret = spf.getString("top_category_" + mhApiSource.name(), "");
+                String ret = spf.getString("top_category_" + mhApiSource, "");
                 return ret == null ? "" : ret;
             }
 
@@ -190,6 +213,7 @@ public class EhApplication extends RecordingApplication {
                 spf.edit().putString("auth", s).apply();
             }
         });
+        MHPluginManager.Companion.getINSTANCE().init();
 
         if (EhDB.needMerge()) {
             EhDB.mergeOldDB(this);

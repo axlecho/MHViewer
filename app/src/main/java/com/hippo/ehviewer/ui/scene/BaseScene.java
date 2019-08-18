@@ -27,6 +27,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -34,7 +35,6 @@ import androidx.annotation.StringRes;
 import androidx.annotation.StyleRes;
 import androidx.fragment.app.FragmentActivity;
 
-import com.axlecho.api.MHApi;
 import com.axlecho.api.MHApiSource;
 import com.hippo.drawerlayout.DrawerLayout;
 import com.hippo.ehviewer.Analytics;
@@ -48,8 +48,8 @@ public abstract class BaseScene extends SceneFragment {
     public static final int LENGTH_LONG = 1;
 
     public static final String KEY_DRAWER_VIEW_STATE =
-        "com.hippo.ehviewer.ui.scene.BaseScene:DRAWER_VIEW_STATE";
-    public MHApiSource currentSource;
+            "com.hippo.ehviewer.ui.scene.BaseScene:DRAWER_VIEW_STATE";
+    public String currentSource;
 
     private Context mThemeContext;
 
@@ -165,7 +165,7 @@ public abstract class BaseScene extends SceneFragment {
     }
 
     public final View createDrawerView(LayoutInflater inflater,
-        @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+                                       @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         drawerView = onCreateDrawerView(inflater, container, savedInstanceState);
 
         if (drawerView != null) {
@@ -182,7 +182,7 @@ public abstract class BaseScene extends SceneFragment {
     }
 
     public View onCreateDrawerView(LayoutInflater inflater,
-            @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+                                   @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return null;
     }
 
@@ -203,14 +203,14 @@ public abstract class BaseScene extends SceneFragment {
     @Nullable
     @Override
     public final View onCreateView(LayoutInflater inflater,
-            @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+                                   @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         loadSource();
         return onCreateView2(LayoutInflater.from(getContext2()), container, savedInstanceState);
     }
 
     @Nullable
     public View onCreateView2(LayoutInflater inflater,
-            @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+                              @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return null;
     }
 
@@ -286,25 +286,25 @@ public abstract class BaseScene extends SceneFragment {
         }
     }
 
-    public void switchSource(MHApiSource source) {
+    public void switchSource(String source) {
         this.currentSource = source;
         Context context = getContext();
-        if(context == null) {
+        if (context == null) {
             return;
         }
 
-        SharedPreferences spf = context.getSharedPreferences("SourceState",Context.MODE_PRIVATE);
-        spf.edit().putString(this.getClass().getSimpleName(),currentSource.name()).apply();
+        SharedPreferences spf = context.getSharedPreferences("SourceState", Context.MODE_PRIVATE);
+        spf.edit().putString(this.getClass().getSimpleName(), currentSource).apply();
         // TODO update ui
     }
 
     public void loadSource() {
         Context context = getContext();
-        if(context == null) {
+        if (context == null) {
             return;
         }
-        SharedPreferences spf = context.getSharedPreferences("SourceState",Context.MODE_PRIVATE);
-        currentSource = MHApiSource.valueOf(spf.getString(this.getClass().getSimpleName(),MHApiSource.Bangumi.name()));
+        SharedPreferences spf = context.getSharedPreferences("SourceState", Context.MODE_PRIVATE);
+        currentSource = spf.getString(this.getClass().getSimpleName(), MHApiSource.Bangumi);
     }
 
     @Override

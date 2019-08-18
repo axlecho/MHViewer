@@ -341,7 +341,7 @@ public class EhDaoGenerator {
         javaClass.addImport("android.os.Parcel");
         // Add from GalleryInfo constructor
         javaClass.addMethod("\tpublic HistoryInfo(GalleryInfo galleryInfo) {\n" +
-                "\t\tthis.source = MHApiSource.valueOf(galleryInfo.getId().split(\"@\")[1]);\n" +
+                "\t\tthis.source = galleryInfo.getId().split(\"@\")[1];\n" +
                 "\t\tthis.gid = galleryInfo.gid;\n" +
                 "\t\tthis.token = galleryInfo.token;\n" +
                 "\t\tthis.title = galleryInfo.title;\n" +

@@ -60,7 +60,8 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.transition.TransitionInflater;
 
 import com.axlecho.api.MHApi;
-import com.axlecho.api.MHApiSource;
+import com.axlecho.api.MHPlugin;
+import com.axlecho.api.MHPluginManager;
 import com.google.gson.Gson;
 import com.hippo.android.resource.AttrResources;
 import com.hippo.beerbelly.BeerBelly;
@@ -959,13 +960,13 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
             return;
         }
 
-        for (MHApiSource source : MHApiSource.values()) {
+        for (MHPlugin source : MHPluginManager.Companion.getINSTANCE().plugins()) {
             RadioButton item = (RadioButton) inflater.inflate(R.layout.item_source_bar, parent, false);
-            item.setText(source.name().substring(0, 2));
-            item.setTag(source);
+            item.setText(source.getName().substring(0, 2));
+            item.setTag(source.getName());
             item.setId(View.generateViewId());
             parent.addView(item);
-            if (source == currentSource) {
+            if (source.getName().equals(currentSource)) {
                 item.setChecked(true);
             }
             item.setOnClickListener(v -> {

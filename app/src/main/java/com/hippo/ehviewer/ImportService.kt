@@ -73,8 +73,8 @@ class ImportService : Service() {
 
         val action = intent.action
         if (ACTION_START == action) {
-            val source = intent.getParcelableExtra<MHApiSource>(KEY_SOURCE)
-            val target = intent.getParcelableExtra<MHApiSource>(KEY_TARGET)
+            val source = intent.getStringExtra(KEY_SOURCE)
+            val target = intent.getStringExtra(KEY_TARGET)
             val isLocal = intent.getBooleanExtra(KEY_LOCAL, false)
             result.clear()
             if (isLocal) {
@@ -85,7 +85,7 @@ class ImportService : Service() {
         }
     }
 
-    private fun startImport(source: MHApiSource, target: MHApiSource) {
+    private fun startImport(source: String, target: String) {
         val uid = "axlecho"
         MHApi.INSTANCE.get(source)
         collectionHandle = MHApi.INSTANCE.getAllCollection(uid)
@@ -99,15 +99,15 @@ class ImportService : Service() {
                 }
     }
 
-    private fun startImportLocal(source: MHApiSource, target: MHApiSource) {
-        val ret = EhDB.getLocalFavorites(source.name)
+    private fun startImportLocal(source: String, target: String) {
+        val ret = EhDB.getLocalFavorites(source)
         for (r in ret) {
             result.add(MHComicInfo(r.gid, r.title, "", "", -1, "", "", 0.0f, false, source))
         }
         switch(target)
     }
 
-    private fun switch(target: MHApiSource) {
+    private fun switch(target: String) {
         MHApi.INSTANCE.get(target)
         if (result.isEmpty()) {
             return
