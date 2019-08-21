@@ -1015,7 +1015,7 @@ public class FavoritesScene extends BaseScene implements
             mRecyclerView.outOfCustomChoiceMode();
 
             if (mUrlBuilder.getFavCat() == FavListUrlBuilder.FAV_CAT_LOCAL) { // Delete local fav
-                EhDB.removeLocalFavorites(mModifyGiList.toArray(new GalleryInfo[0]));
+                EhDB.removeLocalFavorites(mModifyGiList);
                 mModifyGiList.clear();
                 mHelper.refresh();
             } else { // Delete cloud fav
@@ -1054,7 +1054,7 @@ public class FavoritesScene extends BaseScene implements
             mRecyclerView.outOfCustomChoiceMode();
 
             if (srcCat == FavListUrlBuilder.FAV_CAT_LOCAL) { // Move from local to cloud
-                EhDB.removeLocalFavorites(mModifyGiList.toArray(new GalleryInfo[0]));
+                EhDB.removeLocalFavorites(mModifyGiList);
                 mEnableModify = true;
                 mModifyFavCat = dstCat;
                 mModifyAdd = true;

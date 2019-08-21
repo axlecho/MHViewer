@@ -526,7 +526,7 @@ public class EhDB {
         sDaoSession.getLocalFavoritesDao().deleteByKey(info.getId());
     }
 
-    public static synchronized void removeLocalFavorites(GalleryInfo[] infoArray) {
+    public static synchronized void removeLocalFavorites(List<GalleryInfo> infoArray) {
         LocalFavoritesDao dao = sDaoSession.getLocalFavoritesDao();
         for (GalleryInfo info : infoArray) {
             dao.deleteByKey(info.getId());
