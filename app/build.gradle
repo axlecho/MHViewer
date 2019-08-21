@@ -1,6 +1,8 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: "kotlin-kapt"
+
 
 if (file('google-services.json').exists()) {
     apply plugin: 'com.google.gms.google-services'
@@ -53,6 +55,10 @@ android {
             java.srcDirs += 'src/main/java-gen'
         }
     }
+
+    testOptions {
+        unitTests.includeAndroidResources = true
+    }
 }
 
 task copyNotice(type: Copy) {
@@ -69,11 +75,16 @@ clean {
     delete file('src/main/assets/NOTICE.html').absolutePath
 }
 
-configurations{
+configurations {
     all*.exclude group: 'com.github.seven332', module: 'image'
 }
 
 dependencies {
+    testImplementation  'androidx.test:core:1.2.0'
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'org.robolectric:robolectric:4.2.1'
+    testImplementation 'org.jooq:joor:0.9.6'
+
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation 'androidx.cardview:cardview:1.0.0'
@@ -119,13 +130,11 @@ dependencies {
     implementation 'com.orhanobut:logger:2.2.0'
     implementation 'org.jsoup:jsoup:1.10.3'
 
-    testImplementation 'junit:junit:4.12'
-    testImplementation 'org.robolectric:robolectric:4.2.1'
-    testImplementation 'org.jooq:joor:0.9.6'
-    implementation "androidx.core:core-ktx:+"
+    implementation "androidx.core:core-ktx:1.0.2"
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-
+    implementation 'androidx.room:room-runtime:2.1.0'
+    kapt  'androidx.room:room-compiler:2.1.0'
 }
 
 androidExtensions {

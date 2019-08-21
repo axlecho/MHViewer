@@ -142,8 +142,12 @@ public class EhApplication extends RecordingApplication {
         EhDB.initialize(this);
         EhEngine.initialize();
         BitmapUtils.initialize(this);
-        Image.initialize(this);
-        A7Zip.loadLibrary(A7ZipExtractLite.LIBRARY, libname -> ReLinker.loadLibrary(EhApplication.this, libname));
+        try {
+            Image.initialize(this);
+            A7Zip.loadLibrary(A7ZipExtractLite.LIBRARY, libname -> ReLinker.loadLibrary(EhApplication.this, libname));
+        } catch (Exception e) {
+
+        }
         MHApi.Companion.setContext(new MHContext() {
             @NotNull
             @Override
