@@ -36,11 +36,13 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog;
+
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.hippo.drawerlayout.DrawerLayout;
@@ -54,6 +56,7 @@ import com.hippo.ehviewer.client.EhUtils;
 import com.hippo.ehviewer.client.data.ListUrlBuilder;
 import com.hippo.ehviewer.client.parser.GalleryDetailUrlParser;
 import com.hippo.ehviewer.client.parser.GalleryPageUrlParser;
+import com.hippo.ehviewer.ui.mhscene.MHGalleryListScene;
 import com.hippo.ehviewer.ui.scene.AnalyticsScene;
 import com.hippo.ehviewer.ui.scene.BaseScene;
 import com.hippo.ehviewer.ui.scene.CookieSignInScene;
@@ -63,7 +66,6 @@ import com.hippo.ehviewer.ui.scene.FavoritesScene;
 import com.hippo.ehviewer.ui.scene.GalleryCommentsScene;
 import com.hippo.ehviewer.ui.scene.GalleryDetailScene;
 import com.hippo.ehviewer.ui.scene.GalleryInfoScene;
-import com.hippo.ehviewer.ui.scene.GalleryListScene;
 import com.hippo.ehviewer.ui.scene.GalleryPreviewsScene;
 import com.hippo.ehviewer.ui.scene.HistoryScene;
 import com.hippo.ehviewer.ui.scene.ProgressScene;
@@ -88,6 +90,7 @@ import com.hippo.yorozuya.IOUtils;
 import com.hippo.yorozuya.ResourcesUtils;
 import com.hippo.yorozuya.SimpleHandler;
 import com.hippo.yorozuya.ViewUtils;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -129,7 +132,7 @@ public final class MainActivity extends StageActivity
         registerLaunchMode(WebViewSignInScene.class, SceneFragment.LAUNCH_MODE_SINGLE_TASK);
         registerLaunchMode(CookieSignInScene.class, SceneFragment.LAUNCH_MODE_SINGLE_TASK);
         registerLaunchMode(SelectSiteScene.class, SceneFragment.LAUNCH_MODE_SINGLE_TASK);
-        registerLaunchMode(GalleryListScene.class, SceneFragment.LAUNCH_MODE_SINGLE_TOP);
+        registerLaunchMode(MHGalleryListScene.class, SceneFragment.LAUNCH_MODE_SINGLE_TOP);
         registerLaunchMode(QuickSearchScene.class, SceneFragment.LAUNCH_MODE_SINGLE_TASK);
         registerLaunchMode(GalleryDetailScene.class, SceneFragment.LAUNCH_MODE_STANDARD);
         registerLaunchMode(GalleryInfoScene.class, SceneFragment.LAUNCH_MODE_STANDARD);
@@ -175,8 +178,8 @@ public final class MainActivity extends StageActivity
             return new Announcer(SelectSiteScene.class);
         } else {
             Bundle args = new Bundle();
-            args.putString(GalleryListScene.KEY_ACTION, Settings.getLaunchPageGalleryListSceneAction());
-            return new Announcer(GalleryListScene.class).setArgs(args);
+            args.putString(MHGalleryListScene.Companion.getKEY_ACTION(), Settings.getLaunchPageGalleryListSceneAction());
+            return new Announcer(MHGalleryListScene.class).setArgs(args);
         }
     }
 
@@ -266,7 +269,7 @@ public final class MainActivity extends StageActivity
             if ("text/plain".equals(type)) {
                 ListUrlBuilder builder = new ListUrlBuilder();
                 builder.setKeyword(intent.getStringExtra(Intent.EXTRA_TEXT));
-                startScene(processAnnouncer(GalleryListScene.getStartAnnouncer(builder)));
+                startScene(processAnnouncer(MHGalleryListScene.Companion.getStartAnnouncer(builder)));
                 return true;
             } else if (type.startsWith("image/")) {
                 Uri uri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
@@ -279,7 +282,7 @@ public final class MainActivity extends StageActivity
                         builder.setImagePath(temp.getPath());
                         builder.setUseSimilarityScan(true);
                         builder.setShowExpunged(true);
-                        startScene(processAnnouncer(GalleryListScene.getStartAnnouncer(builder)));
+                        startScene(processAnnouncer(MHGalleryListScene.Companion.getStartAnnouncer(builder)));
                         return true;
                     }
                 }
@@ -309,8 +312,8 @@ public final class MainActivity extends StageActivity
                     finish();
                 } else {
                     Bundle args = new Bundle();
-                    args.putString(GalleryListScene.KEY_ACTION, Settings.getLaunchPageGalleryListSceneAction());
-                    startScene(processAnnouncer(new Announcer(GalleryListScene.class).setArgs(args)));
+                    args.putString(MHGalleryListScene.Companion.getKEY_ACTION(), Settings.getLaunchPageGalleryListSceneAction());
+                    startScene(processAnnouncer(new Announcer(MHGalleryListScene.class).setArgs(args)));
                 }
             }
         }
@@ -524,7 +527,7 @@ public final class MainActivity extends StageActivity
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
-            @NonNull String[] permissions, @NonNull int[] grantResults) {
+                                           @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == PERMISSION_REQUEST_WRITE_EXTERNAL_STORAGE) {
             if (grantResults.length == 1 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(this, R.string.you_rejected_me, Toast.LENGTH_SHORT).show();
@@ -692,18 +695,18 @@ public final class MainActivity extends StageActivity
 
         if (id == R.id.nav_homepage) {
             Bundle args = new Bundle();
-            args.putString(GalleryListScene.KEY_ACTION, GalleryListScene.ACTION_HOMEPAGE);
-            startSceneFirstly(new Announcer(GalleryListScene.class)
+            args.putString(MHGalleryListScene.Companion.getKEY_ACTION(), MHGalleryListScene.Companion.getKEY_ACTION());
+            startSceneFirstly(new Announcer(MHGalleryListScene.class)
                     .setArgs(args));
         } else if (id == R.id.nav_subscription) {
             Bundle args = new Bundle();
-            args.putString(GalleryListScene.KEY_ACTION, GalleryListScene.ACTION_SUBSCRIPTION);
-            startSceneFirstly(new Announcer(GalleryListScene.class)
+            args.putString(MHGalleryListScene.Companion.getKEY_ACTION(), MHGalleryListScene.Companion.getKEY_ACTION());
+            startSceneFirstly(new Announcer(MHGalleryListScene.class)
                     .setArgs(args));
         } else if (id == R.id.nav_whats_hot) {
             Bundle args = new Bundle();
-            args.putString(GalleryListScene.KEY_ACTION, GalleryListScene.ACTION_WHATS_HOT);
-            startSceneFirstly(new Announcer(GalleryListScene.class)
+            args.putString(MHGalleryListScene.Companion.getKEY_ACTION(), MHGalleryListScene.Companion.getKEY_ACTION());
+            startSceneFirstly(new Announcer(MHGalleryListScene.class)
                     .setArgs(args));
         } else if (id == R.id.nav_favourite) {
             startScene(new Announcer(FavoritesScene.class));
