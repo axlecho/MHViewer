@@ -40,8 +40,8 @@ class EhDB {
 
         }
 
-        fun searchLocalFavorites(info: String) {
-
+        fun searchLocalFavorites(info: String): List<GalleryInfo> {
+            return mutableListOf()
         }
     }
 }

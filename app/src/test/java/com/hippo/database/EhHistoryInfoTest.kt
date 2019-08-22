@@ -6,6 +6,7 @@ import com.hippo.ehviewer.client.data.GalleryInfo
 import com.hippo.ehviewer.client.database.EhDB
 import com.hippo.ehviewer.client.database.EhDatabase
 import org.junit.After
+import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -57,14 +58,31 @@ class EhHistoryInfoTest {
         // com.hippo.ehviewer.EhDB.searchLocalFavorites(keyword)
 
 
-        EhDB.getAllLocalFavorites()
-        EhDB.getLocalFavorites(source)
         EhDB.putLocalFavorites(a)
         EhDB.putLocalFavorites(list)
-        EhDB.containLocalFavorites(a)
+
+        var ret = EhDB.getAllLocalFavorites()
+        Assert.assertNotNull(ret)
+        Assert.assertNotEquals(0, ret.size)
+
+        ret = EhDB.searchLocalFavorites(keyword)
+
+        ret - EhDB.getLocalFavorites(source)
+        Assert.assertNotNull(ret)
+        Assert.assertNotEquals(0, ret.size)
+
+        var found = EhDB.containLocalFavorites(a)
+        Assert.assertTrue(found)
         EhDB.removeLocalFavorites(a)
+
+        found = EhDB.containLocalFavorites(a)
+        Assert.assertFalse(found)
+
         EhDB.removeLocalFavorites(list)
-        EhDB.searchLocalFavorites(keyword)
+
+        ret = EhDB.getAllLocalFavorites()
+        Assert.assertNotNull(ret)
+        Assert.assertEquals(0, ret.size)
 
 
     }
