@@ -1384,7 +1384,7 @@ public class FavoritesScene extends BaseScene implements
             return;
         }
 
-        for (MHPlugin source : MHPluginManager.Companion.getINSTANCE().plugins()) {
+        for (MHPlugin source : MHPluginManager.Companion.getINSTANCE().livePlugin()) {
             RadioButton item = (RadioButton) inflater.inflate(R.layout.item_source_bar, parent, false);
             item.setText(source.getName().substring(0, 2));
             item.setTag(source.getName());

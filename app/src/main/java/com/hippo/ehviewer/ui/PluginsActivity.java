@@ -28,6 +28,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -60,7 +61,7 @@ public class PluginsActivity extends ToolbarActivity
 
     private EasyRecyclerView recyclerView;
     private View tip;
-    private HostsAdapter adapter;
+    private PluginsAdapter adapter;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -73,7 +74,7 @@ public class PluginsActivity extends ToolbarActivity
         tip = findViewById(R.id.tip);
         FloatingActionButton fab = findViewById(R.id.fab);
 
-        adapter = new HostsAdapter();
+        adapter = new PluginsAdapter();
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL, false));
         LinearDividerItemDecoration decoration = new LinearDividerItemDecoration(
@@ -110,7 +111,6 @@ public class PluginsActivity extends ToolbarActivity
 
     @Override
     public boolean onItemClick(EasyRecyclerView easyRecyclerView, View view, int position, long id) {
-        MHPlugin pair = data.get(position);
         return true;
     }
 
@@ -129,30 +129,41 @@ public class PluginsActivity extends ToolbarActivity
     private class HostsHolder extends RecyclerView.ViewHolder {
 
         public final TextView host;
-        public final TextView ip;
-
+        public final Switch enable;
+        public final View view;
         public HostsHolder(View itemView) {
             super(itemView);
             host = itemView.findViewById(R.id.host);
-            ip = itemView.findViewById(R.id.ip);
+            enable = itemView.findViewById(R.id.enable);
+            view = itemView;
         }
     }
 
-    private class HostsAdapter extends RecyclerView.Adapter<HostsHolder> {
+    private class PluginsAdapter extends RecyclerView.Adapter<HostsHolder> {
 
         private final LayoutInflater inflater = getLayoutInflater();
 
         @NonNull
         @Override
         public HostsHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            return new HostsHolder(inflater.inflate(R.layout.item_hosts, parent, false));
+            return new HostsHolder(inflater.inflate(R.layout.item_plugin, parent, false));
         }
 
         @Override
         public void onBindViewHolder(@NonNull HostsHolder holder, int position) {
             MHPlugin plugin = data.get(position);
             holder.host.setText(plugin.getName());
-            holder.ip.setText(plugin.isEnable() ? "enable" : "disable");
+            holder.enable.setChecked(plugin.isEnable());
+            holder.enable.setOnClickListener((view) -> {
+                plugin.setEnable(!plugin.isEnable());
+                MHPluginManager.Companion.getINSTANCE().savePlugin(plugin);
+                notifyItemChanged(position);
+            });
+            holder.view.setOnClickListener((view) -> {
+                plugin.setEnable(!plugin.isEnable());
+                MHPluginManager.Companion.getINSTANCE().savePlugin(plugin);
+                notifyItemChanged(position);
+            });
         }
 
         @Override
