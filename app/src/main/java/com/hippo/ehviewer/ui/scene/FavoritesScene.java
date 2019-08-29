@@ -35,6 +35,7 @@ import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.style.ImageSpan;
+import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -55,6 +56,8 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.axlecho.api.MHApi;
+import com.axlecho.api.MHComicInfo;
 import com.axlecho.api.MHPlugin;
 import com.axlecho.api.MHPluginManager;
 import com.github.amlcurran.showcaseview.ShowcaseView;
@@ -102,6 +105,7 @@ import com.hippo.yorozuya.ObjectUtils;
 import com.hippo.yorozuya.SimpleAnimatorListener;
 import com.hippo.yorozuya.SimpleHandler;
 import com.hippo.yorozuya.ViewUtils;
+import com.orhanobut.logger.Logger;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -110,11 +114,16 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+
 // TODO Get favorite, modify favorite, add favorite, what a mess!
 public class FavoritesScene extends BaseScene implements
         EasyRecyclerView.OnItemClickListener, EasyRecyclerView.OnItemLongClickListener,
         FastScroller.OnDragHandlerListener, SearchBarMover.Helper, SearchBar.Helper,
-        FabLayout.OnClickFabListener, EasyRecyclerView.CustomChoiceListener, FabLayout.OnExpandListener, CheckUpdateService.UpdateListener {
+        FabLayout.OnClickFabListener, EasyRecyclerView.CustomChoiceListener, FabLayout.OnExpandListener, CheckUpdateService.UpdateListener, RefreshLayout.OnRefreshListener {
 
     private static final long ANIMATE_TIME = 300L;
 
@@ -313,7 +322,7 @@ public class FavoritesScene extends BaseScene implements
                 fastScroller.getPaddingRight(), fastScroller.getPaddingBottom());
 
         refreshLayout.setHeaderTranslationY(paddingTopSB);
-
+        refreshLayout.setOnRefreshListener(this);
         mLeftDrawable = new DrawerArrowDrawable(context, AttrResources.getAttrColor(context, R.attr.drawableColorPrimary));
         mSearchBar.setLeftDrawable(mLeftDrawable);
         mSearchBar.setRightDrawable(DrawableManager.getVectorDrawable(context, R.drawable.v_magnify_x24));
@@ -479,6 +488,45 @@ public class FavoritesScene extends BaseScene implements
 
         mOldFavCat = null;
         mOldKeyword = null;
+    }
+
+    @Override
+    public void onHeaderRefresh() {
+        Disposable disposable = MHApi.Companion.getINSTANCE().get(currentSource).recent(1)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(result -> {
+                    Log.d("checkupdate","info " + result.getDatas().size());
+
+                    for (MHComicInfo info : result.getDatas()) {
+                        Log.d("checkupdate","info " + info.getTitle() + " " + info.getGid() + " " + info.getPosted());
+
+                        if (!info.getPosted().isEmpty()) {
+                            Logger.d("checkupdate","info " + info.getTitle() + " " + info.getGid());
+                            ReadingRecord record = EhDB.getReadingRecord(info.getGid() + "@" + currentSource);
+                            if (record == null) {
+                                continue;
+                            }
+                            Log.d("checkupdate","record " + record.getId());
+
+                            try {
+                                long timeStamp = new SimpleDateFormat("yyyy-MM-dd", Locale.CHINA).parse(info.getPosted()).getTime();
+                                record.setUpdate_time(timeStamp);
+                                EhDB.putReadingRecord(record);
+                                Log.d("checkupdate","update " + info.getTitle() + " " + info.getPosted());
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+
+                    mHelper.refresh();
+                });
+    }
+
+    @Override
+    public void onFooterRefresh() {
+
     }
 
 
