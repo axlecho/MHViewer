@@ -14,8 +14,8 @@ android {
         applicationId "com.axlecho.mhviewer"
         minSdkVersion 21
         targetSdkVersion 28
-        versionCode 11
-        versionName "0.0.5-beta"
+        versionCode 12
+        versionName "0.0.5-beta2"
         vectorDrawables.useSupportLibrary = true
         resConfigs "zh", "zh-rCN", "zh-rHK", "zh-rTW",
                 "es", "ja", "ko", "fr", "de", "th"
