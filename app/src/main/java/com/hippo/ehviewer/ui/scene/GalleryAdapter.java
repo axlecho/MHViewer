@@ -238,6 +238,7 @@ abstract class GalleryAdapter extends RecyclerView.Adapter<GalleryHolder> {
                 }
                 holder.favourited.setVisibility((mShowFavourited && gi.favoriteSlot >= -1 && gi.favoriteSlot <= 10) ? View.VISIBLE : View.GONE);
                 holder.downloaded.setVisibility(mDownloadManager.containDownloadInfo(gi.gid) ? View.VISIBLE : View.GONE);
+                holder.source.setText(gi.source);
                 break;
             }
             case TYPE_GRID: {

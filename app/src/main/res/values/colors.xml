@@ -175,4 +175,6 @@
 
     <!--Shortcut background-->
     <color name="shortcut_bg">#F5F5F5</color>
+
+    <color name="gallery_item_source_bg">#10000000</color>
 </resources>

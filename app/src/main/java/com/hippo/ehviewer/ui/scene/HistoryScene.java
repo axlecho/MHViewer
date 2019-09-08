@@ -301,6 +301,7 @@ public class HistoryScene extends ToolbarScene
         public final TextView category;
         public final TextView posted;
         public final TextView simpleLanguage;
+        public final TextView source;
 
         public HistoryHolder(View itemView) {
             super(itemView);
@@ -313,6 +314,7 @@ public class HistoryScene extends ToolbarScene
             category = (TextView) itemView.findViewById(R.id.category);
             posted = (TextView) itemView.findViewById(R.id.posted);
             simpleLanguage = (TextView) itemView.findViewById(R.id.simple_language);
+            source = itemView.findViewById(R.id.source_bg);
         }
 
         @Override
@@ -386,6 +388,7 @@ public class HistoryScene extends ToolbarScene
 
             holder.rating.setVisibility(View.INVISIBLE);
             holder.category.setVisibility(View.INVISIBLE);
+            holder.source.setText(gi.source);
         }
 
         @Override
