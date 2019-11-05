@@ -13,7 +13,7 @@ import com.axlecho.api.MHComicDetail
 import com.axlecho.api.MHComicInfo
 import com.hippo.ehviewer.client.data.GalleryDetail
 import com.hippo.ehviewer.client.data.GalleryInfo
-import com.hippo.ehviewer.dao.ReadingRecord
+import com.hippo.ehviewer.persistence.ReadingRecord
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -110,13 +110,9 @@ class CheckUpdateService : Service() {
 
     private fun updateDatabase(item: MHComicDetail) {
         val detail = GalleryDetail(item)
-        var record = EhDB.getReadingRecord(detail.id)
-        if (record == null) {
-            record = ReadingRecord()
-        }
-        record.id = detail.id
-        record.update_time = detail.updateTime
+        val record = EhDB.getReadingRecord(detail.id) ?: ReadingRecord(detail.id, detail.updateTime)
 
+        record.update_time = detail.updateTime
         EhDB.putReadingRecord(record)
     }
 

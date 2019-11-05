@@ -43,15 +43,14 @@ import com.hippo.ehviewer.dao.LocalFavoriteInfo;
 import com.hippo.ehviewer.dao.LocalFavoritesDao;
 import com.hippo.ehviewer.dao.QuickSearch;
 import com.hippo.ehviewer.dao.QuickSearchDao;
-import com.hippo.ehviewer.dao.ReadingRecord;
-import com.hippo.ehviewer.dao.ReadingRecordDao;
 import com.hippo.ehviewer.download.DownloadManager;
+import com.hippo.ehviewer.persistence.MHDatabase;
+import com.hippo.ehviewer.persistence.ReadingRecord;
 import com.hippo.util.ExceptionUtils;
 import com.hippo.util.SqlUtils;
 import com.hippo.yorozuya.FileUtils;
 import com.hippo.yorozuya.IOUtils;
 import com.hippo.yorozuya.ObjectUtils;
-import com.hippo.yorozuya.collect.SparseJLArray;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -93,6 +92,8 @@ public class EhDB {
             upgradeDB(db, oldVersion);
         }
     }
+
+    private static Context sContext;
 
     private static void upgradeDB(SQLiteDatabase db, int oldVersion) {
         switch (oldVersion) {
@@ -163,6 +164,7 @@ public class EhDB {
         DaoMaster daoMaster = new DaoMaster(db);
 
         sDaoSession = daoMaster.newSession();
+        sContext = context.getApplicationContext();
     }
 
     public static boolean needMerge() {
@@ -648,17 +650,11 @@ public class EhDB {
     }
 
     public static synchronized ReadingRecord getReadingRecord(String id) {
-        ReadingRecordDao dao = sDaoSession.getReadingRecordDao();
-        return dao.load(id);
+        return MHDatabase.Companion.getInstance(sContext).readingRecord().load(id);
     }
 
     public static synchronized void putReadingRecord(ReadingRecord record) {
-        ReadingRecordDao dao = sDaoSession.getReadingRecordDao();
-        if (null == dao.load(record.getId())) {
-            dao.insert(record);
-        } else {
-            dao.update(record);
-        }
+        MHDatabase.Companion.getInstance(sContext).readingRecord().insert(record);
     }
 
 
@@ -719,10 +715,10 @@ public class EhDB {
                 putLocalFavorites(info);
             }
 
-            List<ReadingRecord> readingRecordList = session.getReadingRecordDao().queryBuilder().list();
-            for (ReadingRecord record : readingRecordList) {
-                putReadingRecord(record);
-            }
+//            List<ReadingRecord> readingRecordList = MHDatabase.Companion.getInstance(sContext).readingRecord().list();
+//            for (ReadingRecord record : readingRecordList) {
+//                putReadingRecord(record);
+//            }
 
             return null;
         } catch (Throwable e) {
@@ -798,10 +794,10 @@ public class EhDB {
             // Bookmarks
             // TODO
 
-            List<ReadingRecord> readingRecordList = session.getReadingRecordDao().queryBuilder().list();
-            for (ReadingRecord record : readingRecordList) {
-                putReadingRecord(record);
-            }
+//            List<ReadingRecord> readingRecordList = session.getReadingRecordDao().queryBuilder().list();
+//            for (ReadingRecord record : readingRecordList) {
+//                putReadingRecord(record);
+//            }
 
             // Filter
             List<Filter> filterList = session.getFilterDao().queryBuilder().list();

@@ -87,7 +87,7 @@ import com.hippo.ehviewer.client.exception.NoHAtHClientException;
 import com.hippo.ehviewer.client.parser.GalleryListParser;
 import com.hippo.ehviewer.client.parser.RateGalleryParser;
 import com.hippo.ehviewer.dao.DownloadInfo;
-import com.hippo.ehviewer.dao.ReadingRecord;
+import com.hippo.ehviewer.persistence.ReadingRecord;
 import com.hippo.ehviewer.ui.CommonOperations;
 import com.hippo.ehviewer.ui.GalleryActivity;
 import com.hippo.ehviewer.ui.MainActivity;
@@ -885,13 +885,8 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
 
         ReadingRecord record = EhDB.getReadingRecord(mGalleryDetail.getId());
         if (record == null) {
-            record = new ReadingRecord();
+            record = new ReadingRecord(mGalleryDetail.getId(), mGalleryDetail.updateTime, mGalleryDetail.updateTime, new Gson().toJson(mGalleryDetail.chapters));
         }
-
-        record.setId(mGalleryDetail.getId());
-        record.setUpdate_time(mGalleryDetail.updateTime);
-        record.setRead_time(mGalleryDetail.updateTime);
-        record.setChapter_info(new Gson().toJson(mGalleryDetail.chapters));
         EhDB.putReadingRecord(record);
         bindViewSecond();
     }
