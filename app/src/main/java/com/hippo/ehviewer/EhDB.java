@@ -17,16 +17,12 @@
 package com.hippo.ehviewer;
 
 import android.content.Context;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.hippo.ehviewer.client.data.GalleryInfo;
-import com.hippo.ehviewer.client.data.ListUrlBuilder;
 import com.hippo.ehviewer.dao.DaoMaster;
 import com.hippo.ehviewer.dao.DaoSession;
 import com.hippo.ehviewer.dao.DownloadDirname;
@@ -39,11 +35,10 @@ import com.hippo.ehviewer.dao.Filter;
 import com.hippo.ehviewer.dao.FilterDao;
 import com.hippo.ehviewer.dao.HistoryDao;
 import com.hippo.ehviewer.dao.HistoryInfo;
-import com.hippo.ehviewer.dao.LocalFavoriteInfo;
-import com.hippo.ehviewer.dao.LocalFavoritesDao;
 import com.hippo.ehviewer.dao.QuickSearch;
 import com.hippo.ehviewer.dao.QuickSearchDao;
 import com.hippo.ehviewer.download.DownloadManager;
+import com.hippo.ehviewer.persistence.LocalFavoriteInfo;
 import com.hippo.ehviewer.persistence.MHDatabase;
 import com.hippo.ehviewer.persistence.ReadingRecord;
 import com.hippo.util.ExceptionUtils;
@@ -59,7 +54,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import de.greenrobot.dao.query.LazyList;
@@ -72,19 +66,10 @@ public class EhDB {
 
     private static DaoSession sDaoSession;
 
-    private static boolean sHasOldDB;
-    private static boolean sNewDB;
-
     private static class DBOpenHelper extends DaoMaster.OpenHelper {
 
         public DBOpenHelper(Context context, String name, SQLiteDatabase.CursorFactory factory) {
             super(context, name, factory);
-        }
-
-        @Override
-        public void onCreate(SQLiteDatabase db) {
-            super.onCreate(db);
-            sNewDB = true;
         }
 
         @Override
@@ -130,35 +115,8 @@ public class EhDB {
         }
     }
 
-    private static class OldDBHelper extends SQLiteOpenHelper {
-
-        private static final String DB_NAME = "data";
-        private static final int VERSION = 4;
-
-        private static final String TABLE_GALLERY = "gallery";
-        private static final String TABLE_LOCAL_FAVOURITE = "local_favourite";
-        private static final String TABLE_TAG = "tag";
-        private static final String TABLE_DOWNLOAD = "download";
-        private static final String TABLE_HISTORY = "history";
-
-        public OldDBHelper(Context context) {
-            super(context, DB_NAME, null, VERSION);
-        }
-
-        @Override
-        public void onCreate(SQLiteDatabase db) {
-        }
-
-        @Override
-        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        }
-    }
-
     public static void initialize(Context context) {
-        sHasOldDB = context.getDatabasePath("data").exists();
-
-        DBOpenHelper helper = new DBOpenHelper(
-                context.getApplicationContext(), "eh.db", null);
+        DBOpenHelper helper = new DBOpenHelper(context.getApplicationContext(), "eh.db", null);
 
         SQLiteDatabase db = helper.getWritableDatabase();
         DaoMaster daoMaster = new DaoMaster(db);
@@ -167,204 +125,6 @@ public class EhDB {
         sContext = context.getApplicationContext();
     }
 
-    public static boolean needMerge() {
-        return sNewDB && sHasOldDB;
-    }
-
-    public static void mergeOldDB(Context context) {
-        sNewDB = false;
-
-        OldDBHelper oldDBHelper = new OldDBHelper(context);
-        SQLiteDatabase oldDB;
-        try {
-            oldDB = oldDBHelper.getReadableDatabase();
-        } catch (Throwable e) {
-            ExceptionUtils.throwIfFatal(e);
-            return;
-        }
-
-        // Get GalleryInfo list
-        HashMap<String, GalleryInfo> map = new HashMap<>();
-        try {
-            Cursor cursor = oldDB.rawQuery("select * from " + OldDBHelper.TABLE_GALLERY, null);
-            if (cursor != null) {
-                if (cursor.moveToFirst()) {
-                    while (!cursor.isAfterLast()) {
-                        GalleryInfo gi = new GalleryInfo();
-                        gi.gid = cursor.getString(0);
-                        gi.token = cursor.getString(1);
-                        gi.title = cursor.getString(2);
-                        gi.posted = cursor.getString(3);
-                        gi.category = cursor.getInt(4);
-                        gi.thumb = cursor.getString(5);
-                        gi.uploader = cursor.getString(6);
-                        try {
-                            // In 0.6.x version, NaN is stored
-                            gi.rating = cursor.getFloat(7);
-                        } catch (Throwable e) {
-                            ExceptionUtils.throwIfFatal(e);
-                            gi.rating = -1.0f;
-                        }
-
-                        map.put(gi.gid, gi);
-
-                        cursor.moveToNext();
-                    }
-                }
-                cursor.close();
-            }
-        } catch (Throwable e) {
-            ExceptionUtils.throwIfFatal(e);
-            // Ignore
-        }
-
-        // Merge local favorites
-        try {
-            Cursor cursor = oldDB.rawQuery("select * from " + OldDBHelper.TABLE_LOCAL_FAVOURITE, null);
-            if (cursor != null) {
-                LocalFavoritesDao dao = sDaoSession.getLocalFavoritesDao();
-                if (cursor.moveToFirst()) {
-                    long i = 0L;
-                    while (!cursor.isAfterLast()) {
-                        // Get GalleryInfo first
-                        long gid = cursor.getInt(0);
-                        GalleryInfo gi = map.get(gid);
-                        if (gi == null) {
-                            Log.e(TAG, "Can't get GalleryInfo with gid: " + gid);
-                            cursor.moveToNext();
-                            continue;
-                        }
-
-                        LocalFavoriteInfo info = new LocalFavoriteInfo(gi);
-                        info.setTime(i);
-                        dao.insert(info);
-                        cursor.moveToNext();
-                        i++;
-                    }
-                }
-                cursor.close();
-            }
-        } catch (Throwable e) {
-            ExceptionUtils.throwIfFatal(e);
-            // Ignore
-        }
-
-
-        // Merge quick search
-        try {
-            Cursor cursor = oldDB.rawQuery("select * from " + OldDBHelper.TABLE_TAG, null);
-            if (cursor != null) {
-                QuickSearchDao dao = sDaoSession.getQuickSearchDao();
-                if (cursor.moveToFirst()) {
-                    while (!cursor.isAfterLast()) {
-                        QuickSearch quickSearch = new QuickSearch();
-
-                        int mode = cursor.getInt(2);
-                        String search = cursor.getString(4);
-                        String tag = cursor.getString(7);
-                        if (mode == ListUrlBuilder.MODE_UPLOADER && search != null &&
-                                search.startsWith("uploader:")) {
-                            search = search.substring("uploader:".length());
-                        }
-
-                        quickSearch.setTime((long) cursor.getInt(0));
-                        quickSearch.setName(cursor.getString(1));
-                        quickSearch.setMode(mode);
-                        quickSearch.setCategory(cursor.getInt(3));
-                        quickSearch.setKeyword(mode == ListUrlBuilder.MODE_TAG ? tag : search);
-                        quickSearch.setAdvanceSearch(cursor.getInt(5));
-                        quickSearch.setMinRating(cursor.getInt(6));
-
-                        dao.insert(quickSearch);
-                        cursor.moveToNext();
-                    }
-                }
-                cursor.close();
-            }
-        } catch (Throwable e) {
-            ExceptionUtils.throwIfFatal(e);
-            // Ignore
-        }
-
-        // Merge download info
-        try {
-            Cursor cursor = oldDB.rawQuery("select * from " + OldDBHelper.TABLE_DOWNLOAD, null);
-            if (cursor != null) {
-                DownloadsDao dao = sDaoSession.getDownloadsDao();
-                if (cursor.moveToFirst()) {
-                    long i = 0L;
-                    while (!cursor.isAfterLast()) {
-                        // Get GalleryInfo first
-                        long gid = cursor.getInt(0);
-                        GalleryInfo gi = map.get(gid);
-                        if (gi == null) {
-                            Log.e(TAG, "Can't get GalleryInfo with gid: " + gid);
-                            cursor.moveToNext();
-                            continue;
-                        }
-
-                        DownloadInfo info = new DownloadInfo(gi);
-                        int state = cursor.getInt(2);
-                        int legacy = cursor.getInt(3);
-                        if (state == DownloadInfo.STATE_FINISH && legacy > 0) {
-                            state = DownloadInfo.STATE_FAILED;
-                        }
-                        info.setState(state);
-                        info.setLegacy(legacy);
-                        if (cursor.getColumnCount() == 5) {
-                            info.setTime(cursor.getLong(4));
-                        } else {
-                            info.setTime(i);
-                        }
-                        dao.insert(info);
-                        cursor.moveToNext();
-                        i++;
-                    }
-                }
-                cursor.close();
-            }
-        } catch (Throwable e) {
-            ExceptionUtils.throwIfFatal(e);
-            // Ignore
-        }
-
-        try {
-            // Merge history info
-            Cursor cursor = oldDB.rawQuery("select * from " + OldDBHelper.TABLE_HISTORY, null);
-            if (cursor != null) {
-                HistoryDao dao = sDaoSession.getHistoryDao();
-                if (cursor.moveToFirst()) {
-                    while (!cursor.isAfterLast()) {
-                        // Get GalleryInfo first
-                        long gid = cursor.getInt(0);
-                        GalleryInfo gi = map.get(gid);
-                        if (gi == null) {
-                            Log.e(TAG, "Can't get GalleryInfo with gid: " + gid);
-                            cursor.moveToNext();
-                            continue;
-                        }
-
-                        HistoryInfo info = new HistoryInfo(gi);
-                        info.setMode(cursor.getInt(1));
-                        info.setTime(cursor.getLong(2));
-                        dao.insert(info);
-                        cursor.moveToNext();
-                    }
-                }
-                cursor.close();
-            }
-        } catch (Throwable e) {
-            ExceptionUtils.throwIfFatal(e);
-            // Ignore
-        }
-
-        try {
-            oldDBHelper.close();
-        } catch (Throwable e) {
-            ExceptionUtils.throwIfFatal(e);
-            // Ignore
-        }
-    }
 
     public static synchronized List<DownloadInfo> getAllDownloadInfo() {
         DownloadsDao dao = sDaoSession.getDownloadsDao();
@@ -491,8 +251,7 @@ public class EhDB {
     }
 
     public static synchronized List<GalleryInfo> getAllLocalFavorites() {
-        LocalFavoritesDao dao = sDaoSession.getLocalFavoritesDao();
-        List<LocalFavoriteInfo> list = dao.queryBuilder().orderDesc(LocalFavoritesDao.Properties.Time).list();
+        List<LocalFavoriteInfo> list = MHDatabase.Companion.getInstance(sContext).favorite().list();
         List<GalleryInfo> result = new ArrayList<>();
         for (LocalFavoriteInfo info : list) {
             result.add(new GalleryInfo(info));
@@ -502,9 +261,7 @@ public class EhDB {
 
     public static synchronized List<GalleryInfo> getLocalFavorites(String source) {
         source = SqlUtils.sqlEscapeString("%" + "@" + source + "%");
-        LocalFavoritesDao dao = sDaoSession.getLocalFavoritesDao();
-        List<LocalFavoriteInfo> list = dao.queryBuilder().orderDesc(LocalFavoritesDao.Properties.Time)
-                .where(LocalFavoritesDao.Properties.Id.like(source)).list();
+        List<LocalFavoriteInfo> list = MHDatabase.Companion.getInstance(sContext).favorite().list(source);
         List<GalleryInfo> result = new ArrayList<>();
         for (LocalFavoriteInfo info : list) {
             result.add(new GalleryInfo(info));
@@ -514,9 +271,7 @@ public class EhDB {
 
     public static synchronized List<GalleryInfo> searchLocalFavorites(String query) {
         query = SqlUtils.sqlEscapeString("%" + query + "%");
-        LocalFavoritesDao dao = sDaoSession.getLocalFavoritesDao();
-        List<LocalFavoriteInfo> list = dao.queryBuilder().orderDesc(LocalFavoritesDao.Properties.Time)
-                .where(LocalFavoritesDao.Properties.Title.like(query)).list();
+        List<LocalFavoriteInfo> list = MHDatabase.Companion.getInstance(sContext).favorite().search(query);
         List<GalleryInfo> result = new ArrayList<>();
         for (LocalFavoriteInfo info : list) {
             result.add(new GalleryInfo(info));
@@ -525,28 +280,21 @@ public class EhDB {
     }
 
     public static synchronized void removeLocalFavorites(GalleryInfo info) {
-        sDaoSession.getLocalFavoritesDao().deleteByKey(info.getId());
+        MHDatabase.Companion.getInstance(sContext).favorite().delete(info.getId());
     }
 
     public static synchronized void removeLocalFavorites(GalleryInfo[] infoArray) {
-        LocalFavoritesDao dao = sDaoSession.getLocalFavoritesDao();
         for (GalleryInfo info : infoArray) {
-            dao.deleteByKey(info.getId());
+            MHDatabase.Companion.getInstance(sContext).favorite().delete(info.getId());
         }
     }
 
     public static synchronized boolean containLocalFavorites(GalleryInfo info) {
-        LocalFavoritesDao dao = sDaoSession.getLocalFavoritesDao();
-        return null != dao.load(info.getId());
+        return MHDatabase.Companion.getInstance(sContext).favorite().load(info.getId()) == null;
     }
 
     public static synchronized void putLocalFavorites(GalleryInfo galleryInfo) {
-        LocalFavoritesDao dao = sDaoSession.getLocalFavoritesDao();
-        if (null == dao.load(galleryInfo.getId())) {
-            dao.insert(new LocalFavoriteInfo(galleryInfo));
-        } else {
-            dao.update(new LocalFavoriteInfo(galleryInfo));
-        }
+        MHDatabase.Companion.getInstance(sContext).favorite().insert(new LocalFavoriteInfo(galleryInfo));
     }
 
     public static synchronized void putLocalFavorites(List<GalleryInfo> galleryInfoList) {
@@ -710,10 +458,10 @@ public class EhDB {
 
 
             // LocalFavorites
-            List<LocalFavoriteInfo> localFavoriteInfoList = session.getLocalFavoritesDao().queryBuilder().list();
-            for (LocalFavoriteInfo info : localFavoriteInfoList) {
-                putLocalFavorites(info);
-            }
+//            List<LocalFavoriteInfo> localFavoriteInfoList = session.getLocalFavoritesDao().queryBuilder().list();
+//            for (LocalFavoriteInfo info : localFavoriteInfoList) {
+//                putLocalFavorites(info);
+//            }
 
 //            List<ReadingRecord> readingRecordList = MHDatabase.Companion.getInstance(sContext).readingRecord().list();
 //            for (ReadingRecord record : readingRecordList) {
@@ -786,10 +534,10 @@ public class EhDB {
             }
 
             // LocalFavorites
-            List<LocalFavoriteInfo> localFavoriteInfoList = session.getLocalFavoritesDao().queryBuilder().list();
-            for (LocalFavoriteInfo info : localFavoriteInfoList) {
-                putLocalFavorites(info);
-            }
+//            List<LocalFavoriteInfo> localFavoriteInfoList = session.getLocalFavoritesDao().queryBuilder().list();
+//            for (LocalFavoriteInfo info : localFavoriteInfoList) {
+//                putLocalFavorites(info);
+//            }
 
             // Bookmarks
             // TODO

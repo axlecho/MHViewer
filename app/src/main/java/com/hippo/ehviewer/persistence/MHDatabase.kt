@@ -5,13 +5,14 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = arrayOf(ReadingRecord::class), version = 5)
+@Database(entities = arrayOf(ReadingRecord::class, LocalFavoriteInfo::class), version = 5)
 abstract class MHDatabase : RoomDatabase() {
 
     abstract fun readingRecord(): MHReadingRecordDao
 
-    companion object {
+    abstract fun favorite(): MHLocalFavoriteInfoDao
 
+    companion object {
         @Volatile
         private var INSTANCE: MHDatabase? = null
 

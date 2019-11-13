@@ -23,7 +23,7 @@ import androidx.annotation.Nullable;
 
 import com.axlecho.api.MHComicInfo;
 import com.hippo.ehviewer.dao.HistoryInfo;
-import com.hippo.ehviewer.dao.LocalFavoriteInfo;
+import com.hippo.ehviewer.persistence.LocalFavoriteInfo;
 
 public class GalleryInfo implements Parcelable {
     public String gid;
@@ -114,27 +114,27 @@ public class GalleryInfo implements Parcelable {
 
     public GalleryInfo(LocalFavoriteInfo info) {
         this.source = info.getId().split("@")[1];
-        this.title = info.title;
-        this.rating = info.rating;
-        this.category = info.category;
-        this.uploader = info.uploader;
-        this.titleJpn = info.titleJpn;
-        this.rated = info.rated;
-        this.posted = info.posted;
-        this.pages = info.pages;
-        this.thumb = info.thumb;
-        this.cid = info.cid;
-        this.gid = info.gid;
-        this.favoriteName = info.favoriteName;
-        this.favoriteSlot = info.favoriteSlot;
-        this.simpleLanguage = info.simpleLanguage;
-        this.simpleTags = info.simpleTags;
-        this.spanGroupIndex = info.spanGroupIndex;
-        this.spanIndex = info.spanIndex;
-        this.spanSize = info.spanSize;
-        this.thumbHeight = info.thumbHeight;
-        this.thumbWidth = info.thumbWidth;
-        this.token = info.token;
+        this.title = info.getTitle();
+        this.rating = info.getRating();
+        this.category = info.getCategory();
+        this.uploader = info.getUploader();
+        this.titleJpn = info.getTitleJpn();
+        this.rated = true;
+        this.posted = info.getPosted();
+        this.pages = 0;
+        this.thumb = info.getThumb();
+        this.cid = "";
+        this.gid = info.getGid();
+        this.favoriteName = "";
+        this.favoriteSlot = 0;
+        this.simpleLanguage = info.getSimpleLanguage();
+        this.simpleTags = null;
+        this.spanGroupIndex = 0;
+        this.spanIndex = 0;
+        this.spanSize = 0;
+        this.thumbHeight = 0;
+        this.thumbWidth = 0;
+        this.token = "";
     }
 
     public GalleryInfo(HistoryInfo info) {

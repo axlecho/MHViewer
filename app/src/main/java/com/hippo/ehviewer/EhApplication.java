@@ -223,10 +223,6 @@ public class EhApplication extends RecordingApplication {
         });
         MHPluginManager.Companion.getINSTANCE().init();
 
-        if (EhDB.needMerge()) {
-            EhDB.mergeOldDB(this);
-        }
-
         if (Settings.getEnableAnalytics()) {
             Analytics.start(this);
         }
