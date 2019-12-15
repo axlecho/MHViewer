@@ -114,7 +114,7 @@ class ImportService : Service() {
         }
 
         var current = 0
-        val error = MHComicInfo("-1", "", "", "", -1, "", "", 0.0f, false, MHApiSource.Hanhan);
+        val error = MHComicInfo("-1", "", "", "", -1, "", "", 0.0f, false, MHApiSource.UnKnown)
 
         importHandle = Observable.fromIterable(result)
                 .concatMap { item ->
