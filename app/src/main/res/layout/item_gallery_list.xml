@@ -27,13 +27,13 @@
 
         <TextView
             android:id="@+id/source_bg"
+            style="@style/CardSource"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
             android:padding="4dp"
-            android:textColor="@color/gallery_item_source_bg"
-            android:textSize="48sp"
+            android:textSize="32sp"
             tool:text="Manhuagui" />
 
         <com.hippo.ehviewer.widget.FixedThumb
