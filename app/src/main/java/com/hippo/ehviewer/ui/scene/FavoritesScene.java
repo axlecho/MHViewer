@@ -405,7 +405,7 @@ public class FavoritesScene extends BaseScene implements
         if (favCat >= 0 && favCat < 10) {
             favCatName = mFavCatArray[favCat];
         } else if (favCat == FavListUrlBuilder.FAV_CAT_LOCAL) {
-            favCatName = getString(R.string.local_favorites) + currentSource;
+            favCatName = getString(R.string.local_favorites) + " - " + currentSource;
         } else {
             favCatName = getString(R.string.cloud_favorites);
         }
@@ -1444,6 +1444,7 @@ public class FavoritesScene extends BaseScene implements
             item.setOnClickListener(v -> {
                 switchSource((String) v.getTag());
                 mHelper.refresh();
+                updateSearchBar();
             });
 
             item.setOnLongClickListener(v -> {
