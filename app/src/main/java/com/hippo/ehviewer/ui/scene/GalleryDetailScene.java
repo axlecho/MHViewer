@@ -43,8 +43,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.RatingBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -60,8 +58,6 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.transition.TransitionInflater;
 
 import com.axlecho.api.MHApi;
-import com.axlecho.api.MHPlugin;
-import com.axlecho.api.MHPluginManager;
 import com.google.gson.Gson;
 import com.hippo.android.resource.AttrResources;
 import com.hippo.beerbelly.BeerBelly;
@@ -163,6 +159,9 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
     @Nullable
     private TextView mTitle;
     @Nullable
+    private TextView mSource;
+
+    @Nullable
     private TextView mUploader;
     @Nullable
     private TextView mCategory;
@@ -244,8 +243,6 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
     private ViewTransition mViewTransition2;
     @Nullable
     private PopupMenu mPopupMenu;
-    @Nullable
-    private RadioGroup mSourceBar;
 
     @WholeLifeCircle
     private int mDownloadState;
@@ -482,8 +479,6 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
         mainView = (ScrollView) ViewUtils.$$(main, R.id.scroll_view);
         View progressView = ViewUtils.$$(main, R.id.progress_view);
         mTip = (TextView) ViewUtils.$$(main, R.id.tip);
-        mSourceBar = (RadioGroup) ViewUtils.$$(view, R.id.source_bar);
-        bindSource(mSourceBar);
 
         mViewTransition = new ViewTransition(mainView, progressView, mTip);
 
@@ -527,6 +522,7 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
         mColorBg = ViewUtils.$$(mHeader, R.id.color_bg);
         mThumb = (LoadImageView) ViewUtils.$$(mHeader, R.id.thumb);
         mTitle = (TextView) ViewUtils.$$(mHeader, R.id.title);
+        mSource = (TextView) ViewUtils.$$(mHeader, R.id.source);
         mUploader = (TextView) ViewUtils.$$(mHeader, R.id.uploader);
         mCategory = (TextView) ViewUtils.$$(mHeader, R.id.category);
         mOtherActions = (ImageView) ViewUtils.$$(mHeader, R.id.other_actions);
@@ -844,7 +840,7 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
         if (mGalleryDetail != null) {
             return;
         }
-        if (mThumb == null || mTitle == null || mUploader == null || mCategory == null) {
+        if (mThumb == null || mTitle == null || mUploader == null || mCategory == null || mSource == null) {
             return;
         }
 
@@ -852,6 +848,7 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
             GalleryInfo gi = mGalleryInfo;
             mThumb.load(EhCacheKeyFactory.getThumbKey(gi.gid), gi.thumb);
             mTitle.setText(EhUtils.getSuitableTitle(gi));
+            mSource.setText(gi.source);
             mUploader.setText(gi.uploader);
             mCategory.setText(EhUtils.getCategory(gi.category));
             mCategory.setTextColor(EhUtils.getCategoryColor(gi.category));
@@ -926,7 +923,8 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
         }
         if (mThumb == null || mTitle == null || mUploader == null || mCategory == null ||
                 mLanguage == null || mPages == null || mSize == null || mPosted == null ||
-                mFavoredTimes == null || mRatingText == null || mRating == null || mTorrent == null) {
+                mFavoredTimes == null || mRatingText == null || mRating == null || mTorrent == null
+                || mSource == null) {
             return;
         }
 
@@ -935,6 +933,7 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
 
         mThumb.load(EhCacheKeyFactory.getThumbKey(gd.gid), gd.thumb);
         mTitle.setText(EhUtils.getSuitableTitle(gd));
+        mSource.setText(gd.source);
         mUploader.setText(gd.uploader);
         mCategory.setText(EhUtils.getCategory(gd.category));
         mCategory.setTextColor(EhUtils.getCategoryColor(gd.category));
@@ -952,27 +951,6 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
         bindTags(gd.chapters);
         bindComments(gd.comments);
         // bindPreviews(gd);
-    }
-
-    private void bindSource(ViewGroup parent) {
-        LayoutInflater inflater = getLayoutInflater2();
-        if (inflater == null) {
-            return;
-        }
-
-        for (MHPlugin source : MHPluginManager.Companion.getINSTANCE().livePlugin()) {
-            RadioButton item = (RadioButton) inflater.inflate(R.layout.item_source_bar, parent, false);
-            item.setText(source.getName().substring(0, 2));
-            item.setTag(source.getName());
-            item.setId(View.generateViewId());
-            parent.addView(item);
-            if (source.getName().equals(currentSource)) {
-                item.setChecked(true);
-            }
-            item.setOnClickListener(v -> {
-                switchSource();
-            });
-        }
     }
 
     private void bindIntro(String intro) {
@@ -1114,21 +1092,6 @@ public class GalleryDetailScene extends BaseScene implements View.OnClickListene
                 return true;
             }
         });
-    }
-
-    private void switchSource() {
-        Context context = getContext2();
-        MainActivity activity = getActivity2();
-        if (null == context || null == activity || mGalleryInfo == null) {
-            return;
-        }
-
-        EhRequest request = new EhRequest();
-        request.setMethod(EhClient.METHOD_SEARCH);
-        request.setCallback(new GetGalleryListListener(getContext(),
-                activity.getStageId(), getTag(), 0));
-        request.setArgs(mGalleryInfo.title, 0, currentSource);
-        EhApplication.getEhClient(context).execute(request);
     }
 
     private void showSimilarGalleryList() {
