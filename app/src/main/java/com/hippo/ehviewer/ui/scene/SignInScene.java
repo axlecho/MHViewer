@@ -31,6 +31,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 
 import com.axlecho.api.MHApi;
+import com.axlecho.api.pica.PicaApi;
 import com.google.android.material.textfield.TextInputLayout;
 import com.hippo.ehviewer.R;
 import com.hippo.ehviewer.Settings;
@@ -191,7 +192,10 @@ public final class SignInScene extends SolidScene implements EditText.OnEditorAc
         hideSoftInput();
         showProgress(true);
 
-
+        handle = PicaApi.Companion.getINSTANCE().login(username, password)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(s -> redirectTo(), this::onSignInEnd);
     }
 
     private void redirectTo() {
