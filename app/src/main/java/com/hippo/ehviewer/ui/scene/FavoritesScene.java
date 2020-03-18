@@ -31,6 +31,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
@@ -64,6 +65,7 @@ import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.github.amlcurran.showcaseview.SimpleShowcaseEventListener;
 import com.github.amlcurran.showcaseview.targets.PointTarget;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.gson.Gson;
 import com.hippo.android.resource.AttrResources;
 import com.hippo.annotation.Implemented;
 import com.hippo.drawable.AddDeleteDrawable;
@@ -888,11 +890,13 @@ public class FavoritesScene extends BaseScene implements
             switchSource(source);
             mHelper.refresh();
         } else {
-            Intent intent = new Intent(getActivity2(), CheckUpdateService.class);
-            intent.setAction(CheckUpdateService.ACTION_START);
+            // Intent intent = new Intent(getActivity2(), CheckUpdateService.class);
+            // intent.setAction(CheckUpdateService.ACTION_START);
             // context.bindService()
-            context.startService(intent);
-            showTip(R.string.check_update_start, BaseScene.LENGTH_SHORT);
+            // context.startService(intent);
+            // showTip(R.string.check_update_start, BaseScene.LENGTH_SHORT);
+
+            clearUpdate();
         }
         view.setExpanded(false);
         updateSearchBar();
@@ -1462,5 +1466,20 @@ public class FavoritesScene extends BaseScene implements
                 return true;
             });
         }
+    }
+
+    private void clearUpdate() {
+        List<GalleryInfo> infos = EhDB.getLocalFavorites(currentSource);
+        for(GalleryInfo info : infos) {
+            ReadingRecord record = EhDB.getReadingRecord(info.getId());
+            if (record == null) {
+                record = new ReadingRecord();
+            }
+
+            record.setId(info.getId());
+            record.setRead_time(System.currentTimeMillis());
+            EhDB.putReadingRecord(record);
+        }
+        mHelper.refresh();
     }
 }
